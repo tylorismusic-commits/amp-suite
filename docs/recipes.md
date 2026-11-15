@@ -1,8 +1,8 @@
 # Amp Suite — amp recipes
 
-**Status:** M0 scaffold. The engine currently uses a broad voicing scaffold;
-M1 replaces it with the Guitarix-derived stage/tone-stack/power-amp blocks.
-This file is the recipe spec the implementation must satisfy.
+**Status:** M1 in progress. The Guitarix-derived `TubeStage` and `ToneStack`
+are implemented; the power-amp table, sag/NFB and oversampling are next. This
+file is the recipe spec the implementation must satisfy.
 
 ## Shared architecture
 

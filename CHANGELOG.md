@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.2.0 — 2026-11-15
+
+M1: tube-stage and tone-stack engine.
+
+### Added
+
+- Vendored Guitarix's tube tables, `valve.h`, `tubestageF/P` and the
+  Guitarix/CAPS tone-stack values under `third_party/guitarix`, with notices.
+- `TubeStage` C++ port (table lookup, cathode feedback, HPF, anti-alias).
+- `ToneStack` C++ port (third-order IIR; Bassman, JTM45, JCM800, AC30, Peavey,
+  Mesa, Soldano, Bogner, Roland, MLead).
+- First-pass `AmpRecipe` table for all seven amps; Block 120 uses six stages
+  and the Peavey stack.
+- Level calibration: all models now land around −20 dBFS peak on a −12 dBFS
+  sine at the default master, instead of −26…−49 dBFS.
+- Per-model tone-stack makeup and a solid-state clean path for Chorus Clean.
+- Extreme-setting stress test (max gain/master/EQ/808) and a tone-stack probe.
+- `amp_probe` and `amp_tone_probe` development tools.
+
+### Notes
+
+- The power amp is a simple push-pull saturation; the Plexi/sag/NFB model is
+  the next M1 step.
+- The 808 is still the scaffold boost; the TS9/808 circuit model lands with
+  the pedal pass.
+- Cab IRs are not generated yet; the cab section uses a fixed speaker filter.
+- The tube-stage port is table-driven from Guitarix and GPL-compatible.
+
+---
+
 ## 0.1.0 — 2026-11-15
 
 Initial M0 scaffold.

@@ -1,6 +1,6 @@
 # Maintainer: tylor <tylorismusic@users.noreply.github.com>
 pkgname=amp-suite
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc="Seven-amp guitar suite for Linux (CLAP + LV2)"
 arch=('x86_64')

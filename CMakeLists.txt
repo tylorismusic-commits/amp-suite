@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(amp_suite VERSION 0.1.0 LANGUAGES CXX)
+project(amp_suite VERSION 0.2.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,16 +24,22 @@ pkg_check_modules(FREETYPE REQUIRED IMPORTED_TARGET freetype2)
 pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
 
 set(AMP_UI_SOURCES src/ui/panel.cpp)
+set(AMP_DSP_SOURCES src/dsp/guitarix_tables.cpp)
+set(AMP_GUITARIX_INCLUDES
+  "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP"
+  "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP/tube_tables")
 
 # ---------------------------------------------------------------------------
 # CLAP plugin: seven amps, one X11/Cairo editor.
 # ---------------------------------------------------------------------------
 add_library(amp_suite MODULE
   src/clap/amp_suite_clap.cpp
+  ${AMP_DSP_SOURCES}
   ${AMP_UI_SOURCES})
 target_include_directories(amp_suite PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
-  "${CMAKE_SOURCE_DIR}/third_party/clap/include")
+  "${CMAKE_SOURCE_DIR}/third_party/clap/include"
+  ${AMP_GUITARIX_INCLUDES})
 target_link_libraries(amp_suite PRIVATE
   PkgConfig::CAIRO PkgConfig::FREETYPE PkgConfig::X11
   Threads::Threads ${CMAKE_DL_LIBS})
@@ -64,8 +70,12 @@ install(FILES ${AMP_RESOURCE_FILES}
 # ---------------------------------------------------------------------------
 # LV2 plugin and X11 UI
 # ---------------------------------------------------------------------------
-add_library(amp_suite_lv2 MODULE src/amp_suite_lv2.cpp)
-target_include_directories(amp_suite_lv2 PRIVATE "${CMAKE_SOURCE_DIR}/src")
+add_library(amp_suite_lv2 MODULE
+  src/amp_suite_lv2.cpp
+  ${AMP_DSP_SOURCES})
+target_include_directories(amp_suite_lv2 PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  ${AMP_GUITARIX_INCLUDES})
 target_link_libraries(amp_suite_lv2 PRIVATE PkgConfig::LV2)
 target_compile_features(amp_suite_lv2 PRIVATE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -124,8 +134,10 @@ install(FILES
 # ---------------------------------------------------------------------------
 # Tests and tools
 # ---------------------------------------------------------------------------
-add_executable(amp_dsp_test test/test_dsp.cpp)
-target_include_directories(amp_dsp_test PRIVATE "${CMAKE_SOURCE_DIR}/src")
+add_executable(amp_dsp_test test/test_dsp.cpp ${AMP_DSP_SOURCES})
+target_include_directories(amp_dsp_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  ${AMP_GUITARIX_INCLUDES})
 target_compile_features(amp_dsp_test PRIVATE cxx_std_17)
 add_test(NAME amp_dsp COMMAND amp_dsp_test)
 
@@ -175,3 +187,13 @@ target_compile_features(amp_clap_host_test PRIVATE cxx_std_17)
 add_dependencies(amp_clap_host_test amp_suite_bundle)
 add_test(NAME amp_clap_host
   COMMAND amp_clap_host_test "${CMAKE_BINARY_DIR}/clap/AmpSuite.clap")
+
+add_executable(amp_tone_probe tools/tone_probe.cpp)
+target_include_directories(amp_tone_probe PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_compile_features(amp_tone_probe PRIVATE cxx_std_17)
+
+add_executable(amp_probe tools/amp_probe.cpp ${AMP_DSP_SOURCES})
+target_include_directories(amp_probe PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  ${AMP_GUITARIX_INCLUDES})
+target_compile_features(amp_probe PRIVATE cxx_std_17)

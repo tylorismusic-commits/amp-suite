@@ -11,11 +11,11 @@ copyright and license header is preserved and this file is updated.
 | **CLAP** headers (`third_party/clap`) | MIT | Plugin API |
 | **Jost** ExtraBold (`assets/fonts/Jost-ExtraBold.ttf`) | SIL Open Font License 1.1 | Panel typography; `assets/fonts/OFL.txt` |
 
-## Planned / adapted in M1
+## Included from M1
 
 | Component | License | Use |
 |---|---|---|
-| **Guitarix** | GPL-2.0-or-later; some files GPL-3.0-or-later; whole work GPL-3.0-or-later | Tube tables, valve stage, tone-stack networks, power-amp table, transformer, convolution, TS9, chorus, delay, Zita reverb |
+| **Guitarix** | GPL-2.0-or-later; some files GPL-3.0-or-later; whole work GPL-3.0-or-later | `third_party/guitarix`: tube tables, `valve.h`, `tubestageF/P`, tone-stack values, TS9/chorus/delay/Zita references |
 | **CAPS** (Tim Goetze) | GPL-2.0-or-later | Tone-stack component values, via Guitarix; credit D. T. Yeh's tone-stack work |
 | **HIIR** (`unevens/hiir`) | WTFPL-2 | 2×/4× halfband oversampling |
 | **FFTConvolver** | MIT | Cab IR convolution |

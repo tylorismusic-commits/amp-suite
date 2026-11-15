@@ -55,6 +55,47 @@ int main() {
     }
   }
 
+  // Extreme settings must stay finite and bounded (no NaN, no runaway).
+  for (int model = 0; model < 7; ++model) {
+    amp::Shared x;
+    x.set(amp::P_MODEL, static_cast<double>(model));
+    x.set(amp::P_GAIN, 1.0);
+    x.set(amp::P_MASTER, 1.0);
+    x.set(amp::P_OUTPUT, 0.7);
+    x.set(amp::P_BASS, 1.0);
+    x.set(amp::P_MID, 0.0);
+    x.set(amp::P_TREBLE, 1.0);
+    x.set(amp::P_PRESENCE, 1.0);
+    x.set(amp::P_RESONANCE, 1.0);
+    x.set(amp::P_OD_ON, 1.0);
+    x.set(amp::P_OD_DRIVE, 1.0);
+    x.set(amp::P_OD_LEVEL, 1.0);
+    amp::Engine e;
+    e.prepare(48000.0f);
+    e.setControls(amp::controlsFrom(x));
+    std::vector<float> xl(1024), xr(1024);
+    for (int i = 0; i < 1024; ++i) {
+      xl[i] = 0.5f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      xr[i] = xl[i];
+    }
+    amp::Meters xm;
+    e.process(xl.data(), xr.data(), 1024, xm);
+    if (!finiteBuffer(xl, xr)) {
+      std::fprintf(stderr, "non-finite output at extremes on model %d\n",
+                   model);
+      return 1;
+    }
+    float peak = 0.0f;
+    for (float v : xl) {
+      peak = std::max(peak, std::fabs(v));
+    }
+    if (peak > 50.0f) {
+      std::fprintf(stderr, "runaway output on model %d: %.1f\n", model,
+                   static_cast<double>(peak));
+      return 1;
+    }
+  }
+
   // Tempo state reaches the engine.
   engine.setTempo(140.0f, true);
   shared.set(amp::P_DELAY_ON, 1.0);

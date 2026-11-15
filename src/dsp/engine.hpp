@@ -1,9 +1,9 @@
 // Amp Suite — engine.hpp
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Scaffold engine.  The recipe-driven Guitarix DSP lands in M1; this file keeps
-// the host/UI contract real and produces a usable, model-dependent sound so
-// the plugin can be built, loaded and tested end to end.
+// First-pass recipe engine.  The preamp uses Guitarix-derived tube stages and
+// tone stacks; the power amp is a simple push-pull saturation for now.  M1
+// replaces the power amp with the Plexi/sag/NFB model.
 
 #pragma once
 
@@ -13,6 +13,7 @@
 #include "biquad.hpp"
 #include "common.hpp"
 #include "params.hpp"
+#include "recipe.hpp"
 
 namespace amp {
 
@@ -20,22 +21,19 @@ class Engine {
 public:
   void prepare(float sampleRate) noexcept {
     sr_ = sampleRate;
-    odHpL_.reset();
-    odHpR_.reset();
-    odLpL_.reset();
-    odLpR_.reset();
-    cabHpL_.reset();
-    cabHpR_.reset();
-    cabLpL_.reset();
-    cabLpR_.reset();
-    cabHpL_.set(70.0f, sr_);
-    cabHpR_.set(70.0f, sr_);
-    cabLpL_.lowPass(6500.0f, 0.707f, sr_);
-    cabLpR_.lowPass(6500.0f, 0.707f, sr_);
+    prepareRecipe(static_cast<int>(Model::Block120));
     inputSmooth_.setTime(20.0f, sr_);
     outputSmooth_.setTime(20.0f, sr_);
     inputSmooth_.reset(0.5f);
     outputSmooth_.reset(0.5f);
+    odHpL_.set(720.0f, sr_);
+    odHpR_.set(720.0f, sr_);
+    odLpL_.lowPass(3000.0f, 0.707f, sr_);
+    odLpR_.lowPass(3000.0f, 0.707f, sr_);
+    cabHpL_.set(70.0f, sr_);
+    cabHpR_.set(70.0f, sr_);
+    cabLpL_.lowPass(6500.0f, 0.707f, sr_);
+    cabLpR_.lowPass(6500.0f, 0.707f, sr_);
     vuCoeff_ = timeCoeff(300.0f, sr_);
     vuPower_ = 0.0f;
     active_ = -1;
@@ -45,15 +43,18 @@ public:
   void setControls(const Controls& c) noexcept {
     if (c.model != lastModel_) {
       lastModel_ = c.model;
-      resetTone(c.model);
-    }
-    if (c.model != active_) {
-      active_ = c.model;
+      prepareRecipe(c.model);
     }
     controls_ = c;
+    const AmpRecipe& r = recipeFor(c.model);
+    toneSpec_ = toneStackSpec(r.tone);
+    toneL_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
+    toneR_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
+    setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
-    updateTone(c);
+    updateOd(c);
+    updateCab(c);
   }
 
   void setTempo(float bpm, bool valid) noexcept {
@@ -62,15 +63,16 @@ public:
   }
 
   void process(float* left, float* right, int frames, Meters& meters) noexcept {
+    const Controls c = controls_;
+    const AmpRecipe& rec = recipeFor(c.model);
     float inPeakL = 0.0f;
     float inPeakR = 0.0f;
     float outPeakL = 0.0f;
     float outPeakR = 0.0f;
-    const Controls c = controls_;
-    const float ampGain = dbToGain(-6.0f + c.gain * 36.0f);
     const float master = dbToGain(-18.0f + c.master * 18.0f);
     const float odGain = c.odOn ? dbToGain(-3.0f + c.odDrive * 33.0f) : 1.0f;
     const float odLevel = c.odOn ? dbToGain((c.odLevel - 0.5f) * 24.0f) : 1.0f;
+    const float makeup = dbToGain(rec.makeupDb);
     const float cabLevel = c.cabBypass ? 1.0f : dbToGain(cabLevelDb(c.cabLevel));
     const float enabled = c.enabled ? 1.0f : 0.0f;
 
@@ -95,15 +97,39 @@ public:
         r = odLpR_.process(r) * odLevel;
       }
 
-      // Scaffold amp: gain, asymmetric-ish saturation, tone stack, master.
-      l = std::tanh(l * ampGain + 0.06f) - 0.06f;
-      r = std::tanh(r * ampGain + 0.06f) - 0.06f;
-      l = toneL_[0].process(l);
-      r = toneR_[0].process(r);
-      l = toneL_[1].process(l);
-      r = toneR_[1].process(r);
-      l = toneL_[2].process(l);
-      r = toneR_[2].process(r);
+      if (rec.solidState) {
+        // JC-style clean path: high headroom, then the tone stack.
+        l = std::tanh(l * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
+        r = std::tanh(r * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
+        l *= rec.preGain;
+        r *= rec.preGain;
+        l = toneL_.process(l);
+        r = toneR_.process(r);
+        l *= makeup;
+        r *= makeup;
+        l *= rec.outputTrim;
+        r *= rec.outputTrim;
+      } else {
+        l *= rec.preGain;
+        r *= rec.preGain;
+        for (int s = 0; s < rec.stages; ++s) {
+          l = stages_[s].process(l);
+          r = stages_[s].process(r);
+        }
+        l = toneL_.process(l);
+        r = toneR_.process(r);
+        l *= makeup;
+        r *= makeup;
+        l = powerAmp(l, rec.powerDrive);
+        r = powerAmp(r, rec.powerDrive);
+        l *= rec.outputTrim;
+        r *= rec.outputTrim;
+      }
+
+      l = presenceL_.process(l);
+      r = presenceR_.process(r);
+      l = resonanceL_.process(l);
+      r = resonanceR_.process(r);
       l *= master;
       r *= master;
 
@@ -143,6 +169,11 @@ public:
   }
 
   void reset() noexcept {
+    for (auto& s : stages_) {
+      s.reset();
+    }
+    toneL_.reset();
+    toneR_.reset();
     odHpL_.reset();
     odHpR_.reset();
     odLpL_.reset();
@@ -151,82 +182,71 @@ public:
     cabHpR_.reset();
     cabLpL_.reset();
     cabLpR_.reset();
+    presenceL_.reset();
+    presenceR_.reset();
+    resonanceL_.reset();
+    resonanceR_.reset();
     vuPower_ = 0.0f;
   }
 
   uint32_t latencySamples() const noexcept { return 0; }
 
 private:
-  void resetTone(int model) noexcept {
-    for (auto& s : toneL_) {
-      s.reset();
+  void prepareRecipe(int model) noexcept {
+    const AmpRecipe& r = recipeFor(model);
+    for (int i = 0; i < 6; ++i) {
+      stages_[i].prepare(r.stage[i], sr_);
     }
-    for (auto& s : toneR_) {
-      s.reset();
-    }
-    // Model-dependent voicing priors.  These are deliberately broad; the real
-    // recipes replace them in M1.
-    static const float kGain[7] = {0.55f, 0.62f, 0.72f, 0.76f,
-                                   0.82f, 0.78f, 0.80f};
-    static const float kLow[7] = {0.48f, 0.45f, 0.58f, 0.52f,
-                                  0.55f, 0.50f, 0.62f};
-    static const float kMid[7] = {0.45f, 0.58f, 0.50f, 0.47f,
-                                  0.46f, 0.47f, 0.38f};
-    static const float kHigh[7] = {0.58f, 0.56f, 0.54f, 0.53f,
-                                   0.55f, 0.58f, 0.54f};
-    const int m = std::min(std::max(model, 0), 6);
-    voicing_[0] = kLow[m];
-    voicing_[1] = kMid[m];
-    voicing_[2] = kHigh[m];
-    (void)kGain;
+    toneSpec_ = toneStackSpec(r.tone);
+    toneL_.set(toneSpec_, 0.5f, 0.45f, 0.55f, sr_);
+    toneR_.set(toneSpec_, 0.5f, 0.45f, 0.55f, sr_);
+    toneL_.reset();
+    toneR_.reset();
   }
 
-  void updateTone(const Controls& c) noexcept {
-    // Target response.  The controls are normalised; 0.5 is flat.
-    const float bassDb = (c.bass - 0.5f) * 24.0f;
-    const float midDb = (c.mid - 0.5f) * 18.0f;
-    const float trebleDb = (c.treble - 0.5f) * 24.0f;
+  void setPresenceResonance(const Controls& c) noexcept {
     const float presenceDb = (c.presence - 0.5f) * 12.0f;
     const float resonanceDb = (c.resonance - 0.5f) * 12.0f;
+    presenceL_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
+    presenceR_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
+    resonanceL_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
+    resonanceR_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
+  }
 
-    for (auto* s : {&toneL_[0], &toneR_[0]}) {
-      s->lowShelf(120.0f + 80.0f * c.bass, bassDb + resonanceDb, 0.7f, sr_);
-    }
-    for (auto* s : {&toneL_[1], &toneR_[1]}) {
-      s->peak(720.0f, midDb, 0.8f, sr_);
-    }
-    for (auto* s : {&toneL_[2], &toneR_[2]}) {
-      s->highShelf(3200.0f + 1800.0f * c.presence,
-                   trebleDb + presenceDb, 0.7f, sr_);
-    }
-
-    // 808 tone low-pass: 700 Hz .. 5 kHz.
+  void updateOd(const Controls& c) noexcept {
     const float odCut = 700.0f * std::pow(7.0f, c.odTone);
     odLpL_.lowPass(odCut, 0.707f, sr_);
     odLpR_.lowPass(odCut, 0.707f, sr_);
     odHpL_.set(720.0f, sr_);
     odHpR_.set(720.0f, sr_);
+  }
 
-    // Cab filters follow the cut controls.
+  void updateCab(const Controls& c) noexcept {
     cabHpL_.set(cabLowCutHz(c.cabLowCut), sr_);
     cabHpR_.set(cabLowCutHz(c.cabLowCut), sr_);
     cabLpL_.lowPass(cabHighCutHz(c.cabHighCut), 0.707f, sr_);
     cabLpR_.lowPass(cabHighCutHz(c.cabHighCut), 0.707f, sr_);
   }
 
+  static float powerAmp(float x, float drive) noexcept {
+    constexpr float bias = 0.05f;
+    return std::tanh(x * drive + bias) - std::tanh(bias);
+  }
+
   float sr_ = 48000.0f;
   Controls controls_;
   int lastModel_ = -1;
   int active_ = -1;
-  float voicing_[3] = {0.5f, 0.5f, 0.5f};
   float bpm_ = 120.0f;
   bool hostTempo_ = false;
   float vuCoeff_ = 0.0f;
   float vuPower_ = 0.0f;
+  ToneStackSpec toneSpec_;
+  TubeStage stages_[6];
+  ToneStack toneL_;
+  ToneStack toneR_;
   Smoothed inputSmooth_;
   Smoothed outputSmooth_;
-  Biquad toneL_[3];
-  Biquad toneR_[3];
   HighPass2 odHpL_;
   HighPass2 odHpR_;
   Biquad odLpL_;
@@ -235,6 +255,10 @@ private:
   HighPass2 cabHpR_;
   Biquad cabLpL_;
   Biquad cabLpR_;
+  Biquad presenceL_;
+  Biquad presenceR_;
+  Biquad resonanceL_;
+  Biquad resonanceR_;
 };
 
 } // namespace amp

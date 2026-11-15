@@ -1,6 +1,6 @@
 # Amp Suite
 
-**Version 0.1.0 — M0 scaffold** · GPL-3.0-or-later
+**Version 0.2.0 — M1 in progress** · GPL-3.0-or-later
 
 Seven guitar amps in one plugin, with an 808 boost, delay, reverb and a cab
 section:
@@ -32,13 +32,16 @@ This is the M0 scaffold:
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and 8 scaffold presets.
 - ✅ LV2 metadata generated from the parameter table.
-- ⏳ M1: Guitarix-derived tube stages, tone stacks, power amp, sag, oversampling.
+- ✅ **M1:** Guitarix tube tables, `TubeStage`, passive tone stacks and
+  per-model recipes, level-calibrated across all seven tabs.
+- ⏳ M1: power-amp table, sag, NFB presence/resonance, oversampling.
 - ⏳ M1: delay/reverb DSP and the 808 circuit model.
 - ⏳ M1: generated CC0 factory IRs and the user IR loader.
 
-The current engine is a broad voicing scaffold, not the final amp models. See
-`docs/recipes.md` for the intended topology and `docs/params.md` for the host
-ABI.
+The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and
+the Guitarix/CAPS tone-stack networks. The power amp is a simple push-pull
+saturation and the cab is a fixed speaker filter until the IR pipeline lands.
+See `docs/recipes.md` for the topology and `docs/params.md` for the host ABI.
 
 ## Formats
 
