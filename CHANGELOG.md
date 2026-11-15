@@ -19,6 +19,14 @@ M1: tube-stage and tone-stack engine.
 - Extreme-setting stress test (max gain/master/EQ/808) and a tone-stack probe.
 - Guitarix Plexi EL34 power-amp table, per-recipe supply sag, a clamped
   feedback loop and a practical presence shelf.
+- Guitarix TS9/808 nonlinear table and op-amp/clipping network replacing the
+  scaffold boost.
+- Original stereo tape-style delay: fractional read, feedback low-pass,
+  modulation, ping-pong, host/free sync, bypass trails.
+- Original four-line FDN reverb: pre-delay, damping, plate/spring voicing,
+  bypass trails.
+- FX loop routing: pre-power (default) or post-cab.
+- Stress test for the loop at maximum feedback/decay/wet.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

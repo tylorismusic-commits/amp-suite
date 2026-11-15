@@ -12,8 +12,11 @@
 
 #include "biquad.hpp"
 #include "common.hpp"
+#include "delay.hpp"
 #include "params.hpp"
+#include "reverb.hpp"
 #include "power_amp.hpp"
+#include "ts9.hpp"
 #include "recipe.hpp"
 
 namespace amp {
@@ -27,10 +30,10 @@ public:
     outputSmooth_.setTime(20.0f, sr_);
     inputSmooth_.reset(0.5f);
     outputSmooth_.reset(0.5f);
-    odHpL_.set(720.0f, sr_);
-    odHpR_.set(720.0f, sr_);
-    odLpL_.lowPass(3000.0f, 0.707f, sr_);
-    odLpR_.lowPass(3000.0f, 0.707f, sr_);
+    odL_.prepare(sr_);
+    odR_.prepare(sr_);
+    delay_.prepare(sr_);
+    reverb_.prepare(sr_);
     cabHpL_.set(70.0f, sr_);
     cabHpR_.set(70.0f, sr_);
     cabLpL_.lowPass(6500.0f, 0.707f, sr_);
@@ -64,7 +67,8 @@ public:
     setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
-    updateOd(c);
+    odL_.setControls(c.odDrive, c.odTone, c.odLevel);
+    odR_.setControls(c.odDrive, c.odTone, c.odLevel);
     updateCab(c);
   }
 
@@ -81,11 +85,12 @@ public:
     float outPeakL = 0.0f;
     float outPeakR = 0.0f;
     const float master = dbToGain(-18.0f + c.master * 18.0f);
-    const float odGain = c.odOn ? dbToGain(-3.0f + c.odDrive * 33.0f) : 1.0f;
-    const float odLevel = c.odOn ? dbToGain((c.odLevel - 0.5f) * 24.0f) : 1.0f;
     const float makeup = dbToGain(rec.makeupDb);
     const float cabLevel = c.cabBypass ? 1.0f : dbToGain(cabLevelDb(c.cabLevel));
     const float enabled = c.enabled ? 1.0f : 0.0f;
+
+    delay_.setTargets(c, bpm_);
+    reverb_.setTargets(c);
 
     for (int i = 0; i < frames; ++i) {
       const float dryL = left[i];
@@ -98,14 +103,10 @@ public:
       float l = dryL * trim;
       float r = dryR * trim;
 
-      // 808: bass cut, mid-forward clipping, tone low-pass.
+      // 808: TS9 input network, feedback clipper and tone low-pass.
       if (c.odOn) {
-        l = odHpL_.process(l);
-        r = odHpR_.process(r);
-        l = std::tanh(l * odGain);
-        r = std::tanh(r * odGain);
-        l = odLpL_.process(l) * odLevel;
-        r = odLpR_.process(r) * odLevel;
+        l = odL_.process(l);
+        r = odR_.process(r);
       }
 
       if (rec.solidState) {
@@ -131,6 +132,15 @@ public:
         r = toneR_.process(r);
         l *= makeup;
         r *= makeup;
+      }
+
+      // FX loop: authentic default is between the preamp and the power amp.
+      if (c.loopPos == 0) {
+        delay_.process(l, r);
+        reverb_.process(l, r);
+      }
+
+      if (!rec.solidState) {
         l = powerL_.process(l);
         r = powerR_.process(r);
       }
@@ -151,6 +161,12 @@ public:
         r = cabLpR_.process(r);
         l *= cabLevel;
         r *= cabLevel;
+      }
+
+      // Post-cab loop option.
+      if (c.loopPos == 1) {
+        delay_.process(l, r);
+        reverb_.process(l, r);
       }
 
       const float out = outputSmooth_.next();
@@ -183,10 +199,10 @@ public:
     }
     toneL_.reset();
     toneR_.reset();
-    odHpL_.reset();
-    odHpR_.reset();
-    odLpL_.reset();
-    odLpR_.reset();
+    odL_.reset();
+    odR_.reset();
+    delay_.reset();
+    reverb_.reset();
     cabHpL_.reset();
     cabHpR_.reset();
     cabLpL_.reset();
@@ -224,14 +240,6 @@ private:
     resonanceR_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
   }
 
-  void updateOd(const Controls& c) noexcept {
-    const float odCut = 700.0f * std::pow(7.0f, c.odTone);
-    odLpL_.lowPass(odCut, 0.707f, sr_);
-    odLpR_.lowPass(odCut, 0.707f, sr_);
-    odHpL_.set(720.0f, sr_);
-    odHpR_.set(720.0f, sr_);
-  }
-
   void updateCab(const Controls& c) noexcept {
     cabHpL_.set(cabLowCutHz(c.cabLowCut), sr_);
     cabHpR_.set(cabLowCutHz(c.cabLowCut), sr_);
@@ -253,10 +261,10 @@ private:
   ToneStack toneR_;
   Smoothed inputSmooth_;
   Smoothed outputSmooth_;
-  HighPass2 odHpL_;
-  HighPass2 odHpR_;
-  Biquad odLpL_;
-  Biquad odLpR_;
+  Ts9 odL_;
+  Ts9 odR_;
+  Delay delay_;
+  Reverb reverb_;
   HighPass2 cabHpL_;
   HighPass2 cabHpR_;
   Biquad cabLpL_;

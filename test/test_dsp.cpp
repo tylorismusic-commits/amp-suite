@@ -96,6 +96,45 @@ int main() {
     }
   }
 
+  // Delay/reverb extremes: high feedback, full wet, post-cab loop.
+  {
+    amp::Shared x;
+    x.set(amp::P_MODEL, 4.0);
+    x.set(amp::P_DELAY_ON, 1.0);
+    x.set(amp::P_DELAY_SYNC, 0.0);
+    x.set(amp::P_DELAY_TIME, 1.0);
+    x.set(amp::P_DELAY_FEEDBACK, 0.9);
+    x.set(amp::P_DELAY_MIX, 1.0);
+    x.set(amp::P_REVERB_ON, 1.0);
+    x.set(amp::P_REVERB_DECAY, 1.0);
+    x.set(amp::P_REVERB_MIX, 1.0);
+    x.set(amp::P_REVERB_PREDELAY, 1.0);
+    x.set(amp::P_LOOP_POS, 1.0);
+    amp::Engine e;
+    e.prepare(48000.0f);
+    e.setControls(amp::controlsFrom(x));
+    std::vector<float> xl(48000), xr(48000);
+    for (int i = 0; i < 48000; ++i) {
+      xl[i] = 0.2f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      xr[i] = xl[i];
+    }
+    amp::Meters xm;
+    e.process(xl.data(), xr.data(), 48000, xm);
+    if (!finiteBuffer(xl, xr)) {
+      std::fprintf(stderr, "non-finite output in FX loop\n");
+      return 1;
+    }
+    float peak = 0.0f;
+    for (float v : xl) {
+      peak = std::max(peak, std::fabs(v));
+    }
+    if (peak > 50.0f) {
+      std::fprintf(stderr, "FX loop runaway: %.1f\n",
+                   static_cast<double>(peak));
+      return 1;
+    }
+  }
+
   // Tempo state reaches the engine.
   engine.setTempo(140.0f, true);
   shared.set(amp::P_DELAY_ON, 1.0);

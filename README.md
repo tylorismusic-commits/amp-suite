@@ -38,7 +38,8 @@ This is the M0 scaffold:
   clamped feedback loop; presence has a practical post-power shelf until the
   full NFB pass.
 - ⏳ M1: oversampling, full NFB presence/resonance.
-- ⏳ M1: delay/reverb DSP and the 808 circuit model.
+- ✅ **M1:** Guitarix TS9/808 circuit model; stereo tape-style delay; FDN
+  reverb; pre-power/post-cab loop switch; free/host delay sync.
 - ✅ **M1:** parametric cab-IR fitter (`tools/ir_fit.py`, `tools/ir_validate.py`).
 - ⏳ M1: generate the seven factory IRs from the references, then the user IR
   loader.
@@ -46,8 +47,9 @@ This is the M0 scaffold:
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and
 the Guitarix/CAPS tone-stack networks. EL34 models use the Guitarix Plexi
 power-amp table; the others use a symmetric push-pull shaper until dedicated
-tables are generated. The cab is a fixed speaker filter until the IR pipeline
-lands.
+tables are generated. The 808 is the Guitarix TS9 nonlinear model. Delay and
+reverb are original implementations. The cab is still a fixed speaker filter
+until the IR pipeline is populated.
 See `docs/recipes.md` for the topology and `docs/params.md` for the host ABI.
 
 ## Formats

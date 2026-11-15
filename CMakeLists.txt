@@ -26,10 +26,12 @@ pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
 set(AMP_UI_SOURCES src/ui/panel.cpp)
 set(AMP_DSP_SOURCES
   src/dsp/guitarix_tables.cpp
-  src/dsp/power_amp.cpp)
+  src/dsp/power_amp.cpp
+  src/dsp/ts9.cpp)
 set(AMP_GUITARIX_INCLUDES
   "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP"
-  "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP/tube_tables")
+  "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP/tube_tables"
+  "${CMAKE_SOURCE_DIR}/third_party/guitarix/plugins")
 
 # ---------------------------------------------------------------------------
 # CLAP plugin: seven amps, one X11/Cairo editor.
