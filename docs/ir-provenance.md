@@ -44,12 +44,20 @@ references stay out of the release.
 
 ## Generation
 
+The fitter is implemented in `tools/ir_model.py`, `tools/ir_fit.py` and
+`tools/ir_validate.py`. It needs numpy/scipy/soundfile/matplotlib; see
+`tools/requirements.txt`.
+
 ```
 refs/irs/<amp>/  →  load/mono/resample  →  1/6-octave |H(f)|
-  →  differential_evolution + least_squares
-  →  biquad cab model  →  impulse response
-  →  normalize/truncate  →  48k/96k 24-bit WAV + embedded header
+  →  differential_evolution + L-BFGS-B
+  →  biquad cab model  →  minimum-phase impulse response
+  →  normalize/truncate  →  48k/96k 24-bit WAV + manifest
 ```
+
+The self-test (`tools/ir_fit.py --self-test --quick`) fits a synthetic target
+and recovers it within ~0.1 dB mean error, which verifies the pipeline without
+shipping any reference audio.
 
 Model blocks: speaker low resonance, low shelf, presence peak, 3–6 cone-breakup
 modes, HF rolloff; cabinet baffle step and internal modes; mic dynamic/ribbon/

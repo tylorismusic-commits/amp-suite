@@ -36,7 +36,9 @@ This is the M0 scaffold:
   per-model recipes, level-calibrated across all seven tabs.
 - ⏳ M1: power-amp table, sag, NFB presence/resonance, oversampling.
 - ⏳ M1: delay/reverb DSP and the 808 circuit model.
-- ⏳ M1: generated CC0 factory IRs and the user IR loader.
+- ✅ **M1:** parametric cab-IR fitter (`tools/ir_fit.py`, `tools/ir_validate.py`).
+- ⏳ M1: generate the seven factory IRs from the references, then the user IR
+  loader.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and
 the Guitarix/CAPS tone-stack networks. The power amp is a simple push-pull
@@ -98,6 +100,8 @@ redistribute them. The user IR loader will read local WAV files in M1; the Cab
 page lists the folder and the manual documents the reference links.
 
 See `docs/ir-provenance.md` for the reference set and generation method.
+The fitter is offline-only; its Python dependencies are in
+`tools/requirements.txt`. Generated factory IRs are CC0.
 
 ## Documentation
 
