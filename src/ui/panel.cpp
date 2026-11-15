@@ -205,6 +205,7 @@ bool hasRectifier(int model) { return model == 6; }
 bool hasVoice(int model) {
   return model == 3 || model == 5 || model == 6;
 }
+bool hasAlternate(int model) { return model == 3 || model == 4; }
 
 const char* cabName(int model, int cab) {
   if (cab == 2) {
@@ -478,9 +479,6 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_MASTER, 300, 520, 26, "MASTER");
     knob(P_OUTPUT, 940, 535, 30, "OUTPUT");
 
-    if (hasBright(model)) {
-      toggle(P_BRIGHT, 790, 400, 0.0, "BRIGHT", "OFF");
-    }
     if (hasCut(model)) {
       knob(P_CUT, 900, 420, 28, "CUT");
     }
@@ -497,9 +495,10 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
       knob(P_VOICE, 820, 520, 22, "VOICE", {}, true, 3);
     }
     if (model == 0) {
-      toggle(P_CHORUS_ON, 850, 400, 1.0, "CHORUS", "OFF");
-      knob(P_CHORUS_RATE, 900, 470, 22, "RATE");
-      knob(P_CHORUS_DEPTH, 960, 470, 22, "DEPTH");
+      toggle(P_BRIGHT, 790, 380, 0.0, "BRIGHT", "OFF");
+      toggle(P_CHORUS_ON, 850, 380, 1.0, "CHORUS", "OFF");
+      knob(P_CHORUS_RATE, 820, 490, 20, "RATE", {}, true);
+      knob(P_CHORUS_DEPTH, 880, 490, 20, "DEPTH", {}, true);
     }
   } else if (state.page == 1) {
     // Pedalboard page.  Three cards: 808, delay, reverb.
@@ -540,9 +539,12 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
 
   } else {
     // Cabinet page.
+    const bool alt = hasAlternate(model);
     button(P_CAB, 60, 200, 110, 28, 0.0, "DEFAULT");
-    button(P_CAB, 180, 200, 110, 28, 1.0, "ALT");
-    button(P_CAB, 300, 200, 110, 28, 2.0, "USER");
+    if (alt) {
+      button(P_CAB, 180, 200, 110, 28, 1.0, "ALT");
+    }
+    button(P_CAB, alt ? 300 : 180, 200, 110, 28, 2.0, "USER");
 
     button(P_CAB_MIC, 760, 210, 80, 26, 0.0, "DYNAMIC");
     button(P_CAB_MIC, 850, 210, 80, 26, 1.0, "RIBBON");
@@ -618,7 +620,8 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
         return true;
       case Kind::ModelTab:
         shared.set(P_MODEL, w.value);
-        markEdited(state);
+        state.presetIndex = -1;
+        state.presetDirty = false;
         return true;
       case Kind::PagePill:
         state.page = (state.page == static_cast<int>(w.value))
@@ -743,9 +746,18 @@ void Panel::drawPresetBar(cairo_t* cr, const Shared& shared,
   cairo_stroke(cr);
 
   char buf[160];
-  const int index = std::min(std::max(state.presetIndex, 0), kPresetCount - 1);
-  std::snprintf(buf, sizeof(buf), "%s%s", kPresets[index].name,
-                state.presetDirty ? " *" : "");
+  if (state.presetIndex < 0) {
+    std::snprintf(buf, sizeof(buf), "Manual — %s", modelName(model));
+  } else {
+    const int index =
+        std::min(std::max(state.presetIndex, 0), kPresetCount - 1);
+    if (model != kPresets[index].model) {
+      std::snprintf(buf, sizeof(buf), "Manual — %s", modelName(model));
+    } else {
+      std::snprintf(buf, sizeof(buf), "%s%s", kPresets[index].name,
+                    state.presetDirty ? " *" : "");
+    }
+  }
   text(cr, buf, kPresetX + 14, kPresetY + 23, 13, 0, skin.btnText.r,
        skin.btnText.g, skin.btnText.b);
   text(cr, "v", kPresetX + kPresetW - 18, kPresetY + 23, 12, 1, skin.btnText.r,
@@ -1090,8 +1102,8 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
 
   text(cr, "FACTORY", 60, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
-  text(cr, "USER", 300, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
-       skin.legendDim.b);
+  text(cr, "USER", hasAlternate(model) ? 300 : 180, 190, 10, 0,
+       skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 
   roundRect(cr, 60, 380, 360, 180, 6);
   setRgb(cr, mix(skin.bodyBottom, {0, 0, 0}, 0.35));
