@@ -1,0 +1,5 @@
+build/
+build-*/
+*.o
+refs/irs/**/*.wav
+refs/irs/**/*.WAV
