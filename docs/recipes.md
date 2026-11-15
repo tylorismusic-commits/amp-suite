@@ -64,12 +64,17 @@ Each recipe controls:
 
 ## M1 implementation notes
 
-- Port Guitarix `tubestageF/P`, `tonestack`, `gxpoweramp` and `trany.h` to C++
-  under `src/dsp/`, preserving GPL notices.
+- The Guitarix tube tables, `tubestageF/P`, tone stacks and Plexi EL34
+  power-amp table are ported under `src/dsp/` with GPL notices.
+- The EL34 models (Crunch, Hot Rod, Stealth) use the Guitarix Plexi power-amp
+  table. Chime, Block 120 and Recto use a symmetric push-pull shaper until
+  dedicated 6L6/EL84 tables are generated.
+- Supply sag is a per-recipe envelope (`powerSag`); Recto has the most,
+  Block 120 the least. Grid-conduction/blocking is still to come.
+- Presence is approximated with a post-power high shelf plus a small,
+  clamped Guitarix feedback loop. A full NFB presence/resonance pass is next.
+- Each recipe is level-calibrated; `amp_probe` reports peak/RMS/THD.
 - Remove the aggressive SR/2.1 anti-alias low-pass once HIIR 2×/4× is in place;
   measure the alias floor before/after.
-- Add the supply-sag and grid-conduction module; tune per recipe.
-- Presence/resonance must act in the NFB loop, not as post-EQ.
-- Calibrate each recipe's output so model switching does not jump level.
 - Validate each recipe against the reference captures listed in
   `docs/ir-provenance.md` and the NAM reference set.

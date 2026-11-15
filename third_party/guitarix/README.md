@@ -17,6 +17,7 @@ preserved. See `COPYING`.
 | `DSP/tube_tables/*.cc` | 12AX7, 12AT7, 12AU7, 12AY7, 6V6, 6L6GC, EL34, EL84, EF86, KT88, etc. |
 | `faust/guitarix.lib` | `tubestageF/P`, `tonestack` formulas (reference) |
 | `faust/tonestack.dsp` | tone-stack component values (Bassman, JTM45, JCM800, AC30, Peavey, Mesa, Soldano, Bogner, Roland, …) |
+| `DSP/plexipowerampel34_table.h` | Plexi EL34 power-amp transfer table |
 | `DSP/trany.h` | output transformer reference |
 | `ampsim/gxpoweramp.dsp`, `ampsim/gx_poweramp.cpp` | power-amp reference |
 | `plugins/ts9nonlin.*`, `plugins/ts9sim.dsp` | TS9 / 808 reference |

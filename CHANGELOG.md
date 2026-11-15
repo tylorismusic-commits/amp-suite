@@ -17,6 +17,8 @@ M1: tube-stage and tone-stack engine.
   sine at the default master, instead of −26…−49 dBFS.
 - Per-model tone-stack makeup and a solid-state clean path for Chorus Clean.
 - Extreme-setting stress test (max gain/master/EQ/808) and a tone-stack probe.
+- Guitarix Plexi EL34 power-amp table, per-recipe supply sag, a clamped
+  feedback loop and a practical presence shelf.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

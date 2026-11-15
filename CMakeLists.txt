@@ -24,7 +24,9 @@ pkg_check_modules(FREETYPE REQUIRED IMPORTED_TARGET freetype2)
 pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
 
 set(AMP_UI_SOURCES src/ui/panel.cpp)
-set(AMP_DSP_SOURCES src/dsp/guitarix_tables.cpp)
+set(AMP_DSP_SOURCES
+  src/dsp/guitarix_tables.cpp
+  src/dsp/power_amp.cpp)
 set(AMP_GUITARIX_INCLUDES
   "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP"
   "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP/tube_tables")

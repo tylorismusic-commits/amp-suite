@@ -13,6 +13,7 @@
 #include "biquad.hpp"
 #include "common.hpp"
 #include "params.hpp"
+#include "power_amp.hpp"
 #include "recipe.hpp"
 
 namespace amp {
@@ -47,9 +48,19 @@ public:
     }
     controls_ = c;
     const AmpRecipe& r = recipeFor(c.model);
+    PowerAmpSpec ps;
+    ps.drive = r.powerDrive;
+    ps.feedback = r.powerFeedback;
+    ps.sag = r.powerSag;
+    ps.output = r.outputTrim;
+    ps.useTable = r.powerTable;
+    powerL_.prepare(sr_, ps);
+    powerR_.prepare(sr_, ps);
     toneSpec_ = toneStackSpec(r.tone);
     toneL_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
     toneR_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
+    powerL_.setPresence(c.presence);
+    powerR_.setPresence(c.presence);
     setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
@@ -120,10 +131,8 @@ public:
         r = toneR_.process(r);
         l *= makeup;
         r *= makeup;
-        l = powerAmp(l, rec.powerDrive);
-        r = powerAmp(r, rec.powerDrive);
-        l *= rec.outputTrim;
-        r *= rec.outputTrim;
+        l = powerL_.process(l);
+        r = powerR_.process(r);
       }
 
       l = presenceL_.process(l);
@@ -182,6 +191,8 @@ public:
     cabHpR_.reset();
     cabLpL_.reset();
     cabLpR_.reset();
+    powerL_.reset();
+    powerR_.reset();
     presenceL_.reset();
     presenceR_.reset();
     resonanceL_.reset();
@@ -205,7 +216,7 @@ private:
   }
 
   void setPresenceResonance(const Controls& c) noexcept {
-    const float presenceDb = (c.presence - 0.5f) * 12.0f;
+    const float presenceDb = (c.presence - 0.5f) * 10.0f;
     const float resonanceDb = (c.resonance - 0.5f) * 12.0f;
     presenceL_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
     presenceR_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
@@ -226,11 +237,6 @@ private:
     cabHpR_.set(cabLowCutHz(c.cabLowCut), sr_);
     cabLpL_.lowPass(cabHighCutHz(c.cabHighCut), 0.707f, sr_);
     cabLpR_.lowPass(cabHighCutHz(c.cabHighCut), 0.707f, sr_);
-  }
-
-  static float powerAmp(float x, float drive) noexcept {
-    constexpr float bias = 0.05f;
-    return std::tanh(x * drive + bias) - std::tanh(bias);
   }
 
   float sr_ = 48000.0f;
@@ -255,6 +261,8 @@ private:
   HighPass2 cabHpR_;
   Biquad cabLpL_;
   Biquad cabLpR_;
+  PowerAmp powerL_;
+  PowerAmp powerR_;
   Biquad presenceL_;
   Biquad presenceR_;
   Biquad resonanceL_;

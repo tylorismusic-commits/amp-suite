@@ -67,8 +67,11 @@ struct AmpRecipe {
   ToneStackKind tone;
   float preGain;
   float powerDrive;
+  float powerFeedback;
+  float powerSag;
   float outputTrim;
   float makeupDb;
+  bool powerTable;
   bool solidState;
 };
 
@@ -106,26 +109,26 @@ inline const AmpRecipe& recipeFor(int model) noexcept {
 
   static const AmpRecipe recipes[7] = {
       // Chorus Clean: solid-state path, tone stack used only as a voicing.
-      {"Chorus Clean", 0, {}, ToneStackKind::Roland, 2.0f, 0.0f, 0.8f,
-       15.0f, true},
+      {"Chorus Clean", 0, {}, ToneStackKind::Roland, 2.0f, 0.0f, 0.0f, 0.0f,
+       0.8f, 15.0f, false, true},
       // Chime
-      {"Chime", 3, {s1, s2, s3}, ToneStackKind::AC30, 0.70f, 1.2f, 0.8f,
-       20.0f, false},
+      {"Chime", 3, {s1, s2, s3}, ToneStackKind::AC30, 0.70f, 1.2f, 0.0f,
+       0.14f, 0.8f, 18.0f, false, false},
       // Crunch
       {"Crunch", 4, {s1, s2, s3, s4}, ToneStackKind::JCM800, 0.30f, 1.5f,
-       0.8f, 12.0f, false},
+       0.06f, 0.10f, 0.8f, 15.0f, true, false},
       // Hot Rod
       {"Hot Rod", 4, {s1, s2, s3, s4}, ToneStackKind::JTM45, 0.28f, 1.6f,
-       0.8f, 13.0f, false},
+       0.05f, 0.14f, 0.8f, 14.5f, true, false},
       // Block 120
       {"Block 120", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Peavey, 0.26f,
-       1.8f, 0.8f, 11.0f, false},
+       1.8f, 0.06f, 0.06f, 0.8f, 8.5f, false, false},
       // Stealth EL34
       {"Stealth EL34", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Bogner,
-       0.25f, 1.9f, 0.8f, 10.0f, false},
+       0.25f, 1.9f, 0.07f, 0.07f, 0.8f, 11.0f, true, false},
       // Recto
       {"Recto", 5, {s1, s2, s3, s4, s5}, ToneStackKind::Mesa, 0.27f, 1.7f,
-       0.8f, 13.0f, false},
+       0.04f, 0.22f, 0.8f, 11.0f, false, false},
   };
   const int m = model < 0 ? 0 : (model > 6 ? 6 : model);
   return recipes[m];
