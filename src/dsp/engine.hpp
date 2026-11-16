@@ -42,6 +42,9 @@ public:
     cabLpR_.lowPass(6500.0f, 0.707f, sr_);
     vuCoeff_ = timeCoeff(300.0f, sr_);
     vuPower_ = 0.0f;
+    limiterAttack_ = timeCoeff(0.5f, sr_);
+    limiterRelease_ = timeCoeff(80.0f, sr_);
+    limiterGain_ = 1.0f;
     active_ = -1;
     lastModel_ = -1;
   }
@@ -189,6 +192,17 @@ public:
       l *= enabled * outGain;
       r *= enabled * outGain;
 
+      if (c.limiterOn) {
+        const float thresh = dbToGain(-24.0f + 24.0f * c.limiterThreshold);
+        const float peakNow = std::max(std::fabs(l), std::fabs(r));
+        const float target = peakNow > thresh ? thresh / peakNow : 1.0f;
+        const float coeff =
+            target < limiterGain_ ? limiterAttack_ : limiterRelease_;
+        limiterGain_ = coeff * limiterGain_ + (1.0f - coeff) * target;
+        l = std::tanh(l * limiterGain_);
+        r = std::tanh(r * limiterGain_);
+      }
+
       left[i] = l;
       right[i] = r;
       outPeakL = std::max(outPeakL, std::fabs(l));
@@ -230,6 +244,7 @@ public:
     resonanceL_.reset();
     resonanceR_.reset();
     vuPower_ = 0.0f;
+    limiterGain_ = 1.0f;
   }
 
   uint32_t latencySamples() const noexcept { return 0; }
@@ -316,6 +331,9 @@ private:
   Biquad presenceR_;
   Biquad resonanceL_;
   Biquad resonanceR_;
+  float limiterGain_ = 1.0f;
+  float limiterAttack_ = 0.0f;
+  float limiterRelease_ = 0.0f;
 };
 
 } // namespace amp

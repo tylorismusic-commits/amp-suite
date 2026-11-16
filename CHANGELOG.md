@@ -33,6 +33,11 @@ M1: tube-stage and tone-stack engine.
   normalization; fixed speaker filter retained as a missing-asset fallback.
 - Cab page copy now reflects embedded factory IRs; user IR loading is the next
   pass.
+- Output safety limiter (threshold −24…0 dBFS) with a Comp Suite-style
+  pill and threshold knob in the right column.
+- Comp Suite-style panel pass: preset arrows and centered preset label,
+  centered footer, output LED column, dB ticks and labels on the side meters,
+  inset cab-window header strip, and numeric knob scales.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

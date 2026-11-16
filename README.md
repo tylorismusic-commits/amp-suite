@@ -25,10 +25,10 @@ off, and the stock 1200 4×12 cab.
 
 ## Status
 
-This is the M0 scaffold:
+M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 48-parameter host contract; CLAP state save/load.
+- ✅ 50-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and 8 scaffold presets.
 - ✅ LV2 metadata generated from the parameter table.
@@ -42,6 +42,8 @@ This is the M0 scaffold:
   reverb; pre-power/post-cab loop switch; free/host delay sync.
 - ✅ **M1:** seven generated CC0 factory cabs, fitted from the references and
   convolved in the engine (57 / ribbon / blend variants, 48/96 kHz).
+- ✅ Comp Suite-style preset arrows, centered footer, LED output column,
+  metering ticks, inset cab window and output limiter.
 - ⏳ M1: user IR loading and session-portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

@@ -80,6 +80,8 @@ struct Controls {
   // Global.
   bool hq = true;
   int loopPos = 0;          // 0 pre-power, 1 post-cab
+  bool limiterOn = false;
+  float limiterThreshold = 1.0f;  // 1.0 = 0 dB
 };
 
 // Metering published by the engine, in dB.

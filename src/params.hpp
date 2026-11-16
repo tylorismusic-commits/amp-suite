@@ -64,6 +64,8 @@ enum ParamId : uint32_t {
   P_CHORUS_RATE,
   P_CHORUS_DEPTH,
   P_METER,
+  P_LIMITER_ON,
+  P_LIMITER_THRESH,
   P_COUNT
 };
 
@@ -197,6 +199,10 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      nullptr, {}},
     {"meter", "Meter", "Meter", 0.0, 1.0, 0.0, true, true, false, nullptr,
      labels(kMeterLabels)},
+    {"limiter_on", "Limiter", "Limiter", 0.0, 1.0, 0.0, true, false, true,
+     nullptr, {}},
+    {"limiter_threshold", "Limiter Threshold", "Limiter", 0.0, 1.0, 1.0,
+     false, false, false, nullptr, {}},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -333,6 +339,8 @@ inline Controls controlsFrom(const Shared& s) {
   c.reverbPreDelay = static_cast<float>(s.get(P_REVERB_PREDELAY));
   c.hq = s.get(P_HQ) > 0.5;
   c.loopPos = static_cast<int>(s.get(P_LOOP_POS) + 0.5);
+  c.limiterOn = s.get(P_LIMITER_ON) > 0.5;
+  c.limiterThreshold = static_cast<float>(s.get(P_LIMITER_THRESH));
   return c;
 }
 

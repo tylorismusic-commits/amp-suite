@@ -465,22 +465,29 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
 
   if (state.page == 0) {
     // Amp page.
-    knob(P_GAIN, 190, 420, 32, "GAIN");
-    knob(P_BASS, 300, 420, 28, "BASS");
-    knob(P_MID, 410, 420, 28, "MID");
-    knob(P_TREBLE, 520, 420, 28, "TREBLE");
+    static const std::vector<const char*> kToneScale = {"0", "5", "10"};
+    static const std::vector<const char*> kTrimScale = {"-12", "0", "+12"};
+    knob(P_GAIN, 190, 420, 32, "GAIN", kToneScale);
+    knob(P_BASS, 300, 420, 28, "BASS", kToneScale);
+    knob(P_MID, 410, 420, 28, "MID", kToneScale);
+    knob(P_TREBLE, 520, 420, 28, "TREBLE", kToneScale);
     if (hasPresence(model)) {
-      knob(P_PRESENCE, 630, 420, 26, "PRESENCE");
+      knob(P_PRESENCE, 630, 420, 26, "PRESENCE", kToneScale);
     }
     if (hasResonance(model)) {
-      knob(P_RESONANCE, 740, 420, 26, "RESONANCE");
+      knob(P_RESONANCE, 740, 420, 26, "RESONANCE", kToneScale);
     }
-    knob(P_INPUT, 90, 520, 22, "INPUT", {}, true);
-    knob(P_MASTER, 300, 520, 26, "MASTER");
-    knob(P_OUTPUT, 940, 535, 30, "OUTPUT");
+    knob(P_INPUT, 90, 520, 22, "INPUT", kTrimScale, true);
+    knob(P_MASTER, 300, 520, 26, "MASTER", kToneScale);
+    knob(P_OUTPUT, 940, 535, 30, "OUTPUT", kTrimScale);
+
+    // Output limiter, in the right column like Comp Suite.
+    pill(P_LIMITER_ON, 852, 270, 96, 24, "LIMITER");
+    knob(P_LIMITER_THRESH, 900, 372, 26, "THRESH",
+         {"-24", "-12", "-6", "0"});
 
     if (hasCut(model)) {
-      knob(P_CUT, 900, 420, 28, "CUT");
+      knob(P_CUT, 820, 520, 26, "CUT", kToneScale);
     }
     if (hasPowerScale(model)) {
       toggle(P_POWER_SCALE, 820, 400, 1.0, "100", "50");
@@ -492,13 +499,13 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
       toggle(P_RECTIFIER, 820, 400, 0.0, "TUBE", "SI");
     }
     if (hasVoice(model)) {
-      knob(P_VOICE, 820, 520, 22, "VOICE", {}, true, 3);
+      knob(P_VOICE, 820, 520, 22, "VOICE", {"A", "B", "C"}, true, 3);
     }
     if (model == 0) {
-      toggle(P_BRIGHT, 790, 380, 0.0, "BRIGHT", "OFF");
-      toggle(P_CHORUS_ON, 850, 380, 1.0, "CHORUS", "OFF");
-      knob(P_CHORUS_RATE, 820, 490, 20, "RATE", {}, true);
-      knob(P_CHORUS_DEPTH, 880, 490, 20, "DEPTH", {}, true);
+      toggle(P_BRIGHT, 750, 380, 0.0, "BRIGHT", "OFF");
+      toggle(P_CHORUS_ON, 810, 380, 1.0, "CHORUS", "OFF");
+      knob(P_CHORUS_RATE, 770, 490, 20, "RATE", {}, true);
+      knob(P_CHORUS_DEPTH, 830, 490, 20, "DEPTH", {}, true);
     }
   } else if (state.page == 1) {
     // Pedalboard page.  Three cards: 808, delay, reverb.
@@ -737,13 +744,18 @@ void Panel::drawPresetBar(cairo_t* cr, const Shared& shared,
                           const PanelState& state) const {
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const Skin skin = skinFor(model);
-  roundRect(cr, kPresetX, kPresetY, kPresetW, kPresetH, 5);
-  setRgb(cr, mix(skin.btnOff, {1, 1, 1}, 0.05));
+  roundRect(cr, kPresetX, kPresetY, kPresetW, kPresetH, 4);
+  setRgb(cr, mix(skin.headerBg, {0, 0, 0}, 0.15));
   cairo_fill(cr);
-  setRgb(cr, {0, 0, 0}, 0.35);
+  setRgb(cr, {1, 1, 1}, 0.12);
   cairo_set_line_width(cr, 1.0);
-  roundRect(cr, kPresetX + 0.5, kPresetY + 0.5, kPresetW - 1, kPresetH - 1, 5);
+  roundRect(cr, kPresetX + 0.5, kPresetY + 0.5, kPresetW - 1, kPresetH - 1, 4);
   cairo_stroke(cr);
+
+  // Previous / next arrows, as in Comp Suite.
+  text(cr, "\u2039", kPresetX + 18, kPresetY + 24, 20, 1, 0.72, 0.75, 0.78);
+  text(cr, "\u203a", kPresetX + kPresetW - 18, kPresetY + 24, 20, 1, 0.72,
+       0.75, 0.78);
 
   char buf[160];
   if (state.presetIndex < 0) {
@@ -758,10 +770,8 @@ void Panel::drawPresetBar(cairo_t* cr, const Shared& shared,
                     state.presetDirty ? " *" : "");
     }
   }
-  text(cr, buf, kPresetX + 14, kPresetY + 23, 13, 0, skin.btnText.r,
-       skin.btnText.g, skin.btnText.b);
-  text(cr, "v", kPresetX + kPresetW - 18, kPresetY + 23, 12, 1, skin.btnText.r,
-       skin.btnText.g, skin.btnText.b);
+  text(cr, buf, kPresetX + kPresetW * 0.5, kPresetY + 24, 13.5, 1, 0.90,
+       0.92, 0.94);
 }
 
 void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
@@ -793,13 +803,26 @@ void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
 
 bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
                               double y) {
+  const bool inBar = x >= kPresetX && x <= kPresetX + kPresetW &&
+                     y >= kPresetY && y <= kPresetY + kPresetH;
   if (!state.presetOpen) {
-    if (x >= kPresetX && x <= kPresetX + kPresetW && y >= kPresetY &&
-        y <= kPresetY + kPresetH) {
-      state.presetOpen = true;
+    if (!inBar) {
+      return false;
+    }
+    if (x <= kPresetX + 36) {
+      const int next = state.presetIndex <= 0 ? 0 : state.presetIndex - 1;
+      applyPreset(shared, state, next);
       return true;
     }
-    return false;
+    if (x >= kPresetX + kPresetW - 36) {
+      const int next = state.presetIndex < 0
+                           ? 0
+                           : std::min(kPresetCount - 1, state.presetIndex + 1);
+      applyPreset(shared, state, next);
+      return true;
+    }
+    state.presetOpen = true;
+    return true;
   }
   for (int i = 0; i < kPresetCount; ++i) {
     const double rowY = kListY + 5 + i * kListRow;
@@ -810,7 +833,7 @@ bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
       return true;
     }
   }
-  if (x < kPresetX || x > kPresetX + kPresetW || y < kListY ||
+  if (inBar || x < kPresetX || x > kPresetX + kPresetW || y < kListY ||
       y > kListY + kPresetCount * kListRow + 10) {
     state.presetOpen = false;
   }
@@ -943,17 +966,21 @@ void Panel::drawAmpPage(cairo_t* cr, const Shared& shared,
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
   drawCabWindow(cr, shared, state, model);
+  drawLeds(cr, shared, model);
 
   // Cab label in the right column.
   text(cr, "CABINET", 900, 180, 10, 1, 0.45, 0.47, 0.50);
   text(cr, cabName(model, cab), 900, 202, 13, 1, 0.86, 0.88, 0.90);
   text(cr, cabSubtitle(model, cab), 900, 220, 9.5, 1, 0.42, 0.44, 0.47);
 
+  // Output limiter caption, above its pill and knob.
+  text(cr, "OUTPUT", 900, 256, 9.5, 1, 0.45, 0.47, 0.50);
+
   // Side level meters.
   drawLevelMeter(cr, 20, 150, 16, 352, state.inLevelL, state.inLevelR, model,
-                 true);
+                 true, -60.0, 0.0);
   drawLevelMeter(cr, 986, 150, 16, 352, state.outLevelL, state.outLevelR,
-                 model, false);
+                 model, false, -60.0, 3.0);
 }
 
 void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
@@ -989,11 +1016,29 @@ void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
   }
   cairo_restore(cr);
 
+  // Header strip inside the window, like Comp Suite's meter mode bar.
+  roundRect(cr, 178, 142, 554, 24, 3);
+  setRgb(cr, mix(skin.bodyBottom, {0, 0, 0}, 0.35));
+  cairo_fill(cr);
+  setRgb(cr, {1, 1, 1}, 0.08);
+  cairo_set_line_width(cr, 1.0);
+  roundRect(cr, 178.5, 142.5, 553, 23, 3);
+  cairo_stroke(cr);
+  text(cr, cabName(model, cab), 190, 159, 12, 0, 0.88, 0.90, 0.92);
+  static const char* kMicNames[3] = {"DYNAMIC", "RIBBON", "BLEND"};
+  const int mic = std::min(std::max(static_cast<int>(
+                                        shared.get(P_CAB_MIC) + 0.5),
+                                    0),
+                           2);
+  char micLabel[32];
+  std::snprintf(micLabel, sizeof(micLabel), "%s MIC", kMicNames[mic]);
+  text(cr, micLabel, 720, 159, 9, 2, 0.55, 0.57, 0.60);
+
   const bool two = (model == 0 || model == 1);
   struct Cone { double x, y, r; };
-  static const Cone kFour[4] = {{292, 210, 44}, {455, 210, 44},
-                                {292, 278, 44}, {455, 278, 44}};
-  static const Cone kTwo[2] = {{355, 238, 58}, {545, 238, 58}};
+  static const Cone kFour[4] = {{292, 216, 44}, {455, 216, 44},
+                                {292, 284, 44}, {455, 284, 44}};
+  static const Cone kTwo[2] = {{355, 244, 58}, {545, 244, 58}};
   const Cone* cones = two ? kTwo : kFour;
   const int coneCount = two ? 2 : 4;
   for (int i = 0; i < coneCount; ++i) {
@@ -1022,9 +1067,6 @@ void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
     cairo_arc(cr, c.x, c.y, c.r * 0.72, 0, 2 * kPi);
     cairo_stroke(cr);
   }
-
-  text(cr, cabName(model, cab), 455, 158, 13, 1, 0.88, 0.90, 0.92);
-  text(cr, cabSubtitle(model, cab), 455, 174, 9.5, 1, 0.50, 0.52, 0.55);
 
   // Input / output bars inside the window.
   auto bar = [&](double x, double y, double w, double v, Rgb c) {
@@ -1153,17 +1195,16 @@ void Panel::drawFooter(cairo_t* cr, const Shared& shared,
 
   char buf[256];
   if (state.page == 1) {
-    std::snprintf(buf, sizeof(buf), "PEDALBOARD  ·  %s  ·  %s",
-                  modelName(model), cabName(model, cab));
+    std::snprintf(buf, sizeof(buf), "PEDALBOARD  ·  %s", modelName(model));
   } else if (state.page == 2) {
-    std::snprintf(buf, sizeof(buf), "CABINET  ·  %s  ·  %s",
-                  modelName(model), cabName(model, cab));
+    std::snprintf(buf, sizeof(buf), "CABINET  ·  %s  ·  %s", modelName(model),
+                  cabName(model, cab));
   } else {
     std::snprintf(buf, sizeof(buf), "%s  ·  %s", skin.caption,
                   cabName(model, cab));
   }
-  text(cr, buf, 24, 629, 12, 0, 0.82, 0.84, 0.86);
-  text(cr, "v" AMP_SUITE_VERSION, 1016, 629, 10, 2, 0.45, 0.47, 0.50);
+  text(cr, buf, kPanelWidth * 0.5, 629, 13.5, 1, 0.86, 0.88, 0.90);
+  text(cr, "v" AMP_SUITE_VERSION, 1016, 631, 9, 2, 0.38, 0.40, 0.43);
 }
 
 void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
@@ -1198,7 +1239,7 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
       if (w.param == P_HQ) {
         ww.label = on ? "HQ" : "ECO";
       } else if (w.param == P_LOOP_POS) {
-        ww.label = on ? "POST" : "PRE";
+        ww.label = on ? "LOOP POST" : "LOOP PRE";
       } else if (w.param == P_DELAY_SYNC) {
         ww.label = on ? "HOST" : "FREE";
       } else if (w.param == P_DELAY_PINGPONG) {
@@ -1444,9 +1485,10 @@ void Panel::drawFootswitch(cairo_t* cr, const Widget& w, bool on,
 
 void Panel::drawLevelMeter(cairo_t* cr, double x, double y, double w,
                            double h, double dbL, double dbR, int model,
-                           bool labelsRight) const {
+                           bool labelsRight, double minDb, double maxDb) const {
   const Skin skin = skinFor(model);
   const double gap = 4.0;
+  const double pairWidth = w * 2.0 + gap;
   for (int ch = 0; ch < 2; ++ch) {
     const double bx = x + ch * (w + gap);
     cairo_rectangle(cr, bx, y, w, h);
@@ -1457,7 +1499,7 @@ void Panel::drawLevelMeter(cairo_t* cr, double x, double y, double w,
     cairo_rectangle(cr, bx + 0.5, y + 0.5, w - 1, h - 1);
     cairo_stroke(cr);
 
-    const double v = dbToNorm(ch == 0 ? dbL : dbR, -60.0, 3.0);
+    const double v = dbToNorm(ch == 0 ? dbL : dbR, minDb, maxDb);
     const double top = y + h * (1.0 - v);
     if (v > 0.0) {
       cairo_pattern_t* pat = cairo_pattern_create_linear(0, top, 0, y + h);
@@ -1471,20 +1513,60 @@ void Panel::drawLevelMeter(cairo_t* cr, double x, double y, double w,
       cairo_pattern_destroy(pat);
     }
   }
+
+  // Tick marks and dB labels sit on the inner side of each meter pair, as in
+  // Comp Suite.
+  const double tickX = labelsRight ? x + pairWidth : x;
+  const double labelX = labelsRight ? tickX + 7.0 : tickX - 7.0;
+  const int align = labelsRight ? 0 : 2;
+  static const double kMarks[] = {3.0, 0.0, -6.0, -12.0,
+                                  -24.0, -36.0, -48.0};
+  for (double m : kMarks) {
+    if (m < minDb - 0.01 || m > maxDb + 0.01) {
+      continue;
+    }
+    const double ty = y + h * (1.0 - dbToNorm(m, minDb, maxDb));
+    setRgb(cr, skin.legendDim, 0.55);
+    cairo_set_line_width(cr, 1.0);
+    cairo_move_to(cr, tickX + (labelsRight ? -3.0 : 3.0), ty);
+    cairo_line_to(cr, tickX, ty);
+    cairo_stroke(cr);
+    char buf[16];
+    std::snprintf(buf, sizeof(buf), m > 0.0 ? "+%.0f" : "%.0f", m);
+    text(cr, buf, labelX, ty + 3.0, 7.5, align, skin.legendDim.r,
+         skin.legendDim.g, skin.legendDim.b);
+  }
   const char* label = labelsRight ? "IN" : "OUT";
   text(cr, label, x + w, y + h + 16, 9, 1, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
-  for (int m = 0; m <= 3; ++m) {
-    const double db = -60.0 + m * 21.0;
-    const double ty = y + h * (1.0 - dbToNorm(db, -60.0, 3.0));
-    setRgb(cr, skin.legendDim, 0.5);
-    cairo_set_line_width(cr, 1.0);
-    cairo_move_to(cr, x - 3, ty);
-    cairo_line_to(cr, x, ty);
-    cairo_stroke(cr);
-    text(cr, db <= -60 ? "-60" : (db >= 0 ? "0" : "-30"), x - 6, ty + 3, 7.5,
-         2, skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+}
+
+void Panel::drawLeds(cairo_t* cr, const Shared& shared, int model) const {
+  (void)model;
+  const double db = shared.outPeakDb.load(std::memory_order_relaxed);
+  // Twelve output segments from -30 dBFS to +3 dBFS.  The column echoes the
+  // LED ladder in Comp Suite while showing amp output level.
+  for (int i = 0; i < 12; ++i) {
+    const double threshold = -30.0 + i * 3.0;
+    const bool on = db >= threshold;
+    Rgb c;
+    if (i < 6) {
+      c = {0.27, 0.88, 0.42};
+    } else if (i < 9) {
+      c = {0.96, 0.82, 0.29};
+    } else {
+      c = {1.0, 0.30, 0.24};
+    }
+    const double y = 146.0 + static_cast<double>(11 - i) * 16.0;
+    roundRect(cr, 754, y, 16, 12, 2);
+    if (on) {
+      setRgb(cr, c);
+    } else {
+      setRgb(cr, {c.r * 0.18, c.g * 0.18, c.b * 0.18});
+    }
+    cairo_fill(cr);
   }
+  text(cr, "OUT", 762, 344, 8, 1, 0.52, 0.54, 0.57);
 }
 
 std::vector<Panel::WidgetRect> Panel::widgetRects() const {

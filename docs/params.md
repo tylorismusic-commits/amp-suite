@@ -74,8 +74,10 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 45 | `chorus_rate` | Chorus Rate | 0–1 | 0.35 | | Chorus Clean |
 | 46 | `chorus_depth` | Chorus Depth | 0–1 | 0.5 | | Chorus Clean |
 | 47 | `meter` | Meter | 0–1 | 0 | stepped, hidden | UI-only |
+| 48 | `limiter_on` | Limiter | 0–1 | 0 | toggle | output safety limiter |
+| 49 | `limiter_threshold` | Limiter Threshold | 0–1 | 1 | | `-24 + 24v` dBFS |
 
-`P_COUNT = 48`.
+`P_COUNT = 50`.
 
 ## Model-specific visibility
 
@@ -113,6 +115,7 @@ continuous values:
 - `cab_level` → dB
 - `cab_lowcut` / `cab_highcut` → Hz
 - `reverb_predelay` → milliseconds
+- `limiter_threshold` → dBFS
 - toggles → `On` / `Off`
 
 After 1.0, symbols and ids must never change. Append new parameters at the end
