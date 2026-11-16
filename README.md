@@ -42,8 +42,8 @@ M1 is in progress:
 - ⏳ M1: full NFB/blocking and per-model reference tuning.
 - ✅ **M1:** Guitarix TS9/808 circuit model; stereo tape-style delay; FDN
   reverb; pre-power/post-cab loop switch; free/host delay sync.
-- ✅ **M1:** seven generated CC0 factory cabs, fitted from the references and
-  convolved in the engine (57 / ribbon / blend variants, 48/96 kHz).
+- ✅ **M1:** eight generated CC0 factory cabs (Hot Rod has a Greenback
+  alternate), convolved in the engine (57 / ribbon / blend variants, 48/96 kHz).
 - ✅ Comp Suite-style preset arrows, centered footer, LED output column,
   metering ticks, inset cab window and output limiter.
 - ✅ Per-amp user IR loading from `$XDG_DATA_HOME/amp-suite/irs/user`, with a
@@ -114,7 +114,9 @@ build/amp_ui_preview assets/fonts /tmp/ampsuite-preview 1.0
 Factory cabs are original CC0 IRs synthesized from grouped, level-normalized
 reference magnitudes. The current set uses 1/12-octave minimum-phase synthesis
 with 57 / ribbon / blend groups, not a copy of any reference capture. Reference
-WAVs are **not** shipped and are gitignored under `refs/irs/`.
+WAVs are **not** shipped and are gitignored under `refs/irs/`. Local Kazrog
+AmpCraft IR sets are used only as unshipped analysis references for the Hot Rod,
+Crunch, Recto and Hot Rod Greenback cabs.
 
 TONE3000 captures are T3K-licensed: free to use, but not redistributable
 without the author's permission. Amp Suite does not download, bundle or

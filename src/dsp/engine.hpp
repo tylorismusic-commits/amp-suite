@@ -392,6 +392,9 @@ private:
     const int cabModel =
         (fadeDir_ == -1 && lastModel_ >= 0) ? lastModel_ : controls_.model;
     int set = cabModel;
+    if (cabModel == 3 && controls_.cab == 1) {
+      set = CabBank::HotRodGreen;
+    }
     if (cabModel == 4 && controls_.cab == 1) {
       set = CabBank::Recto;
     }

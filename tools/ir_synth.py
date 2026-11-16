@@ -85,6 +85,15 @@ CABS = {
             "blend": {"mix": {"57": 0.65, "121": 0.35}},
         },
     },
+    "hot-rod-green": {
+        "urls": [],
+        "source": "Kazrog AmpCraft 1992 local IR set (analysis only; not redistributed)",
+        "variants": {
+            "57": {},
+            "121": {},
+            "blend": {"mix": {"57": 0.65, "121": 0.35}},
+        },
+    },
     "block-120": {
         "urls": [
             "https://www.tone3000.com/tones/peavey-412ms-sheffield-1290-46881"
@@ -295,6 +304,7 @@ def write_cab(cab: str, ref_root: str, out_root: str, name: str) -> dict:
         "license": "CC0-1.0",
         "reference_license": "T3K (not redistributed)",
         "reference_urls": CABS[cab]["urls"],
+        "reference_source": CABS[cab].get("source", "TONE3000 (local analysis only)"),
         "variants": manifest_variants,
     }
     with open(os.path.join(out_dir, "manifest.json"), "w", encoding="utf-8") as fh:

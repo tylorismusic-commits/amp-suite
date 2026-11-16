@@ -13,10 +13,10 @@
       "121": {
         "eq": [],
         "metrics": {
-          "max_abs_db": 1.6836560307008988,
-          "mean_abs_db": 0.19195878553466716,
-          "offset_db": -10.957976093243733,
-          "rms_db": 0.2996229983285024
+          "max_abs_db": 0.9641079740249854,
+          "mean_abs_db": 0.20688996814114513,
+          "offset_db": -12.975738685438364,
+          "rms_db": 0.28188165004532656
         },
         "mix": {},
         "references": [
@@ -24,7 +24,16 @@
           "SM58 BL center close.wav",
           "SM58 BL edge close.wav",
           "V2_SM58 center BR.wav",
-          "V2_SM58 edge BL.wav"
+          "V2_SM58 edge BL.wav",
+          "kazrog-RC-1960_4x12-121-edge-0-MPT.wav",
+          "kazrog-RC-1960_4x12-121-edge-0_5-MPT.wav",
+          "kazrog-RC-1960_4x12-121-edge-1-MPT.wav",
+          "kazrog-RC-1960_4x12-121-edge-12-MPT.wav",
+          "kazrog-RC-1960_4x12-121-edge-4-MPT.wav",
+          "kazrog-RC-1960_4x12-121-edge-6-MPT.wav",
+          "kazrog-RC-1960_4x12-121-offAxis-0-MPT.wav",
+          "kazrog-RC-1960_4x12-121-offAxis-0_5-MPT.wav",
+          "kazrog-RC-1960_4x12-121-offAxis-1-MPT.wav"
         ],
         "smoothing_octaves": 0.08333333333333333,
         "taps": {
@@ -32,20 +41,29 @@
           "96k": 4096
         },
         "weights": {
-          "SM58 BL center 1in.wav": 1.0,
-          "SM58 BL center close.wav": 1.0,
-          "SM58 BL edge close.wav": 1.0,
-          "V2_SM58 center BR.wav": 1.0,
-          "V2_SM58 edge BL.wav": 1.0
+          "SM58 BL center 1in.wav": 0.25,
+          "SM58 BL center close.wav": 0.25,
+          "SM58 BL edge close.wav": 0.25,
+          "V2_SM58 center BR.wav": 0.25,
+          "V2_SM58 edge BL.wav": 0.25,
+          "kazrog-RC-1960_4x12-121-edge-0-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-edge-0_5-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-edge-1-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-edge-12-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-edge-4-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-edge-6-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-offAxis-0-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-offAxis-0_5-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-121-offAxis-1-MPT.wav": 1.0
         }
       },
       "57": {
         "eq": [],
         "metrics": {
-          "max_abs_db": 1.46656525543239,
-          "mean_abs_db": 0.19701720224702993,
-          "offset_db": -10.393995433608046,
-          "rms_db": 0.31175726617245325
+          "max_abs_db": 1.1074477936635088,
+          "mean_abs_db": 0.18605434345185434,
+          "offset_db": -12.361807717846535,
+          "rms_db": 0.27238819045341556
         },
         "mix": {},
         "references": [
@@ -54,7 +72,19 @@
           "SM57 BR center close.wav",
           "SM57 BR edge close.wav",
           "V2_SM57 center BR.wav",
-          "V2_SM57 edge BL.wav"
+          "V2_SM57 edge BL.wav",
+          "kazrog-RC-1960_4x12-57-cap-0-MPT.wav",
+          "kazrog-RC-1960_4x12-57-cap-0_5-MPT.wav",
+          "kazrog-RC-1960_4x12-57-cap-1-MPT.wav",
+          "kazrog-RC-1960_4x12-57-cone-0-MPT.wav",
+          "kazrog-RC-1960_4x12-57-cone-0_5-MPT.wav",
+          "kazrog-RC-1960_4x12-57-cone-1-MPT.wav",
+          "kazrog-RC-1960_4x12-57-edge-0-MPT.wav",
+          "kazrog-RC-1960_4x12-57-edge-0_5-MPT.wav",
+          "kazrog-RC-1960_4x12-57-edge-1-MPT.wav",
+          "kazrog-RC-1960_4x12-57-offAxis-0-MPT.wav",
+          "kazrog-RC-1960_4x12-57-offAxis-0_5-MPT.wav",
+          "kazrog-RC-1960_4x12-57-offAxis-1-MPT.wav"
         ],
         "smoothing_octaves": 0.08333333333333333,
         "taps": {
@@ -62,21 +92,33 @@
           "96k": 4096
         },
         "weights": {
-          "ND257 center BR.wav": 1.0,
-          "SM57 BR center 1in.wav": 1.0,
-          "SM57 BR center close.wav": 1.0,
-          "SM57 BR edge close.wav": 1.0,
-          "V2_SM57 center BR.wav": 1.0,
-          "V2_SM57 edge BL.wav": 1.0
+          "ND257 center BR.wav": 0.35,
+          "SM57 BR center 1in.wav": 0.35,
+          "SM57 BR center close.wav": 0.35,
+          "SM57 BR edge close.wav": 0.35,
+          "V2_SM57 center BR.wav": 0.35,
+          "V2_SM57 edge BL.wav": 0.35,
+          "kazrog-RC-1960_4x12-57-cap-0-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-cap-0_5-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-cap-1-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-cone-0-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-cone-0_5-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-cone-1-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-edge-0-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-edge-0_5-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-edge-1-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-offAxis-0-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-offAxis-0_5-MPT.wav": 1.0,
+          "kazrog-RC-1960_4x12-57-offAxis-1-MPT.wav": 1.0
         }
       },
       "blend": {
         "eq": [],
         "metrics": {
-          "max_abs_db": 1.5425506832583862,
-          "mean_abs_db": 0.18484179670963627,
-          "offset_db": -10.505299367086549,
-          "rms_db": 0.29248434649365207
+          "max_abs_db": 0.9481699905175502,
+          "mean_abs_db": 0.17413520968979693,
+          "offset_db": -12.592723981768708,
+          "rms_db": 0.25137391424102934
         },
         "mix": {
           "121": 0.35,

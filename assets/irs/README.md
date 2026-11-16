@@ -39,7 +39,7 @@ directories are gitignored. The generated files are `cab_<name>_57`, `_121`,
 a `manifest.json` with its reference groups, weights, target EQ, synthesis
 method and metrics; the aggregate is `manifest.json` at this level.
 
-Generated set: `chorus-clean`, `chime`, `crunch`, `hot-rod`, `block-120`,
-`stealth`, `recto`. The `recto` set is shared by the Recto tab and the Block 120
-OS alternate. Each IR is normalized to unity at 1 kHz by the engine for level
-consistency.
+Generated set: `chorus-clean`, `chime`, `crunch`, `hot-rod`, `hot-rod-green`,
+`block-120`, `stealth`, `recto`. The `recto` set is shared by the Recto tab and
+the Block 120 OS alternate; `hot-rod-green` is the Hot Rod alternate. Each IR is
+normalized to unity at 1 kHz by the engine for level consistency.

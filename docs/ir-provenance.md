@@ -13,6 +13,9 @@ shipped.
   references manually.
 - Generated factory IRs are original works synthesized from the model and are
   licensed **CC0**. The model/fitter is GPL-3.0-or-later.
+- Local **Kazrog AmpCraft 1992** IR sets are also used as unshipped analysis
+  references for the Hot Rod, Crunch, Recto and Hot Rod Greenback cabs. They
+  are not copied into the repository or release and are not redistributed.
 - The plugin never fetches, uploads or shares user IRs.
 
 TONE3000's T3K license permits downloading and using the file in software, but
@@ -25,12 +28,14 @@ references stay out of the release.
 |---|---|---|---|
 | Chorus Clean | [JC120 Cab Impulses](https://www.tone3000.com/tones/jc120-cab-impulses-1644) | timr | JC-120 2×12, two condensers, 15 IRs |
 | Chime | [Vox Alnico Blue 2×12](https://www.tone3000.com/tones/vox-alnico-blue-2x12-98463) | flavortownstudios | AC30, Celestion Blue, E906 |
-| Crunch | [DRPS Orange 4×12 V30](https://www.tone3000.com/tones/drps-orange-4x12-v30-impulse-response-80534) | drprophecystudio | SM57 / 7B / 421 / R121 |
-| Hot Rod | [Marshall 1960 4×12 G12T-75](https://www.tone3000.com/tones/marshall-jcm800-lead-1960-4x12-g12t-75-104387) | tenfiftyfour | 75 IRs, lower speakers |
+| Crunch | [DRPS Orange 4×12 V30](https://www.tone3000.com/tones/drps-orange-4x12-v30-impulse-response-80534) | drprophecystudio | T3K cross-check; Kazrog Tangerine 4×12 analysis reference |
+| Hot Rod | [Marshall 1960 4×12 G12T-75](https://www.tone3000.com/tones/marshall-jcm800-lead-1960-4x12-g12t-75-104387) | tenfiftyfour | T3K cross-check, SM57/SM58 |
+| Hot Rod Greenback | Kazrog AmpCraft 1992 local IR set | Kazrog | Green 4×12, analysis only |
 | Block 120 | [Peavey 412MS Sheffield 1290](https://www.tone3000.com/tones/peavey-412ms-sheffield-1290-46881) | guitarscrub | closest IR; exact 1200 only in a NAM capture |
 | Stealth EL34 | [Celestion G12-EVH — EVH 5150III 4×12](https://www.tone3000.com/tones/celestion-g12-evh-evh-5150iii-4x12-40738) | OutmodedElectronics | all four speakers, 0.25″ moves |
 | Recto / OS | [Mesa Rectifier Standard 2002 4×12 V30](https://www.tone3000.com/tones/mesa-rectifier-standard-2002-4x12-slanted-v30-multi-mics-67544) | kenazmusic | early-00s OS, SM57/MD421/R10, 6 positions |
 | OS anchor | [1993 Mesa Rectifier OS Standard Slant 4×12 V30s](https://www.tone3000.com/tones/1993-mesa-rectifier-os-standard-slant-4x12-v30s-97689) | mikesedani | OG Mesa-spec V30s; era anchor |
+| OS cross-check | Kazrog AmpCraft 1992 Oversize 4×12 | Kazrog | modern OS cross-check, analysis only |
 
 ### Mesa OS notes
 
@@ -92,11 +97,12 @@ Outputs per amp: `cab_<amp>_57`, `cab_<amp>_121`, `cab_<amp>_blend`;
 |---|---|---:|---|
 | Chorus Clean | `assets/irs/chorus-clean/` | 0.12 / 1.00 dB | JC-120 2×12, C414 / C636 |
 | Chime | `assets/irs/chime/` | 0.19 / 1.14 dB | AC30 alnico 2×12, E906 |
-| Crunch | `assets/irs/crunch/` | 0.27 / 2.11 dB | Orange 4×12 V30, dynamic + ribbon blend |
-| Hot Rod | `assets/irs/hot-rod/` | 0.20 / 1.47 dB | Marshall 1960 G12T-75, SM57 / SM58 |
+| Crunch | `assets/irs/crunch/` | 0.26 / 1.85 dB | Orange 4×12 V30 + Kazrog Tangerine |
+| Hot Rod | `assets/irs/hot-rod/` | 0.19 / 1.11 dB | Marshall 1960 G12T-75 + Kazrog 1960 |
+| Hot Rod Greenback | `assets/irs/hot-rod-green/` | 0.21 / 0.98 dB | Kazrog Green 4×12, Hot Rod alternate |
 | Block 120 | `assets/irs/block-120/` | 0.20 / 1.20 dB | Peavey 412MS Sheffield 1290, 57 / AR5 / mixes |
 | Stealth EL34 | `assets/irs/stealth/` | 0.18 / 1.82 dB | EVH 5150III G12-EVH, close/far SM57 |
-| Recto / OS | `assets/irs/recto/` | 0.15 / 0.92 dB | 1993 OS anchor + 2002 cross-check |
+| Recto / OS | `assets/irs/recto/` | 0.16 / 0.91 dB | 1993 OS anchor + 2002 + Kazrog Oversize |
 
 Each set contains `57`, `121` and `blend` variants at 48 kHz (2048 taps) and
 96 kHz (4096 taps). The engine normalizes each IR to unity at 1 kHz so cab and
@@ -104,7 +110,8 @@ mic switching stays level-consistent; the cab level control still trims the
 final level.
 
 The Mesa OS set is shared by the Recto default and the Block 120 alternate.
-The Block 120 default remains the Sheffield 1290 cab.
+The Block 120 default remains the Sheffield 1290 cab. The Hot Rod alternate is
+the `hot-rod-green` set.
 
 The aggregate manifest is `assets/irs/manifest.json`; per-cab manifests record
 the reference groups, weights, target EQ, synthesis method and error metrics.

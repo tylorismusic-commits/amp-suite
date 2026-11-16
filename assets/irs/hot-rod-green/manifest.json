@@ -1,0 +1,114 @@
+{
+  "hot-rod-green": {
+    "generated": "2026-11-15",
+    "license": "CC0-1.0",
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
+    "name": "hot-rod-green",
+    "reference_license": "T3K (not redistributed)",
+    "reference_source": "Kazrog AmpCraft 1992 local IR set (analysis only; not redistributed)",
+    "reference_urls": [],
+    "variants": {
+      "121": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9003508902989759,
+          "mean_abs_db": 0.21070579934263195,
+          "offset_db": -12.976622996661343,
+          "rms_db": 0.28211961941388625
+        },
+        "mix": {},
+        "references": [
+          "kazrog-RC-Green_4x12-121-edge-0-MPT.wav",
+          "kazrog-RC-Green_4x12-121-edge-0_5-MPT.wav",
+          "kazrog-RC-Green_4x12-121-edge-1-MPT.wav",
+          "kazrog-RC-Green_4x12-121-edge-12-MPT.wav",
+          "kazrog-RC-Green_4x12-121-edge-4-MPT.wav",
+          "kazrog-RC-Green_4x12-121-edge-6-MPT.wav",
+          "kazrog-RC-Green_4x12-121-offAxis-0-MPT.wav",
+          "kazrog-RC-Green_4x12-121-offAxis-0_5-MPT.wav",
+          "kazrog-RC-Green_4x12-121-offAxis-1-MPT.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "kazrog-RC-Green_4x12-121-edge-0-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-edge-0_5-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-edge-1-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-edge-12-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-edge-4-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-edge-6-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-offAxis-0-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-offAxis-0_5-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-121-offAxis-1-MPT.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9806976299395904,
+          "mean_abs_db": 0.21454176428436847,
+          "offset_db": -12.387312606286905,
+          "rms_db": 0.28019692214171776
+        },
+        "mix": {},
+        "references": [
+          "kazrog-RC-Green_4x12-57-cap-0-MPT.wav",
+          "kazrog-RC-Green_4x12-57-cap-0_5-MPT.wav",
+          "kazrog-RC-Green_4x12-57-cap-1-MPT.wav",
+          "kazrog-RC-Green_4x12-57-cone-0-MPT.wav",
+          "kazrog-RC-Green_4x12-57-cone-0_5-MPT.wav",
+          "kazrog-RC-Green_4x12-57-cone-1-MPT.wav",
+          "kazrog-RC-Green_4x12-57-edge-0-MPT.wav",
+          "kazrog-RC-Green_4x12-57-edge-0_5-MPT.wav",
+          "kazrog-RC-Green_4x12-57-edge-1-MPT.wav",
+          "kazrog-RC-Green_4x12-57-offAxis-0-MPT.wav",
+          "kazrog-RC-Green_4x12-57-offAxis-0_5-MPT.wav",
+          "kazrog-RC-Green_4x12-57-offAxis-1-MPT.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "kazrog-RC-Green_4x12-57-cap-0-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-cap-0_5-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-cap-1-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-cone-0-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-cone-0_5-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-cone-1-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-edge-0-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-edge-0_5-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-edge-1-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-offAxis-0-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-offAxis-0_5-MPT.wav": 1.0,
+          "kazrog-RC-Green_4x12-57-offAxis-1-MPT.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.8186444388635694,
+          "mean_abs_db": 0.19244450586377407,
+          "offset_db": -12.515918402270003,
+          "rms_db": 0.25239743272486637
+        },
+        "mix": {
+          "121": 0.35,
+          "57": 0.65
+        },
+        "references": [],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {}
+      }
+    }
+  }
+}

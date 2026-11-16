@@ -114,13 +114,14 @@ public:
     Block120 = 4,
     Stealth = 5,
     Recto = 6,
-    Count = 7
+    HotRodGreen = 7,
+    Count = 8
   };
 
   bool load(const std::string& dir, float sampleRate) noexcept {
     static const char* const names[Count] = {
         "chorus-clean", "chime", "crunch", "hot-rod",
-        "block-120",   "stealth", "recto"};
+        "block-120",   "stealth", "recto", "hot-rod-green"};
     static const char* const mics[3] = {"57", "121", "blend"};
     const int targetRate = static_cast<int>(std::lround(sampleRate));
     const bool prefer96 = sampleRate >= 72000.0f;
