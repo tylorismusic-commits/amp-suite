@@ -77,6 +77,7 @@ Each recipe controls:
   practical post-power high shelf. Resonance remains a post-power low shelf;
   a fully coupled NFB resonance loop is still to come.
 - Each recipe is level-calibrated; `amp_probe` reports peak/RMS/THD.
+- Tabs crossfade over 10 ms down/up around the recipe and cab swap.
 - The 2×/4× power-stage oversampling is in place; the alias floor still needs a
   formal measurement in the release pass.
 - Validate each recipe against the reference captures listed in

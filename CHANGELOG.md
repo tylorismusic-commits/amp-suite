@@ -47,6 +47,8 @@ M1: tube-stage and tone-stack engine.
 - 2×/4× half-band FIR oversampling around the power stage: HQ uses 4×, Eco
   uses 2×. The power-amp feedback and supply sag now keep state across process
   blocks instead of resetting every block.
+- Click-free model switching: a 10 ms fade out, recipe/cab swap at silence and
+  a 10 ms fade in.
 - Manual `tempo` control (40–300 BPM) for LV2 and hosts without transport;
   CLAP transport and an LV2 `time:Position` atom-sequence input port override
   it when the host supplies a timeline.
