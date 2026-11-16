@@ -55,7 +55,7 @@ M1: tube-stage and tone-stack engine.
 - Manual `tempo` control (40–300 BPM) for LV2 and hosts without transport;
   CLAP transport and an LV2 `time:Position` atom-sequence input port override
   it when the host supplies a timeline.
-- 22-preset factory bank across Clean, Crunch, Rhythm, Lead, Doom and Ambient,
+- 24-preset factory bank across Clean, Crunch, Rhythm, Lead, Doom and Ambient,
   with a ten-row scrolling preset browser.
 - Factory cab set regenerated with grouped 1/12-octave minimum-phase synthesis
   (57 / ribbon / blend groups); mean target error is now 0.11–0.33 dB, max

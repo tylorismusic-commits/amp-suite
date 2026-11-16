@@ -146,6 +146,33 @@
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
     [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
 
+<https://github.com/tylorismusic-commits/amp-suite#preset_block-120-chug>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/tylorismusic-commits/amp-suite> ;
+    rdfs:label "Block 120 — Chug" ;
+    rdfs:comment "Rhythm" ;
+    pset:bank <https://github.com/tylorismusic-commits/amp-suite#bank_rhythm> ;
+    lv2:port
+    [ lv2:symbol "model" ; pset:value 4 ] ,
+    [ lv2:symbol "gain" ; pset:value 0.55 ] ,
+    [ lv2:symbol "bass" ; pset:value 0.6 ] ,
+    [ lv2:symbol "mid" ; pset:value 0.34 ] ,
+    [ lv2:symbol "treble" ; pset:value 0.62 ] ,
+    [ lv2:symbol "presence" ; pset:value 0.6 ] ,
+    [ lv2:symbol "resonance" ; pset:value 0.62 ] ,
+    [ lv2:symbol "master" ; pset:value 0.4 ] ,
+    [ lv2:symbol "output" ; pset:value 0.5 ] ,
+    [ lv2:symbol "crunch" ; pset:value 1 ] ,
+    [ lv2:symbol "od_on" ; pset:value 1 ] ,
+    [ lv2:symbol "od_drive" ; pset:value 0.32 ] ,
+    [ lv2:symbol "od_tone" ; pset:value 0.5 ] ,
+    [ lv2:symbol "od_level" ; pset:value 0.55 ] ,
+    [ lv2:symbol "delay_on" ; pset:value 0 ] ,
+    [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
+    [ lv2:symbol "cab" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+
 <https://github.com/tylorismusic-commits/amp-suite#preset_chorus-clean-clean>
     a pset:Preset ;
     lv2:appliesTo <https://github.com/tylorismusic-commits/amp-suite> ;
@@ -397,6 +424,32 @@
     [ lv2:symbol "reverb_tone" ; pset:value 0.5 ] ,
     [ lv2:symbol "reverb_predelay" ; pset:value 0.08 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+
+<https://github.com/tylorismusic-commits/amp-suite#preset_hot-rod-green>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/tylorismusic-commits/amp-suite> ;
+    rdfs:label "Hot Rod — Green" ;
+    rdfs:comment "Crunch" ;
+    pset:bank <https://github.com/tylorismusic-commits/amp-suite#bank_crunch> ;
+    lv2:port
+    [ lv2:symbol "model" ; pset:value 3 ] ,
+    [ lv2:symbol "gain" ; pset:value 0.66 ] ,
+    [ lv2:symbol "bass" ; pset:value 0.54 ] ,
+    [ lv2:symbol "mid" ; pset:value 0.52 ] ,
+    [ lv2:symbol "treble" ; pset:value 0.56 ] ,
+    [ lv2:symbol "presence" ; pset:value 0.54 ] ,
+    [ lv2:symbol "master" ; pset:value 0.45 ] ,
+    [ lv2:symbol "output" ; pset:value 0.5 ] ,
+    [ lv2:symbol "voice" ; pset:value 0 ] ,
+    [ lv2:symbol "od_on" ; pset:value 1 ] ,
+    [ lv2:symbol "od_drive" ; pset:value 0.16 ] ,
+    [ lv2:symbol "od_tone" ; pset:value 0.52 ] ,
+    [ lv2:symbol "od_level" ; pset:value 0.55 ] ,
+    [ lv2:symbol "delay_on" ; pset:value 0 ] ,
+    [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
+    [ lv2:symbol "cab" ; pset:value 1 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
     [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
 

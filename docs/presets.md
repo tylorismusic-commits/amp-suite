@@ -39,7 +39,13 @@
 | 22 | Track Lead | Lead | Block 120 | tracking lead, OS cab, delay + plate |
 
 The preset browser shows ten rows at a time and scrolls with the mouse wheel.
-Categories are shown on the right of each row.
+Categories are shown on the right of each row. The 0.2.0 cab pass added two
+more:
+
+| Preset | Category | Model | Intent |
+|---|---|---|---|
+| Block 120 — Chug | Rhythm | Block 120 | Kazrog-inspired scooped, resonant rhythm |
+| Hot Rod — Green | Crunch | Hot Rod | Greenback alternate cab |
 
 ## Applying presets
 

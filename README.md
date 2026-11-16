@@ -30,7 +30,7 @@ M1 is in progress:
 - ✅ CLAP and LV2 bundles build and load.
 - ✅ 59-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
-- ✅ Default preset and a 22-preset factory bank with a scrolling browser.
+- ✅ Default preset and a 24-preset factory bank with a scrolling browser.
 - ✅ LV2 metadata generated from the parameter table.
 - ✅ **M1:** Guitarix tube tables, `TubeStage`, passive tone stacks and
   per-model recipes, level-calibrated across all seven tabs.

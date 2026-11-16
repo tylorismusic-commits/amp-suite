@@ -56,6 +56,14 @@ inline constexpr Preset kPresets[] = {
       {P_DELAY_ON, 0.0f}, {P_REVERB_ON, 0.0f}, {P_CAB, 1.0f},
       {P_CAB_MIC, 0.0f}, {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
 
+    {"Block 120 — Chug", "Rhythm", 4,
+     {{P_GAIN, 0.55f}, {P_BASS, 0.60f}, {P_MID, 0.34f}, {P_TREBLE, 0.62f},
+      {P_PRESENCE, 0.60f}, {P_RESONANCE, 0.62f}, {P_MASTER, 0.40f},
+      {P_OUTPUT, 0.50f}, {P_CRUNCH, 1.0f}, {P_OD_ON, 1.0f},
+      {P_OD_DRIVE, 0.32f}, {P_OD_TONE, 0.50f}, {P_OD_LEVEL, 0.55f},
+      {P_DELAY_ON, 0.0f}, {P_REVERB_ON, 0.0f}, {P_CAB, 0.0f},
+      {P_CAB_MIC, 0.0f}, {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
+
     // --- Chorus Clean ------------------------------------------------------
     {"Chorus Clean — Clean", "Clean", 0,
      {{P_GAIN, 0.45f}, {P_BASS, 0.50f}, {P_MID, 0.50f}, {P_TREBLE, 0.60f},
@@ -132,6 +140,14 @@ inline constexpr Preset kPresets[] = {
       {P_REVERB_ON, 1.0f}, {P_REVERB_MODE, 0.0f}, {P_REVERB_MIX, 0.12f},
       {P_REVERB_DECAY, 0.35f}, {P_REVERB_TONE, 0.50f},
       {P_REVERB_PREDELAY, 0.08f}, {P_CAB, 0.0f}, {P_CAB_MIC, 0.0f},
+      {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
+
+    {"Hot Rod — Green", "Crunch", 3,
+     {{P_GAIN, 0.66f}, {P_BASS, 0.54f}, {P_MID, 0.52f}, {P_TREBLE, 0.56f},
+      {P_PRESENCE, 0.54f}, {P_MASTER, 0.45f}, {P_OUTPUT, 0.50f},
+      {P_VOICE, 0.0f}, {P_OD_ON, 1.0f}, {P_OD_DRIVE, 0.16f},
+      {P_OD_TONE, 0.52f}, {P_OD_LEVEL, 0.55f}, {P_DELAY_ON, 0.0f},
+      {P_REVERB_ON, 0.0f}, {P_CAB, 1.0f}, {P_CAB_MIC, 0.0f},
       {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
 
     // --- Stealth EL34 ------------------------------------------------------
