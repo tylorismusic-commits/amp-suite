@@ -164,12 +164,12 @@ constexpr double kListY = 54.0;
 constexpr double kListRow = 22.0;
 
 constexpr double kUserBoxX = 60.0;
-constexpr double kUserBoxY = 380.0;
+constexpr double kUserBoxY = 300.0;
 constexpr double kUserBoxW = 360.0;
-constexpr double kUserBoxH = 180.0;
-constexpr double kUserRowY = 432.0;
+constexpr double kUserBoxH = 260.0;
+constexpr double kUserRowY = 352.0;
 constexpr double kUserRowH = 20.0;
-constexpr int kUserRows = 6;
+constexpr int kUserRows = 10;
 
 double knobAngle(double f) {
   return (135.0 + 270.0 * f) * kPi / 180.0;
@@ -1234,9 +1234,9 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
   roundRect(cr, kUserBoxX + 0.5, kUserBoxY + 0.5, kUserBoxW - 1,
             kUserBoxH - 1, 6);
   cairo_stroke(cr);
-  text(cr, "USER IR FILES", 76, 400, 11, 0, skin.legend.r, skin.legend.g,
-       skin.legend.b);
-  text(cr, userIrDir().c_str(), 76, 415, 8, 0, skin.legendDim.r,
+  text(cr, "USER IR FILES", 76, kUserBoxY + 20, 11, 0, skin.legend.r,
+       skin.legend.g, skin.legend.b);
+  text(cr, userIrDir().c_str(), 76, kUserBoxY + 35, 8, 0, skin.legendDim.r,
        skin.legendDim.g, skin.legendDim.b);
 
   const int selected = static_cast<int>(
@@ -1268,7 +1268,7 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
          index == selected ? skin.btnTextOn.b : skin.legend.b);
   }
   if (files == 0) {
-    text(cr, "Drop WAV files in this folder.", 76, 458, 9, 0,
+    text(cr, "Drop WAV files in this folder.", 76, kUserRowY + 26, 9, 0,
          skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
   }
 
