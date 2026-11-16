@@ -5,7 +5,13 @@
 
 #include <cairo.h>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+
+#include <unistd.h>
 
 namespace {
 
@@ -113,6 +119,91 @@ int main() {
   if (std::fabs(shared.get(amp::P_MODEL) - 2.0) > 0.01) {
     std::fprintf(stderr, "model tab did not switch to Crunch\n");
     return 1;
+  }
+
+  // Cab page: the BROWSE/header area opens the built-in IR browser, a WAV
+  // row imports it, and Factory/Alt clear the per-amp user IR selection.
+  {
+    const std::string base =
+        "/tmp/amp-suite-layout-ir-" + std::to_string(::getpid());
+    const std::string userDir = base + "/amp-suite/irs/user";
+    std::error_code ec;
+    std::filesystem::remove_all(base, ec);
+    std::filesystem::create_directories(userDir, ec);
+    setenv("XDG_DATA_HOME", base.c_str(), 1);
+    const std::string wav = userDir + "/Test IR.wav";
+    {
+      std::ofstream out(wav, std::ios::binary);
+      const uint16_t channels = 1;
+      const uint16_t bits = 16;
+      const uint32_t dataSize = 64;
+      const uint32_t riffSize = 36 + dataSize;
+      const uint32_t fmtSize = 16;
+      const uint16_t format = 1;
+      const uint32_t rate = 48000;
+      const uint32_t byteRate = rate * channels * bits / 8;
+      const uint16_t align = channels * bits / 8;
+      out.write("RIFF", 4);
+      out.write(reinterpret_cast<const char*>(&riffSize), 4);
+      out.write("WAVEfmt ", 8);
+      out.write(reinterpret_cast<const char*>(&fmtSize), 4);
+      out.write(reinterpret_cast<const char*>(&format), 2);
+      out.write(reinterpret_cast<const char*>(&channels), 2);
+      out.write(reinterpret_cast<const char*>(&rate), 4);
+      out.write(reinterpret_cast<const char*>(&byteRate), 4);
+      out.write(reinterpret_cast<const char*>(&align), 2);
+      out.write(reinterpret_cast<const char*>(&bits), 2);
+      out.write("data", 4);
+      out.write(reinterpret_cast<const char*>(&dataSize), 4);
+      for (int i = 0; i < 32; ++i) {
+        const int16_t zero = 0;
+        out.write(reinterpret_cast<const char*>(&zero), 2);
+      }
+    }
+    shared.set(amp::P_MODEL, 4.0);
+    shared.set(amp::P_CAB, 0.0);
+    shared.set(amp::P_USER_IR_4, 1.0);
+    state.page = 2;
+    panel.draw(cr, shared, state);
+
+    // Header/title area of the user IR box opens the browser.
+    if (!panel.pointerDown(shared, state, 120.0, 320.0, false) ||
+        !state.fileBrowserOpen) {
+      std::fprintf(stderr, "user IR box did not open the browser\n");
+      return 1;
+    }
+    panel.draw(cr, shared, state);
+    // Row 0 is "..", row 1 is the WAV.
+    if (!panel.pointerDown(shared, state, 240.0, 160.0, false)) {
+      std::fprintf(stderr, "file browser click was not consumed\n");
+      return 1;
+    }
+    if (std::fabs(shared.get(amp::P_USER_IR_4) - 1.0) > 0.01 ||
+        std::fabs(shared.get(amp::P_CAB) - 2.0) > 0.01 ||
+        state.fileBrowserOpen) {
+      std::fprintf(stderr, "file browser import did not select the WAV\n");
+      return 1;
+    }
+
+    // Default clears the per-amp user IR selection.
+    panel.draw(cr, shared, state);
+    panel.pointerDown(shared, state, 90.0, 210.0, false);
+    if (std::fabs(shared.get(amp::P_CAB) - 0.0) > 0.01 ||
+        std::fabs(shared.get(amp::P_USER_IR_4)) > 0.01) {
+      std::fprintf(stderr, "Default did not clear the user IR selection\n");
+      return 1;
+    }
+    // Alt also clears it.
+    shared.set(amp::P_USER_IR_4, 1.0);
+    panel.draw(cr, shared, state);
+    panel.pointerDown(shared, state, 200.0, 210.0, false);
+    if (std::fabs(shared.get(amp::P_CAB) - 1.0) > 0.01 ||
+        std::fabs(shared.get(amp::P_USER_IR_4)) > 0.01) {
+      std::fprintf(stderr, "Alt did not clear the user IR selection\n");
+      return 1;
+    }
+
+    std::filesystem::remove_all(base, ec);
   }
 
   cairo_destroy(cr);

@@ -85,8 +85,9 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 55 | `user_ir_stealth` | Stealth User IR | 0–63 | 0 | stepped | per-amp user IR |
 | 56 | `user_ir_recto` | Recto User IR | 0–63 | 0 | stepped | per-amp user IR |
 | 57 | `tempo` | Delay Tempo | 40–300 | 120 | | bpm; manual tempo for LV2 and non-transport hosts |
+| 58 | `amp_bypass` | Amp Bypass | 0–1 | 0 | toggle | bypass preamp/tone/power; 808, loop, cab, output and limiter stay active |
 
-`P_COUNT = 58`.
+`P_COUNT = 59`.
 
 User IRs are WAV files in `$XDG_DATA_HOME/amp-suite/irs/user` (usually
 `~/.local/share/amp-suite/irs/user`). The list is sorted by filename; the

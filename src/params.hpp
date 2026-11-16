@@ -74,6 +74,7 @@ enum ParamId : uint32_t {
   P_USER_IR_5,
   P_USER_IR_6,
   P_BPM,
+  P_AMP_BYPASS,
   P_COUNT
 };
 
@@ -227,6 +228,8 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      false, nullptr, {}},
     {"tempo", "Delay Tempo", "Delay", 40.0, 300.0, 120.0, false, false, false,
      "bpm", {}},
+    {"amp_bypass", "Amp Bypass", "Amp", 0.0, 1.0, 0.0, true, false, true, nullptr,
+     {}},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -369,6 +372,7 @@ inline Controls controlsFrom(const Shared& s) {
     c.userIr[i] = static_cast<int>(s.get(P_USER_IR_0 + i) + 0.5);
   }
   c.bpm = static_cast<float>(s.get(P_BPM));
+  c.ampBypass = s.get(P_AMP_BYPASS) > 0.5;
   return c;
 }
 

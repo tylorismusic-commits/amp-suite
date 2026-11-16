@@ -715,8 +715,20 @@
         pg:group <https://github.com/tylorismusic-commits/amp-suite#delay> ;
     ] ,
     [
-        a lv2:OutputPort , lv2:ControlPort ;
+        a lv2:InputPort , lv2:ControlPort ;
         lv2:index 62 ;
+        lv2:symbol "amp_bypass" ;
+        lv2:name "Amp Bypass" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
+        lv2:integer true ;
+        lv2:toggled true ;
+        pg:group <https://github.com/tylorismusic-commits/amp-suite#amp> ;
+    ] ,
+    [
+        a lv2:OutputPort , lv2:ControlPort ;
+        lv2:index 63 ;
         lv2:symbol "out_peak_l" ;
         lv2:name "Output Peak Left" ;
         lv2:default 0 ;
@@ -728,7 +740,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 63 ;
+        lv2:index 64 ;
         lv2:symbol "out_peak_r" ;
         lv2:name "Output Peak Right" ;
         lv2:default 0 ;
@@ -740,7 +752,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 64 ;
+        lv2:index 65 ;
         lv2:symbol "in_peak_l" ;
         lv2:name "Input Peak Left" ;
         lv2:default 0 ;
@@ -752,7 +764,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 65 ;
+        lv2:index 66 ;
         lv2:symbol "in_peak_r" ;
         lv2:name "Input Peak Right" ;
         lv2:default 0 ;
@@ -764,7 +776,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 66 ;
+        lv2:index 67 ;
         lv2:symbol "out_vu" ;
         lv2:name "Output VU" ;
         lv2:default 0 ;
@@ -776,7 +788,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 67 ;
+        lv2:index 68 ;
         lv2:symbol "latency" ;
         lv2:name "Latency" ;
         lv2:default 0 ;
@@ -788,7 +800,7 @@
     ] ,
     [
         a lv2:InputPort , atom:Sequence ;
-        lv2:index 68 ;
+        lv2:index 69 ;
         lv2:symbol "time" ;
         lv2:name "Time" ;
         lv2:designation time:position ;

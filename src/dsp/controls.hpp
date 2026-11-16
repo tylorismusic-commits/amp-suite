@@ -32,6 +32,7 @@ struct Controls {
   float resonance = 0.5f;
   float master = 0.45f;
   float output = 0.5f;
+  bool ampBypass = false;   // skip preamp, tone stack and power amp
 
   // Model-specific switches, in fixed slots.
   bool bright = false;      // Chorus Clean

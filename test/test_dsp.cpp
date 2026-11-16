@@ -42,6 +42,42 @@ int main() {
     return 1;
   }
 
+  // Amp bypass removes the preamp/power amp but keeps input, 808, loop,
+  // cab and output active.
+  {
+    amp::Shared b;
+    b.set(amp::P_MODEL, 4.0);
+    b.set(amp::P_GAIN, 1.0);
+    b.set(amp::P_MASTER, 1.0);
+    b.set(amp::P_OUTPUT, 0.5);
+    b.set(amp::P_OD_ON, 0.0);
+    b.set(amp::P_CAB_BYPASS, 1.0);
+    b.set(amp::P_AMP_BYPASS, 1.0);
+    amp::Engine e;
+    e.prepare(48000.0f);
+    e.setControls(amp::controlsFrom(b));
+    std::vector<float> bl(512), br(512);
+    for (int i = 0; i < 512; ++i) {
+      bl[i] = 0.1f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      br[i] = bl[i];
+    }
+    amp::Meters bm;
+    e.process(bl.data(), br.data(), 512, bm);
+    if (!finiteBuffer(bl, br)) {
+      std::fprintf(stderr, "non-finite amp-bypass output\n");
+      return 1;
+    }
+    double energy = 0.0;
+    for (float v : bl) {
+      energy += static_cast<double>(v) * v;
+    }
+    const double rms = std::sqrt(energy / bl.size());
+    if (rms < 0.02 || rms > 0.2) {
+      std::fprintf(stderr, "amp bypass level is wrong: %.3f\n", rms);
+      return 1;
+    }
+  }
+
   // Every model must produce finite output and a plausible meter.
   for (int model = 0; model < 7; ++model) {
     shared.set(amp::P_MODEL, static_cast<double>(model));

@@ -14,6 +14,13 @@ namespace amp {
 constexpr int kPanelWidth = 1040;
 constexpr int kPanelHeight = 640;
 
+// One row in the built-in IR file browser.
+struct FileEntry {
+  std::string name;
+  bool directory = false;
+  bool parent = false;
+};
+
 // UI-only state.  The page is not a host parameter and is not saved.
 struct PanelState {
   int page = 0;  // 0 amp, 1 pedals, 2 cab
@@ -33,6 +40,11 @@ struct PanelState {
   std::vector<std::string> userIrs;
   int userIrScroll = 0;
   int userIrScanTicks = 60;
+
+  bool fileBrowserOpen = false;
+  std::string fileBrowserDir;
+  std::vector<FileEntry> fileBrowserEntries;
+  int fileBrowserScroll = 0;
 };
 
 class Panel {
@@ -59,6 +71,10 @@ public:
                       const PanelState& state) const;
   void markEdited(PanelState& state) const { state.presetDirty = true; }
   bool wheel(Shared& shared, PanelState& state, double x, double y, double dy);
+
+  // Copies a WAV into the user IR folder and selects it for the current amp.
+  bool importUserIr(Shared& shared, PanelState& state,
+                    const std::string& path) const;
 
   bool dragging() const { return dragParam_ >= 0; }
 
@@ -131,6 +147,12 @@ private:
   void drawLeds(cairo_t* cr, const Shared& shared, int model) const;
   void drawCabWindow(cairo_t* cr, const Shared& shared,
                      const PanelState& state, int model) const;
+  void openFileBrowser(PanelState& state) const;
+  void refreshFileBrowser(PanelState& state) const;
+  void drawFileBrowser(cairo_t* cr, const Shared& shared,
+                       const PanelState& state) const;
+  bool handleFileBrowserClick(Shared& shared, PanelState& state, double x,
+                              double y);
   void text(cairo_t* cr, const char* s, double x, double y, double size,
             int align, double r, double g, double b) const;
 

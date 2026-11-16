@@ -28,7 +28,7 @@ off, and the stock 1200 4×12 cab.
 M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 58-parameter host contract; CLAP state save/load.
+- ✅ 59-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and a 22-preset factory bank with a scrolling browser.
 - ✅ LV2 metadata generated from the parameter table.
@@ -47,11 +47,14 @@ M1 is in progress:
 - ✅ Comp Suite-style preset arrows, centered footer, LED output column,
   metering ticks, inset cab window and output limiter.
 - ✅ Per-amp user IR loading from `$XDG_DATA_HOME/amp-suite/irs/user`, with a
-  watched folder, filename selection and CLAP state embedding; LV2 state copies
-  selected WAVs into the host session via `state:makePath`.
+  watched folder, filename selection, drag-and-drop, a built-in file browser,
+  and CLAP state embedding; LV2 state copies selected WAVs into the host
+  session via `state:makePath`. Factory/Alt clear the active user IR selection.
 - ✅ Manual delay tempo (`tempo` control) for LV2 and non-transport hosts;
   CLAP transport and the LV2 `time:Position` atom port override it when the
   host supplies a timeline.
+- ✅ Amp-section bypass: keep the 808, FX loop, cab IR and output/limiter
+  active while skipping the preamp, tone stack and power amp.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

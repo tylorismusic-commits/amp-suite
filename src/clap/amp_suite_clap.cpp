@@ -29,6 +29,7 @@
 #include "version.hpp"
 #include "ui/geometry.hpp"
 #include "ui/panel.hpp"
+#include "ui/xdnd.hpp"
 
 namespace amp {
 namespace {
@@ -147,7 +148,7 @@ private:
     // with no button held, so dragging a knob would never deliver events.
     attrs.event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask |
                        PointerMotionMask | Button1MotionMask | ButtonMotionMask |
-                       KeyPressMask;
+                       KeyPressMask | PropertyChangeMask;
     const Window win =
         XCreateWindow(dpy, parent, 0, 0, current.width, current.height, 0,
                       CopyFromParent, InputOutput, CopyFromParent, CWEventMask,
@@ -169,6 +170,9 @@ private:
     XFlush(dpy);
 
     panel_.loadFont(bundleResourceDir());
+    xdnd_.init(dpy, win, [this](const std::string& path) {
+      panel_.importUserIr(shared_, state_, path);
+    });
     {
       std::lock_guard<std::mutex> lock(mutex_);
       display_ = dpy;
@@ -274,6 +278,9 @@ private:
 
   // Event coordinates are physical pixels; the panel works in logical units.
   void handleEvent(const XEvent& ev) {
+    if (xdnd_.handle(ev)) {
+      return;
+    }
     const double s = scale();
     switch (ev.type) {
       case ButtonPress: {
@@ -306,6 +313,7 @@ private:
   Shared& shared_;
   PanelState state_;
   Panel panel_;
+  XdndDropTarget xdnd_;
   std::atomic<double> scale_{1.0};
   std::atomic<bool> resizePending_{false};
   std::mutex mutex_;

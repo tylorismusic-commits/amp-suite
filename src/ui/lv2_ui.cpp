@@ -27,6 +27,7 @@
 #include "params.hpp"
 #include "ui/geometry.hpp"
 #include "ui/panel.hpp"
+#include "ui/xdnd.hpp"
 
 namespace {
 
@@ -43,6 +44,7 @@ struct Ui {
   amp::Shared shared;
   amp::Panel panel;
   amp::PanelState state;
+  amp::XdndDropTarget xdnd;
 
   Display* dpy = nullptr;
   Window win = 0;
@@ -102,6 +104,10 @@ struct Ui {
   }
 
   void handleEvent(const XEvent& ev) {
+    if (xdnd.handle(ev)) {
+      dirty = true;
+      return;
+    }
     const double s = layoutScale();
     const double ox = offsetX();
     const double oy = offsetY();
@@ -246,7 +252,7 @@ LV2UI_Handle uiInstantiate(const LV2UI_Descriptor*, const char* /*pluginUri*/,
   attrs.background_pixel = BlackPixel(ui->dpy, screen);
   attrs.event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask |
                      PointerMotionMask | Button1MotionMask | ButtonMotionMask |
-                     KeyPressMask | StructureNotifyMask;
+                     KeyPressMask | StructureNotifyMask | PropertyChangeMask;
   ui->win = XCreateWindow(ui->dpy, parentWindow, 0, 0, ui->width, ui->height, 0,
                           CopyFromParent, InputOutput, CopyFromParent,
                           CWBackPixel | CWEventMask, &attrs);
@@ -280,6 +286,11 @@ LV2UI_Handle uiInstantiate(const LV2UI_Descriptor*, const char* /*pluginUri*/,
 
   std::string dir = bundlePath ? bundlePath : "";
   ui->panel.loadFont(dir);
+  ui->xdnd.init(ui->dpy, ui->win, [ui](const std::string& path) {
+    if (ui->panel.importUserIr(ui->shared, ui->state, path)) {
+      ui->dirty = true;
+    }
+  });
 
   // Ask for the logical size once, so a host that sizes the window from the
   // widget's preferred size opens us at 1040x640.  After this the host owns

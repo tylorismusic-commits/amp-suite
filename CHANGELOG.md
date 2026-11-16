@@ -41,6 +41,9 @@ M1: tube-stage and tone-stack engine.
 - Per-amp user IR library: a watched `$XDG_DATA_HOME/amp-suite/irs/user`
   folder, sorted filename list on the Cab page, seven stepped selection
   parameters and direct convolution of the chosen user IR.
+- Cab-page drag-and-drop and a built-in file browser for importing WAVs;
+  Factory/Alt clears the active user IR selection. Mic/cab labels moved clear
+  of the mic buttons.
 - Portable user IR state: CLAP embeds the selected WAV bytes after the
   parameter block; LV2 stores a portable blob and copies the files into the
   host state directory via `state:makePath`.
@@ -54,6 +57,9 @@ M1: tube-stage and tone-stack engine.
   it when the host supplies a timeline.
 - 22-preset factory bank across Clean, Crunch, Rhythm, Lead, Doom and Ambient,
   with a ten-row scrolling preset browser.
+- Amp-section bypass (`amp_bypass`): the 808, delay/reverb loop, cab IR,
+  output trim and limiter remain active; the preamp, tone stack and power amp
+  are skipped.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

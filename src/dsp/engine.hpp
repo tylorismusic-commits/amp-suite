@@ -160,29 +160,31 @@ public:
         r = odR_.process(r);
       }
 
-      if (rec.solidState) {
-        // JC-style clean path: high headroom, then the tone stack.
-        l = std::tanh(l * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
-        r = std::tanh(r * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
-        l *= rec.preGain;
-        r *= rec.preGain;
-        l = toneL_.process(l);
-        r = toneR_.process(r);
-        l *= makeup;
-        r *= makeup;
-        l *= rec.outputTrim;
-        r *= rec.outputTrim;
-      } else {
-        l *= rec.preGain;
-        r *= rec.preGain;
-        for (int s = 0; s < rec.stages; ++s) {
-          l = stages_[s].process(l);
-          r = stages_[s].process(r);
+      if (!c.ampBypass) {
+        if (rec.solidState) {
+          // JC-style clean path: high headroom, then the tone stack.
+          l = std::tanh(l * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
+          r = std::tanh(r * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
+          l *= rec.preGain;
+          r *= rec.preGain;
+          l = toneL_.process(l);
+          r = toneR_.process(r);
+          l *= makeup;
+          r *= makeup;
+          l *= rec.outputTrim;
+          r *= rec.outputTrim;
+        } else {
+          l *= rec.preGain;
+          r *= rec.preGain;
+          for (int s = 0; s < rec.stages; ++s) {
+            l = stages_[s].process(l);
+            r = stages_[s].process(r);
+          }
+          l = toneL_.process(l);
+          r = toneR_.process(r);
+          l *= makeup;
+          r *= makeup;
         }
-        l = toneL_.process(l);
-        r = toneR_.process(r);
-        l *= makeup;
-        r *= makeup;
       }
 
       // FX loop: authentic default is between the preamp and the power amp.
@@ -191,7 +193,7 @@ public:
         reverb_.process(l, r);
       }
 
-      if (!rec.solidState) {
+      if (!c.ampBypass && !rec.solidState) {
         if (powerOs_ == 4) {
           float a0 = 0.0f, a1 = 0.0f;
           float b0 = 0.0f, b1 = 0.0f;
@@ -233,12 +235,14 @@ public:
         }
       }
 
-      l = presenceL_.process(l);
-      r = presenceR_.process(r);
-      l = resonanceL_.process(l);
-      r = resonanceR_.process(r);
-      l *= master;
-      r *= master;
+      if (!c.ampBypass) {
+        l = presenceL_.process(l);
+        r = presenceR_.process(r);
+        l = resonanceL_.process(l);
+        r = resonanceR_.process(r);
+        l *= master;
+        r *= master;
+      }
 
       // Cab: factory IR convolution when available, fixed speaker filter as
       // a fallback for builds without generated assets.

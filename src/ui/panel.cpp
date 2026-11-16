@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 
 namespace amp {
 
@@ -171,6 +172,14 @@ constexpr double kUserBoxH = 260.0;
 constexpr double kUserRowY = 352.0;
 constexpr double kUserRowH = 20.0;
 constexpr int kUserRows = 10;
+
+constexpr double kFbX = 170.0;
+constexpr double kFbY = 90.0;
+constexpr double kFbW = 700.0;
+constexpr double kFbH = 460.0;
+constexpr double kFbRowY = kFbY + 44.0;
+constexpr double kFbRowH = 20.0;
+constexpr int kFbRows = 18;
 
 double knobAngle(double f) {
   return (135.0 + 270.0 * f) * kPi / 180.0;
@@ -510,6 +519,9 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_MASTER, 300, 520, 26, "MASTER", kToneScale);
     knob(P_OUTPUT, 940, 535, 30, "OUTPUT", kTrimScale);
 
+    // Amp bypass: keep the 808, loop and cab active without the preamp/power.
+    pill(P_AMP_BYPASS, 852, 145, 96, 24, "AMP BYPASS");
+
     // Output limiter, in the right column like Comp Suite.
     pill(P_LIMITER_ON, 852, 270, 96, 24, "LIMITER");
     knob(P_LIMITER_THRESH, 900, 372, 26, "THRESH",
@@ -641,26 +653,33 @@ bool Panel::isLit(const Shared& shared, const PanelState& state,
 bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
                         bool fine) {
   (void)fine;
+  if (state.fileBrowserOpen) {
+    return handleFileBrowserClick(shared, state, x, y);
+  }
   if (handlePresetClick(shared, state, x, y)) {
     return true;
   }
   if (state.page == 2 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
       y >= kUserBoxY && y <= kUserBoxY + kUserBoxH) {
-    if (y >= kUserRowY) {
-      const int row = static_cast<int>((y - kUserRowY) / kUserRowH) +
-                      state.userIrScroll;
-      const int files = static_cast<int>(state.userIrs.size());
-      const int model =
-          std::min(std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
-      if (row == 0) {
-        shared.set(P_USER_IR_0 + model, 0.0);
-        shared.set(P_CAB, 2.0);
-        markEdited(state);
-      } else if (row >= 1 && row <= files) {
-        shared.set(P_USER_IR_0 + model, static_cast<double>(row));
-        shared.set(P_CAB, 2.0);
-        markEdited(state);
-      }
+    if (y < kUserRowY) {
+      openFileBrowser(state);
+      return true;
+    }
+    const int row = static_cast<int>((y - kUserRowY) / kUserRowH) +
+                    state.userIrScroll;
+    const int files = static_cast<int>(state.userIrs.size());
+    const int model =
+        std::min(std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
+    if (row == 0) {
+      shared.set(P_USER_IR_0 + model, 0.0);
+      shared.set(P_CAB, 2.0);
+      markEdited(state);
+    } else if (row >= 1 && row <= files) {
+      shared.set(P_USER_IR_0 + model, static_cast<double>(row));
+      shared.set(P_CAB, 2.0);
+      markEdited(state);
+    } else {
+      openFileBrowser(state);
     }
     return true;
   }
@@ -702,7 +721,21 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
         if (w.param >= P_COUNT) {
           return true;
         }
+        if (w.param == P_CAB) {
+          const int model = std::min(
+              std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
+          if (w.value < 1.5) {
+            shared.set(P_USER_IR_0 + model, 0.0);
+          }
+        }
         shared.set(w.param, w.value);
+        if (w.param == P_CAB && w.value > 1.5) {
+          const int model = std::min(
+              std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
+          if (shared.get(P_USER_IR_0 + model) < 0.5) {
+            openFileBrowser(state);
+          }
+        }
         markEdited(state);
         return true;
       case Kind::Pill:
@@ -747,6 +780,14 @@ void Panel::pointerUp() { dragParam_ = -1; }
 
 bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
                   double dy) {
+  if (state.fileBrowserOpen) {
+    const int maxScroll =
+        std::max(0, static_cast<int>(state.fileBrowserEntries.size()) - kFbRows);
+    state.fileBrowserScroll += dy > 0.0 ? -1 : 1;
+    state.fileBrowserScroll =
+        std::min(std::max(state.fileBrowserScroll, 0), maxScroll);
+    return true;
+  }
   if (state.presetOpen && x >= kPresetX && x <= kPresetX + kPresetW &&
       y >= kListY && y <= kListY + kListVisible * kListRow + 10) {
     const int maxScroll = std::max(0, kPresetCount - kListVisible);
@@ -1034,6 +1075,9 @@ void Panel::draw(cairo_t* cr, const Shared& shared, const PanelState& state) {
   if (state.presetOpen) {
     drawPresetList(cr, shared, state);
   }
+  if (state.fileBrowserOpen) {
+    drawFileBrowser(cr, shared, state);
+  }
 
   cairo_restore(cr);
 }
@@ -1284,6 +1328,15 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
        skin.legend.g, skin.legend.b);
   text(cr, userIrDir().c_str(), 76, kUserBoxY + 35, 8, 0, skin.legendDim.r,
        skin.legendDim.g, skin.legendDim.b);
+  roundRect(cr, kUserBoxX + kUserBoxW - 94, kUserBoxY + 10, 82, 20, 3);
+  setRgb(cr, mix(skin.btnOff, {1, 1, 1}, 0.06));
+  cairo_fill(cr);
+  setRgb(cr, {0, 0, 0}, 0.35);
+  cairo_set_line_width(cr, 1.0);
+  roundRect(cr, kUserBoxX + kUserBoxW - 93.5, kUserBoxY + 10.5, 81, 19, 3);
+  cairo_stroke(cr);
+  text(cr, "BROWSE", kUserBoxX + kUserBoxW - 53, kUserBoxY + 24, 9.5, 1,
+       skin.btnText.r, skin.btnText.g, skin.btnText.b);
 
   const int selected = static_cast<int>(
       shared.get(P_USER_IR_0 + std::min(std::max(model, 0), 6)) + 0.5);
@@ -1323,13 +1376,13 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
 
   if (cab == 2) {
     const std::string userIr = selectedUserIrName(shared, state);
-    text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 900, 246, 13,
+    text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 900, 262, 13,
          1, skin.legend.r, skin.legend.g, skin.legend.b);
   } else {
-    text(cr, cabName(model, cab), 900, 246, 13, 1, skin.legend.r,
+    text(cr, cabName(model, cab), 900, 262, 13, 1, skin.legend.r,
          skin.legend.g, skin.legend.b);
   }
-  text(cr, "Factory cabs are CC0 and embedded.", 900, 266, 9.5, 1,
+  text(cr, "Factory cabs are CC0 and embedded.", 900, 282, 9.5, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 }
 
@@ -1392,6 +1445,8 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
       Widget ww = w;
       if (w.param == P_HQ) {
         ww.label = on ? "HQ" : "ECO";
+      } else if (w.param == P_AMP_BYPASS) {
+        ww.label = on ? "BYPASS ON" : "AMP ON";
       } else if (w.param == P_LOOP_POS) {
         ww.label = on ? "LOOP POST" : "LOOP PRE";
       } else if (w.param == P_DELAY_SYNC) {
@@ -1721,6 +1776,225 @@ void Panel::drawLeds(cairo_t* cr, const Shared& shared, int model) const {
     cairo_fill(cr);
   }
   text(cr, "OUT", 762, 344, 8, 1, 0.52, 0.54, 0.57);
+}
+
+bool Panel::importUserIr(Shared& shared, PanelState& state,
+                         const std::string& path) const {
+  std::error_code ec;
+  const std::filesystem::path source(path);
+  if (!std::filesystem::is_regular_file(source, ec)) {
+    return false;
+  }
+  const std::string name = source.filename().string();
+  if (!isWavName(name)) {
+    return false;
+  }
+  const std::string dir = userIrDir();
+  std::filesystem::create_directories(dir, ec);
+  if (ec) {
+    return false;
+  }
+  const std::filesystem::path target =
+      std::filesystem::path(dir) / source.filename();
+  bool same = false;
+  if (std::filesystem::exists(target, ec)) {
+    same = std::filesystem::equivalent(source, target, ec);
+  }
+  if (!same) {
+    std::filesystem::copy_file(source, target,
+                               std::filesystem::copy_options::overwrite_existing,
+                               ec);
+    if (ec) {
+      return false;
+    }
+  }
+
+  state.userIrs = listUserIrFiles(dir);
+  int index = 0;
+  for (size_t i = 0; i < state.userIrs.size(); ++i) {
+    if (state.userIrs[i] == name) {
+      index = static_cast<int>(i) + 1;
+      break;
+    }
+  }
+  if (index == 0) {
+    return false;
+  }
+  const int model =
+      std::min(std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
+  shared.set(P_CAB, 2.0);
+  shared.set(P_USER_IR_0 + model, static_cast<double>(index));
+  markEdited(state);
+  const int maxScroll =
+      std::max(0, static_cast<int>(state.userIrs.size() + 1) - kUserRows);
+  state.userIrScroll = std::min(
+      std::max(index - kUserRows / 2, 0), maxScroll);
+  return true;
+}
+
+void Panel::openFileBrowser(PanelState& state) const {
+  std::error_code ec;
+  std::filesystem::create_directories(userIrDir(), ec);
+  state.fileBrowserDir = userIrDir();
+  state.fileBrowserOpen = true;
+  state.fileBrowserScroll = 0;
+  refreshFileBrowser(state);
+}
+
+void Panel::refreshFileBrowser(PanelState& state) const {
+  state.fileBrowserEntries.clear();
+  std::error_code ec;
+  const std::filesystem::path dir(state.fileBrowserDir);
+  if (dir.empty() || !std::filesystem::is_directory(dir, ec)) {
+    return;
+  }
+  const std::filesystem::path parent = dir.parent_path();
+  if (!parent.empty() && parent != dir) {
+    state.fileBrowserEntries.push_back({"..", true, true});
+  }
+  std::vector<FileEntry> dirs;
+  std::vector<FileEntry> files;
+  for (const auto& entry : std::filesystem::directory_iterator(dir, ec)) {
+    if (ec) {
+      break;
+    }
+    const std::string name = entry.path().filename().string();
+    if (name.empty() || name[0] == '.') {
+      continue;
+    }
+    if (entry.is_directory(ec)) {
+      dirs.push_back({name, true, false});
+    } else if (entry.is_regular_file(ec) && isWavName(name)) {
+      files.push_back({name, false, false});
+    }
+  }
+  auto byName = [](const FileEntry& a, const FileEntry& b) {
+    return a.name < b.name;
+  };
+  std::sort(dirs.begin(), dirs.end(), byName);
+  std::sort(files.begin(), files.end(), byName);
+  state.fileBrowserEntries.insert(state.fileBrowserEntries.end(),
+                                  dirs.begin(), dirs.end());
+  state.fileBrowserEntries.insert(state.fileBrowserEntries.end(),
+                                  files.begin(), files.end());
+}
+
+void Panel::drawFileBrowser(cairo_t* cr, const Shared& shared,
+                            const PanelState& state) const {
+  const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
+  const Skin skin = skinFor(model);
+  cairo_save(cr);
+  cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.55);
+  cairo_paint(cr);
+
+  roundRect(cr, kFbX, kFbY, kFbW, kFbH, 7);
+  setRgb(cr, mix(skin.bodyBottom, {0, 0, 0}, 0.18));
+  cairo_fill(cr);
+  setRgb(cr, {1, 1, 1}, 0.14);
+  cairo_set_line_width(cr, 1.0);
+  roundRect(cr, kFbX + 0.5, kFbY + 0.5, kFbW - 1, kFbH - 1, 7);
+  cairo_stroke(cr);
+
+  cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.35);
+  cairo_rectangle(cr, kFbX + 1, kFbY + 1, kFbW - 2, 36);
+  cairo_fill(cr);
+  text(cr, shorten(state.fileBrowserDir, 82).c_str(), kFbX + 16, kFbY + 24,
+       10, 0, skin.btnText.r, skin.btnText.g, skin.btnText.b);
+  text(cr, "CANCEL", kFbX + kFbW - 16, kFbY + 24, 10, 2, skin.accent.r,
+       skin.accent.g, skin.accent.b);
+  setRgb(cr, {1, 1, 1}, 0.10);
+  cairo_move_to(cr, kFbX + 1, kFbY + 37.5);
+  cairo_line_to(cr, kFbX + kFbW - 1, kFbY + 37.5);
+  cairo_stroke(cr);
+
+  const int count = static_cast<int>(state.fileBrowserEntries.size());
+  if (count == 0) {
+    text(cr, "No folders or WAV files here.", kFbX + 18, kFbY + 70, 11, 0,
+         skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  }
+  for (int row = 0; row < kFbRows; ++row) {
+    const int i = state.fileBrowserScroll + row;
+    if (i < 0 || i >= count) {
+      break;
+    }
+    const FileEntry& e = state.fileBrowserEntries[static_cast<size_t>(i)];
+    const double y = kFbRowY + row * kFbRowH;
+    if ((i & 1) != 0) {
+      cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.025);
+      cairo_rectangle(cr, kFbX + 8, y, kFbW - 16, kFbRowH);
+      cairo_fill(cr);
+    }
+    const char* kind = e.parent ? "UP" : (e.directory ? "DIR" : "WAV");
+    text(cr, kind, kFbX + 18, y + 14, 8.5, 0, skin.legendDim.r,
+         skin.legendDim.g, skin.legendDim.b);
+    text(cr, shorten(e.name, 72).c_str(), kFbX + 58, y + 14, 10.5, 0,
+         skin.legend.r, skin.legend.g, skin.legend.b);
+  }
+
+  if (count > kFbRows) {
+    const double trackY = kFbRowY;
+    const double trackH = kFbRows * kFbRowH;
+    const double thumbH = std::max(12.0, trackH * kFbRows / count);
+    const int maxScroll = count - kFbRows;
+    const double thumbY =
+        trackY + (trackH - thumbH) *
+                     (maxScroll > 0 ? state.fileBrowserScroll / double(maxScroll)
+                                    : 0.0);
+    cairo_rectangle(cr, kFbX + kFbW - 7, trackY, 2.0, trackH);
+    setRgb(cr, {0, 0, 0}, 0.45);
+    cairo_fill(cr);
+    cairo_rectangle(cr, kFbX + kFbW - 7, thumbY, 2.0, thumbH);
+    setRgb(cr, skin.accent, 0.8);
+    cairo_fill(cr);
+  }
+
+  text(cr, "Click a folder to open it. Click a WAV to import it.",
+       kFbX + 18, kFbY + kFbH - 16, 9.5, 0, skin.legendDim.r, skin.legendDim.g,
+       skin.legendDim.b);
+  cairo_restore(cr);
+}
+
+bool Panel::handleFileBrowserClick(Shared& shared, PanelState& state,
+                                   double x, double y) {
+  if (x < kFbX || x > kFbX + kFbW || y < kFbY || y > kFbY + kFbH) {
+    state.fileBrowserOpen = false;
+    return true;
+  }
+  if (y <= kFbY + 38 && x >= kFbX + kFbW - 80) {
+    state.fileBrowserOpen = false;
+    return true;
+  }
+  if (y < kFbRowY || y > kFbRowY + kFbRows * kFbRowH) {
+    return true;
+  }
+  const int row = static_cast<int>((y - kFbRowY) / kFbRowH) +
+                  state.fileBrowserScroll;
+  const int count = static_cast<int>(state.fileBrowserEntries.size());
+  if (row < 0 || row >= count) {
+    return true;
+  }
+  const FileEntry entry = state.fileBrowserEntries[static_cast<size_t>(row)];
+  const std::filesystem::path dir(state.fileBrowserDir);
+  if (entry.parent) {
+    const std::filesystem::path parent = dir.parent_path();
+    if (!parent.empty() && parent != dir) {
+      state.fileBrowserDir = parent.string();
+      state.fileBrowserScroll = 0;
+      refreshFileBrowser(state);
+    }
+    return true;
+  }
+  if (entry.directory) {
+    state.fileBrowserDir = (dir / entry.name).string();
+    state.fileBrowserScroll = 0;
+    refreshFileBrowser(state);
+    return true;
+  }
+  const std::string path = (dir / entry.name).string();
+  if (importUserIr(shared, state, path)) {
+    state.fileBrowserOpen = false;
+  }
+  return true;
 }
 
 std::vector<Panel::WidgetRect> Panel::widgetRects() const {
