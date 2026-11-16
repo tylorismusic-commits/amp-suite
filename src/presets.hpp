@@ -25,7 +25,7 @@ inline constexpr Preset kPresets[] = {
     // --- Block 120 ---------------------------------------------------------
     {"Block 120 — Rhythm", "Rhythm", 4,
      {{P_GAIN, 0.55f}, {P_BASS, 0.56f}, {P_MID, 0.38f}, {P_TREBLE, 0.60f},
-      {P_PRESENCE, 0.56f}, {P_RESONANCE, 0.56f}, {P_MASTER, 0.50f},
+      {P_PRESENCE, 0.68f}, {P_RESONANCE, 0.45f}, {P_MASTER, 0.50f},
       {P_OUTPUT, 0.55f}, {P_CRUNCH, 1.0f}, {P_OD_ON, 1.0f},
       {P_OD_DRIVE, 0.05f}, {P_OD_TONE, 0.70f}, {P_OD_LEVEL, 0.50f},
       {P_DELAY_ON, 0.0f}, {P_REVERB_ON, 0.0f}, {P_CAB, 0.0f},

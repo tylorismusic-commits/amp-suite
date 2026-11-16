@@ -105,6 +105,12 @@ public:
     powerR_.setPresence(c.presence);
     powerL_.setResonance(c.resonance);
     powerR_.setResonance(c.resonance);
+    const float preBrightDb =
+        (c.model == 4 || c.model == 5 || c.model == 6)
+            ? 3.0f
+            : ((c.model == 2 || c.model == 3) ? 2.0f : 0.0f);
+    preBrightL_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
+    preBrightR_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
     setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
@@ -287,6 +293,8 @@ public:
           l *= rec.outputTrim;
           r *= rec.outputTrim;
         } else {
+          l = preBrightL_.process(l);
+          r = preBrightR_.process(r);
           l *= preGain_;
           r *= preGain_;
           for (int s = 0; s < rec.stages; ++s) {
@@ -463,8 +471,12 @@ public:
     os1R_.reset();
     os2L_.reset();
     os2R_.reset();
+    preBrightL_.reset();
+    preBrightR_.reset();
     presenceL_.reset();
     presenceR_.reset();
+    presenceHiL_.reset();
+    presenceHiR_.reset();
     resonanceL_.reset();
     resonanceR_.reset();
     vuPower_ = 0.0f;
@@ -487,10 +499,14 @@ private:
   }
 
   void setPresenceResonance(const Controls& c) noexcept {
-    const float presenceDb = (c.presence - 0.5f) * 6.0f;
-    const float resonanceDb = (c.resonance - 0.5f) * 6.0f;
-    presenceL_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
-    presenceR_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
+    const float presenceDb = (c.presence - 0.5f) * 30.0f;
+    const float resonanceDb = (c.resonance - 0.5f) * 12.0f;
+    // Presence is a high shelf plus a smaller air shelf, not a narrow peak:
+    // the goal is high-gain bite without making the midrange nasal.
+    presenceL_.highShelf(2600.0f, presenceDb, 0.7f, sr_);
+    presenceR_.highShelf(2600.0f, presenceDb, 0.7f, sr_);
+    presenceHiL_.highShelf(7000.0f, presenceDb * 0.5f, 0.7f, sr_);
+    presenceHiR_.highShelf(7000.0f, presenceDb * 0.5f, 0.7f, sr_);
     resonanceL_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
     resonanceR_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
   }
@@ -598,8 +614,12 @@ private:
   Oversampler2x os2L_;
   Oversampler2x os2R_;
   int powerOs_ = 0;
+  Biquad preBrightL_;
+  Biquad preBrightR_;
   Biquad presenceL_;
   Biquad presenceR_;
+  Biquad presenceHiL_;
+  Biquad presenceHiR_;
   Biquad resonanceL_;
   Biquad resonanceR_;
   float limiterGain_ = 1.0f;
