@@ -335,7 +335,7 @@ private:
 
   void run() {
     while (!quit_.load(std::memory_order_relaxed)) {
-      for (int i = 0; i < 40 && !quit_.load(std::memory_order_relaxed); ++i) {
+      for (int i = 0; i < 20 && !quit_.load(std::memory_order_relaxed); ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
       if (!quit_.load(std::memory_order_relaxed)) {
