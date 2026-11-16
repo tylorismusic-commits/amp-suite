@@ -336,7 +336,7 @@
         lv2:index 28 ;
         lv2:symbol "od_drive" ;
         lv2:name "808 Drive" ;
-        lv2:default 0.28 ;
+        lv2:default 0.22 ;
         lv2:minimum 0 ;
         lv2:maximum 1 ;
         pg:group <https://github.com/tylorismusic-commits/amp-suite#808> ;
@@ -356,7 +356,7 @@
         lv2:index 30 ;
         lv2:symbol "od_level" ;
         lv2:name "808 Level" ;
-        lv2:default 0.55 ;
+        lv2:default 0.5 ;
         lv2:minimum 0 ;
         lv2:maximum 1 ;
         pg:group <https://github.com/tylorismusic-commits/amp-suite#808> ;

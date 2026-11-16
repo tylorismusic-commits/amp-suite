@@ -25,9 +25,9 @@ inline constexpr Preset kPresets[] = {
     // --- Block 120 ---------------------------------------------------------
     {"Block 120 — Rhythm", "Rhythm", 4,
      {{P_GAIN, 0.55f}, {P_BASS, 0.56f}, {P_MID, 0.38f}, {P_TREBLE, 0.60f},
-      {P_PRESENCE, 0.56f}, {P_RESONANCE, 0.56f}, {P_MASTER, 0.44f},
-      {P_OUTPUT, 0.50f}, {P_CRUNCH, 1.0f}, {P_OD_ON, 1.0f},
-      {P_OD_DRIVE, 0.30f}, {P_OD_TONE, 0.50f}, {P_OD_LEVEL, 0.55f},
+      {P_PRESENCE, 0.56f}, {P_RESONANCE, 0.56f}, {P_MASTER, 0.50f},
+      {P_OUTPUT, 0.55f}, {P_CRUNCH, 1.0f}, {P_OD_ON, 1.0f},
+      {P_OD_DRIVE, 0.05f}, {P_OD_TONE, 0.70f}, {P_OD_LEVEL, 0.50f},
       {P_DELAY_ON, 0.0f}, {P_REVERB_ON, 0.0f}, {P_CAB, 0.0f},
       {P_CAB_MIC, 0.0f}, {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
     {"Block 120 — Crunch", "Rhythm", 4,
@@ -60,7 +60,7 @@ inline constexpr Preset kPresets[] = {
      {{P_GAIN, 0.55f}, {P_BASS, 0.60f}, {P_MID, 0.34f}, {P_TREBLE, 0.62f},
       {P_PRESENCE, 0.60f}, {P_RESONANCE, 0.62f}, {P_MASTER, 0.40f},
       {P_OUTPUT, 0.50f}, {P_CRUNCH, 1.0f}, {P_OD_ON, 1.0f},
-      {P_OD_DRIVE, 0.32f}, {P_OD_TONE, 0.50f}, {P_OD_LEVEL, 0.55f},
+      {P_OD_DRIVE, 0.18f}, {P_OD_TONE, 0.60f}, {P_OD_LEVEL, 0.50f},
       {P_DELAY_ON, 0.0f}, {P_REVERB_ON, 0.0f}, {P_CAB, 0.0f},
       {P_CAB_MIC, 0.0f}, {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
 

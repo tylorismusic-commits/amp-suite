@@ -69,7 +69,10 @@ M1: tube-stage and tone-stack engine.
   libsamplerate; dedicated NAM page with a file browser, drag-and-drop,
   worker-thread model loading, host-rate resampling and a level trim.
 - Startup now applies the tuned Block 120 — Rhythm preset rather than the
-  neutral parameter defaults.
+  neutral parameter defaults. The Gain knob now drives the tube preamp over a
+  36 dB range (previously it only affected the solid-state path), high-gain
+  amps reach saturation at normal settings, and the 808 defaults to a bright
+  clean boost instead of a dark distortion box.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

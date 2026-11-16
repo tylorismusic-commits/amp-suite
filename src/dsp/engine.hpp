@@ -75,6 +75,10 @@ public:
                                 : c.model;
     controls_ = c;
     const AmpRecipe& r = recipeFor(activeModel);
+    // The Gain knob is a 36 dB preamp-drive range around the recipe's
+    // calibrated 0.5 point.  This is what makes the high-gain amps reach
+    // saturation at normal settings instead of requiring max input + 808.
+    preGain_ = r.preGain * dbToGain((c.gain - 0.5f) * 36.0f);
     PowerAmpSpec ps;
     ps.drive = r.powerDrive;
     ps.feedback = r.powerFeedback;
@@ -283,8 +287,8 @@ public:
           l *= rec.outputTrim;
           r *= rec.outputTrim;
         } else {
-          l *= rec.preGain;
-          r *= rec.preGain;
+          l *= preGain_;
+          r *= preGain_;
           for (int s = 0; s < rec.stages; ++s) {
             l = stages_[s].process(l);
             r = stages_[s].process(r);
@@ -554,6 +558,7 @@ private:
   }
 
   float sr_ = 48000.0f;
+  float preGain_ = 0.0f;
   Controls controls_;
   int lastModel_ = -1;
   int active_ = -1;

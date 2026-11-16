@@ -38,7 +38,7 @@ public:
     a1_ = (1.0f - a2) / den;
 
     // The TS tone control is a first-order low-pass after the clipper.
-    const float toneHz = 400.0f * std::pow(8.0f, clampf(tone, 0.0f, 1.0f));
+    const float toneHz = 700.0f * std::pow(6.0f, clampf(tone, 0.0f, 1.0f));
     tone_.set(toneHz, sr_);
 
     // Output level; the clipper has a lot of loss, so this is a makeup range.

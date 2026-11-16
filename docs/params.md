@@ -51,9 +51,9 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 21 | `cab_highcut` | Cab High Cut | 0–1 | 1 | | `2000 * 10^v` Hz |
 | 22 | `cab_bypass` | Cab Bypass | 0–1 | 0 | toggle | |
 | 23 | `od_on` | 808 On | 0–1 | 1 | toggle | |
-| 24 | `od_drive` | 808 Drive | 0–1 | 0.28 | | |
+| 24 | `od_drive` | 808 Drive | 0–1 | 0.22 | | |
 | 25 | `od_tone` | 808 Tone | 0–1 | 0.5 | | |
-| 26 | `od_level` | 808 Level | 0–1 | 0.55 | | |
+| 26 | `od_level` | 808 Level | 0–1 | 0.50 | | |
 | 27 | `delay_on` | Delay On | 0–1 | 0 | toggle | |
 | 28 | `delay_sync` | Delay Sync | 0–1 | 1 | toggle | 0 Free, 1 Host |
 | 29 | `delay_div` | Delay Division | 0–8 | 8 | stepped | 1/1, 1/2, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32, 1/8D |
