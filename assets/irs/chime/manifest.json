@@ -31,6 +31,7 @@
           "offset_db": -10.875000901431651,
           "rms_db": 0.23904353115646162
         },
+        "mix": {},
         "references": [
           "VOX_ALNICO_BLUE_E906_centre_far_LL.wav",
           "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav",
@@ -55,6 +56,7 @@
           "offset_db": -11.468243831948124,
           "rms_db": 0.2671389125264946
         },
+        "mix": {},
         "references": [
           "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav",
           "VOX_ALNICO_BLUE_E906_centre_close_LL.wav",
@@ -74,32 +76,22 @@
       "blend": {
         "eq": [],
         "metrics": {
-          "max_abs_db": 1.1385208893585883,
-          "mean_abs_db": 0.17175178947681358,
-          "offset_db": -10.778594791707453,
-          "rms_db": 0.24575589211174753
+          "max_abs_db": 1.1392327013642585,
+          "mean_abs_db": 0.17488345734171548,
+          "offset_db": -11.258323033354118,
+          "rms_db": 0.2506988886382424
         },
-        "references": [
-          "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav",
-          "VOX_ALNICO_BLUE_E906_centre_close_LL.wav",
-          "VOX_ALNICO_BLUE_E906_centre_far_LL.wav",
-          "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav",
-          "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav",
-          "VOX_ALNICP_BLUE_E906_DUSTCAP_EDGE_LL.wav"
-        ],
+        "mix": {
+          "121": 0.35,
+          "57": 0.65
+        },
+        "references": [],
         "smoothing_octaves": 0.08333333333333333,
         "taps": {
           "48k": 2048,
           "96k": 4096
         },
-        "weights": {
-          "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav": 1.0,
-          "VOX_ALNICO_BLUE_E906_centre_close_LL.wav": 1.0,
-          "VOX_ALNICO_BLUE_E906_centre_far_LL.wav": 1.0,
-          "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav": 1.0,
-          "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav": 1.0,
-          "VOX_ALNICP_BLUE_E906_DUSTCAP_EDGE_LL.wav": 1.0
-        }
+        "weights": {}
       }
     }
   }

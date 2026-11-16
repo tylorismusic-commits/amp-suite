@@ -18,6 +18,7 @@
           "offset_db": -10.957976093243733,
           "rms_db": 0.2996229983285024
         },
+        "mix": {},
         "references": [
           "SM58 BL center 1in.wav",
           "SM58 BL center close.wav",
@@ -46,6 +47,7 @@
           "offset_db": -10.393995433608046,
           "rms_db": 0.31175726617245325
         },
+        "mix": {},
         "references": [
           "ND257 center BR.wav",
           "SM57 BR center 1in.wav",
@@ -71,52 +73,22 @@
       "blend": {
         "eq": [],
         "metrics": {
-          "max_abs_db": 1.5356218945336346,
-          "mean_abs_db": 0.17684328384121137,
-          "offset_db": -11.037633733202561,
-          "rms_db": 0.28004500734373416
+          "max_abs_db": 1.5425506832583862,
+          "mean_abs_db": 0.18484179670963627,
+          "offset_db": -10.505299367086549,
+          "rms_db": 0.29248434649365207
         },
-        "references": [
-          "ND257 center BR.wav",
-          "SM57 BR between close louder (old).wav",
-          "SM57 BR center 1in.wav",
-          "SM57 BR center close louder (old).wav",
-          "SM57 BR center close.wav",
-          "SM57 BR edge close louder (old).wav",
-          "SM57 BR edge close.wav",
-          "SM57_2 BR edge close.wav",
-          "SM58 BL center 1in.wav",
-          "SM58 BL center close.wav",
-          "SM58 BL edge close.wav",
-          "SM58_2 BL edge close.wav",
-          "V2_SM57 center BR.wav",
-          "V2_SM57 edge BL.wav",
-          "V2_SM58 center BR.wav",
-          "V2_SM58 edge BL.wav"
-        ],
+        "mix": {
+          "121": 0.35,
+          "57": 0.65
+        },
+        "references": [],
         "smoothing_octaves": 0.08333333333333333,
         "taps": {
           "48k": 2048,
           "96k": 4096
         },
-        "weights": {
-          "ND257 center BR.wav": 1.0,
-          "SM57 BR between close louder (old).wav": 1.0,
-          "SM57 BR center 1in.wav": 1.0,
-          "SM57 BR center close louder (old).wav": 1.0,
-          "SM57 BR center close.wav": 1.0,
-          "SM57 BR edge close louder (old).wav": 1.0,
-          "SM57 BR edge close.wav": 1.0,
-          "SM57_2 BR edge close.wav": 1.0,
-          "SM58 BL center 1in.wav": 1.0,
-          "SM58 BL center close.wav": 1.0,
-          "SM58 BL edge close.wav": 1.0,
-          "SM58_2 BL edge close.wav": 1.0,
-          "V2_SM57 center BR.wav": 1.0,
-          "V2_SM57 edge BL.wav": 1.0,
-          "V2_SM58 center BR.wav": 1.0,
-          "V2_SM58 edge BL.wav": 1.0
-        }
+        "weights": {}
       }
     }
   }

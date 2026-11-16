@@ -62,7 +62,7 @@ CABS = {
                     ("low_shelf", 120.0, 0.8, 0.7),
                 ]
             },
-            "blend": {},
+            "blend": {"mix": {"57": 0.65, "121": 0.35}},
         },
     },
     "crunch": {
@@ -79,7 +79,11 @@ CABS = {
         "urls": [
             "https://www.tone3000.com/tones/marshall-jcm800-lead-1960-4x12-g12t-75-104387"
         ],
-        "variants": {"57": {}, "121": {}, "blend": {}},
+        "variants": {
+            "57": {},
+            "121": {},
+            "blend": {"mix": {"57": 0.65, "121": 0.35}},
+        },
     },
     "block-120": {
         "urls": [
@@ -103,7 +107,7 @@ CABS = {
                     ("low_shelf", 120.0, 0.8, 0.7),
                 ]
             },
-            "blend": {},
+            "blend": {"mix": {"57": 0.65, "121": 0.35}},
         },
     },
     "recto": {
@@ -253,9 +257,18 @@ def write_cab(cab: str, ref_root: str, out_root: str, name: str) -> dict:
     out_dir = os.path.join(out_root, cab)
     os.makedirs(out_dir, exist_ok=True)
     manifest_variants = {}
+    targets = {}
     for variant, spec in CABS[cab]["variants"].items():
-        target, refs, weights = load_target(cab, variant, ref_root)
-        target = apply_target_eq(target, ir_model.log_grid(), spec.get("eq"))
+        if "mix" in spec:
+            target = np.zeros_like(ir_model.log_grid())
+            for source, weight in spec["mix"].items():
+                target = target + float(weight) * targets[source]
+            refs = []
+            weights = {}
+        else:
+            target, refs, weights = load_target(cab, variant, ref_root)
+            target = apply_target_eq(target, ir_model.log_grid(), spec.get("eq"))
+        targets[variant] = target
         for sr, taps, n_fft, tag in (
             (48000, TAPS_48, FFT_48, ""),
             (96000, TAPS_96, FFT_96, "_96k"),
@@ -268,6 +281,7 @@ def write_cab(cab: str, ref_root: str, out_root: str, name: str) -> dict:
             "references": refs,
             "weights": weights,
             "eq": spec.get("eq", []),
+            "mix": spec.get("mix", {}),
             "metrics": metrics_for(ir48, target),
             "taps": {"48k": TAPS_48, "96k": TAPS_96},
             "smoothing_octaves": SMOOTH_OCT,

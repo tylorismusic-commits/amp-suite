@@ -31,6 +31,7 @@
           "offset_db": -13.585535823624861,
           "rms_db": 0.28744321943396434
         },
+        "mix": {},
         "references": [
           "G12-EVH LL 5150III 4x12 SM57 2.00in 0.0in CL7603.wav",
           "G12-EVH LR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav",
@@ -57,6 +58,7 @@
           "offset_db": -13.271674019565653,
           "rms_db": 0.29487019759213123
         },
+        "mix": {},
         "references": [
           "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav",
           "G12-EVH LL 5150III 4x12 SM57 1.75in 0.0in CL7603.wav",
@@ -82,30 +84,22 @@
       "blend": {
         "eq": [],
         "metrics": {
-          "max_abs_db": 1.8617415997301352,
-          "mean_abs_db": 0.18939577946107955,
-          "offset_db": -13.358273320362914,
-          "rms_db": 0.30889263279362356
+          "max_abs_db": 1.8026793877510636,
+          "mean_abs_db": 0.18093321840965984,
+          "offset_db": -13.33177587082366,
+          "rms_db": 0.28886967854904827
         },
-        "references": [
-          "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav",
-          "G12-EVH LL 5150III 4x12 SM57 2.25in 0.0in CL7603.wav",
-          "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
-          "G12-EVH UL 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
-          "G12-EVH UR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav"
-        ],
+        "mix": {
+          "121": 0.35,
+          "57": 0.65
+        },
+        "references": [],
         "smoothing_octaves": 0.08333333333333333,
         "taps": {
           "48k": 2048,
           "96k": 4096
         },
-        "weights": {
-          "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav": 1.0,
-          "G12-EVH LL 5150III 4x12 SM57 2.25in 0.0in CL7603.wav": 1.0,
-          "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
-          "G12-EVH UL 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
-          "G12-EVH UR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav": 1.0
-        }
+        "weights": {}
       }
     }
   }
