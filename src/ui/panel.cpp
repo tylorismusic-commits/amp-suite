@@ -168,7 +168,7 @@ constexpr int kListVisible = 10;
 
 constexpr double kUserBoxX = 60.0;
 constexpr double kUserBoxY = 300.0;
-constexpr double kUserBoxW = 360.0;
+constexpr double kUserBoxW = 420.0;
 constexpr double kUserBoxH = 260.0;
 constexpr double kUserRowY = 352.0;
 constexpr double kUserRowH = 20.0;
@@ -481,11 +481,11 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     b.label = "Preset";
     widgets_.push_back(b);
   }
-  pagePill(3, 606, 20, 58, 24, "NAM");
-  pagePill(1, 690, 20, 76, 24, "PEDALS");
-  pagePill(2, 774, 20, 58, 24, "CAB");
-  pill(P_HQ, 840, 20, 58, 24, "HQ");
-  pill(P_LOOP_POS, 906, 20, 96, 24, "LOOP");
+  pagePill(1, 638, 20, 76, 24, "PEDALS");
+  pagePill(2, 722, 20, 58, 24, "CAB");
+  pagePill(3, 788, 20, 58, 24, "NAM");
+  pill(P_HQ, 854, 20, 58, 24, "HQ");
+  pill(P_LOOP_POS, 920, 20, 96, 24, "LOOP");
 
   // Model tabs.
   const int tabCount = static_cast<int>(Model::Count);
@@ -518,8 +518,8 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
       knob(P_RESONANCE, 740, 420, 26, "RESONANCE", kToneScale);
     }
     knob(P_INPUT, 90, 520, 22, "INPUT", kTrimScale, true);
-    knob(P_MASTER, 300, 520, 26, "MASTER", kToneScale);
-    knob(P_OUTPUT, 940, 535, 30, "OUTPUT", kTrimScale);
+    knob(P_MASTER, 465, 520, 26, "MASTER", kToneScale);
+    knob(P_OUTPUT, 900, 520, 30, "OUTPUT", kTrimScale);
 
     // Amp bypass: keep the 808, loop and cab active without the preamp/power.
     pill(P_AMP_BYPASS, 852, 145, 96, 24, "AMP BYPASS");
@@ -569,23 +569,23 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     pill(P_DELAY_SYNC, cx[1] + 20, cy + 42, 88, 24, "SYNC");
     pill(P_DELAY_PINGPONG, cx[1] + 192, cy + 42, 88, 24, "PING");
     if (shared.get(P_DELAY_SYNC) > 0.5) {
-      knob(P_DELAY_DIV, cx[1] + 120, cy + 120, 26, "DIVISION", {}, true, 9);
+      knob(P_DELAY_DIV, cx[1] + 110, cy + 120, 26, "DIVISION", {}, true, 9);
     } else {
       knob(P_DELAY_TIME, cx[1] + 120, cy + 120, 26, "TIME", {}, true);
     }
-    knob(P_DELAY_FEEDBACK, cx[1] + 220, cy + 120, 26, "FEEDBACK", {}, true);
+    knob(P_DELAY_FEEDBACK, cx[1] + 190, cy + 120, 26, "FEEDBACK", {}, true);
     knob(P_DELAY_MIX, cx[1] + 60, cy + 215, 26, "MIX", {}, true);
     knob(P_DELAY_TONE, cx[1] + 150, cy + 215, 26, "TONE", {}, true);
     knob(P_DELAY_MOD, cx[1] + 240, cy + 215, 26, "MOD", {}, true);
-    knob(P_BPM, cx[1] + 250, cy + 290, 18, "BPM", {}, true);
+    knob(P_BPM, cx[1] + 240, cy + 290, 18, "BPM", {}, true);
     foot(P_DELAY_ON, cx[1] + 150, cy + 330, 26, "DELAY");
 
     // Reverb card.
-    pill(P_REVERB_MODE, cx[2] + 20, cy + 42, 88, 24, "MODE");
+    pill(P_REVERB_MODE, cx[2] + 106, cy + 42, 88, 24, "MODE");
     knob(P_REVERB_MIX, cx[2] + 90, cy + 115, 26, "MIX", {}, true);
     knob(P_REVERB_DECAY, cx[2] + 210, cy + 115, 26, "DECAY", {}, true);
-    knob(P_REVERB_TONE, cx[2] + 60, cy + 215, 26, "TONE", {}, true);
-    knob(P_REVERB_PREDELAY, cx[2] + 180, cy + 215, 26, "PRE-DLY", {}, true);
+    knob(P_REVERB_TONE, cx[2] + 90, cy + 215, 26, "TONE", {}, true);
+    knob(P_REVERB_PREDELAY, cx[2] + 210, cy + 215, 26, "PRE-DLY", {}, true);
     foot(P_REVERB_ON, cx[2] + 150, cy + 330, 26, "REVERB");
 
   } else if (state.page == 3) {
@@ -601,14 +601,14 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     }
     button(P_CAB, alt ? 300 : 180, 200, 110, 28, 2.0, "USER");
 
-    button(P_CAB_MIC, 760, 210, 80, 26, 0.0, "DYNAMIC");
-    button(P_CAB_MIC, 850, 210, 80, 26, 1.0, "RIBBON");
-    button(P_CAB_MIC, 940, 210, 70, 26, 2.0, "BLEND");
+    button(P_CAB_MIC, 760, 200, 80, 26, 0.0, "DYNAMIC");
+    button(P_CAB_MIC, 850, 200, 80, 26, 1.0, "RIBBON");
+    button(P_CAB_MIC, 940, 200, 70, 26, 2.0, "BLEND");
 
     knob(P_CAB_LEVEL, 760, 340, 28, "LEVEL", {}, true);
     knob(P_CAB_LOWCUT, 850, 340, 26, "LOW CUT", {}, true);
     knob(P_CAB_HIGHCUT, 940, 340, 26, "HIGH CUT", {}, true);
-    toggle(P_CAB_BYPASS, 780, 440, 0.0, "BYPASS", "CAB");
+    toggle(P_CAB_BYPASS, 760, 440, 0.0, "BYPASS", "CAB");
   }
 }
 
@@ -1173,7 +1173,7 @@ void Panel::drawHeader(cairo_t* cr, const Shared& shared,
   cairo_line_to(cr, kPanelWidth, 61.5);
   cairo_stroke(cr);
 
-  text(cr, "AMP SUITE", 540, 38, 19, 1, 0.82, 0.84, 0.86);
+  text(cr, "AMP SUITE", 520, 38, 19, 1, 0.82, 0.84, 0.86);
 }
 
 void Panel::drawTabs(cairo_t* cr, const Shared& shared) const {
@@ -1435,18 +1435,18 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
          skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
   }
 
-  text(cr, "MIC", 760, 196, 10, 0, skin.legendDim.r, skin.legendDim.g,
+  text(cr, "MIC", 760, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
 
   if (cab == 2) {
     const std::string userIr = selectedUserIrName(shared, state);
-    text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 900, 262, 13,
+    text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 885, 262, 13,
          1, skin.legend.r, skin.legend.g, skin.legend.b);
   } else {
-    text(cr, cabName(model, cab), 900, 262, 13, 1, skin.legend.r,
+    text(cr, cabName(model, cab), 885, 262, 13, 1, skin.legend.r,
          skin.legend.g, skin.legend.b);
   }
-  text(cr, "Factory cabs are CC0 and embedded.", 900, 282, 9.5, 1,
+  text(cr, "Factory cabs are CC0 and embedded.", 885, 282, 9.5, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 }
 
@@ -1544,17 +1544,18 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
       break;
     case Kind::Power: {
       const bool on = shared.get(P_POWER) > 0.5;
-      const Skin skin = skinFor(model);
       cairo_arc(cr, w.x, w.y, w.r, 0, 2 * kPi);
-      setRgb(cr, on ? skin.btnOn : skin.btnOff);
+      setRgb(cr, {0.12, 0.12, 0.12});
       cairo_fill(cr);
-      cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.45);
-      cairo_set_line_width(cr, 1.0);
-      cairo_arc(cr, w.x, w.y, w.r - 0.5, 0, 2 * kPi);
+      cairo_arc(cr, w.x, w.y, w.r - 1.5, 0, 2 * kPi);
+      setRgb(cr, on ? Rgb{0.36, 0.86, 0.46} : Rgb{0.42, 0.42, 0.42});
+      cairo_set_line_width(cr, 2.2);
+      cairo_new_path(cr);
+      cairo_arc(cr, w.x, w.y, 7, -kPi / 2 + 0.6, -kPi / 2 + 2 * kPi - 0.6);
       cairo_stroke(cr);
-      cairo_arc(cr, w.x, w.y, w.r * 0.35, 0, 2 * kPi);
-      setRgb(cr, on ? skin.btnTextOn : skin.btnText, 0.9);
-      cairo_fill(cr);
+      cairo_move_to(cr, w.x, w.y - 9);
+      cairo_line_to(cr, w.x, w.y - 1);
+      cairo_stroke(cr);
       break;
     }
   }
@@ -2209,12 +2210,11 @@ void Panel::drawNamPage(cairo_t* cr, const Shared& shared,
          skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
   }
 
-  text(cr, "NAM replaces the preamp and power amp.", 760, 520, 10, 0,
+  text(cr, "NAM replaces the preamp and power amp.", 900, 520, 10, 1,
        skin.legend.r, skin.legend.g, skin.legend.b);
-  text(cr, "808, delay/reverb loop, cab IR and output stay active.",
-       760, 538, 9.5, 0, skin.legendDim.r, skin.legendDim.g,
-       skin.legendDim.b);
-  text(cr, "Load a .nam model or a NAM-support WAV.", 760, 556, 9.5, 0,
+  text(cr, "808, loop, cab and output stay active.", 900, 538, 9.5, 1,
+       skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  text(cr, "Load a .nam model or NAM WAV.", 900, 556, 9.5, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 }
 

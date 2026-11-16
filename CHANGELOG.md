@@ -68,6 +68,9 @@ M1: tube-stage and tone-stack engine.
 - NAM loader: vendored MIT NeuralAmpModelerCore, Eigen, nlohmann/json and
   libsamplerate; dedicated NAM page with a file browser, drag-and-drop,
   worker-thread model loading, host-rate resampling and a level trim.
+- UI polish: Comp Suite-style power glyph, right-aligned header pills with the
+  NAM page in sequence, centered master/output, aligned cab mic/knob rows,
+  symmetrical pedal cards and a wider user-IR/NAM list.
 - Startup now applies the tuned Block 120 — Rhythm preset rather than the
   neutral parameter defaults. The Gain knob now drives the tube preamp over a
   36 dB range (previously it only affected the solid-state path), high-gain

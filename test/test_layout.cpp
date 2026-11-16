@@ -78,7 +78,7 @@ int main() {
   }
 
   // PEDALS pill opens the pedal page; clicking it again closes.
-  if (!panel.pointerDown(shared, state, 728.0, 32.0, false)) {
+  if (!panel.pointerDown(shared, state, 676.0, 32.0, false)) {
     std::fprintf(stderr, "PEDALS pill did not consume the click\n");
     return 1;
   }
@@ -93,14 +93,14 @@ int main() {
     std::fprintf(stderr, "pedal page is missing controls\n");
     return 1;
   }
-  panel.pointerDown(shared, state, 728.0, 32.0, false);
+  panel.pointerDown(shared, state, 676.0, 32.0, false);
   if (state.page != 0) {
     std::fprintf(stderr, "PEDALS pill did not close the page\n");
     return 1;
   }
 
   // CAB pill opens the cabinet page.
-  panel.pointerDown(shared, state, 803.0, 32.0, false);
+  panel.pointerDown(shared, state, 751.0, 32.0, false);
   if (state.page != 2) {
     std::fprintf(stderr, "CAB pill did not open the page\n");
     return 1;
@@ -244,7 +244,7 @@ int main() {
       return 1;
     }
     // The NAM header pill closes the page back to the amp.
-    panel.pointerDown(shared, state, 630.0, 32.0, false);
+    panel.pointerDown(shared, state, 817.0, 32.0, false);
     if (state.page != 0) {
       std::fprintf(stderr, "NAM header pill did not close the page\n");
       return 1;
