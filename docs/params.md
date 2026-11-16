@@ -17,6 +17,7 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
   - `+3` — `in_peak_r`
   - `+4` — `out_vu`
   - `+5` — `latency` (samples)
+  - `+6` — `time` (LV2 atom sequence input, `time:Position`)
 - Stepped parameters use integer values. Toggled parameters use 0/1.
 - Values are clamped to `[min, max]`; non-finite host values are ignored.
 - Model-specific controls stay at fixed ids and are flagged hidden in the
@@ -83,8 +84,9 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 54 | `user_ir_block_120` | Block 120 User IR | 0–63 | 0 | stepped | per-amp user IR |
 | 55 | `user_ir_stealth` | Stealth User IR | 0–63 | 0 | stepped | per-amp user IR |
 | 56 | `user_ir_recto` | Recto User IR | 0–63 | 0 | stepped | per-amp user IR |
+| 57 | `tempo` | Delay Tempo | 40–300 | 120 | | bpm; manual tempo for LV2 and non-transport hosts |
 
-`P_COUNT = 57`.
+`P_COUNT = 58`.
 
 User IRs are WAV files in `$XDG_DATA_HOME/amp-suite/irs/user` (usually
 `~/.local/share/amp-suite/irs/user`). The list is sorted by filename; the
@@ -142,6 +144,7 @@ continuous values:
 - `reverb_predelay` → milliseconds
 - `limiter_threshold` → dBFS
 - `user_ir_*` → filename or `None`
+- `tempo` → BPM
 - toggles → `On` / `Off`
 
 After 1.0, symbols and ids must never change. Append new parameters at the end

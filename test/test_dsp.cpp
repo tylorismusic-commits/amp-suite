@@ -55,10 +55,13 @@ int main() {
     }
   }
 
-  // Extreme settings must stay finite and bounded (no NaN, no runaway).
+  // Extreme settings must stay finite and bounded (no NaN, no runaway) at
+  // both oversampling rates.
   for (int model = 0; model < 7; ++model) {
+    for (int hq = 0; hq < 2; ++hq) {
     amp::Shared x;
     x.set(amp::P_MODEL, static_cast<double>(model));
+    x.set(amp::P_HQ, static_cast<double>(hq));
     x.set(amp::P_GAIN, 1.0);
     x.set(amp::P_MASTER, 1.0);
     x.set(amp::P_OUTPUT, 0.7);
@@ -90,9 +93,10 @@ int main() {
       peak = std::max(peak, std::fabs(v));
     }
     if (peak > 50.0f) {
-      std::fprintf(stderr, "runaway output on model %d: %.1f\n", model,
-                   static_cast<double>(peak));
+      std::fprintf(stderr, "runaway output on model %d (hq=%d): %.1f\n", model,
+                   hq, static_cast<double>(peak));
       return 1;
+    }
     }
   }
 

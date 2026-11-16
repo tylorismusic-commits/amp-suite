@@ -8,6 +8,8 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix pprops: <http://lv2plug.in/ns/ext/port-props#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix time: <http://lv2plug.in/ns/ext/time#> .
 
 <https://github.com/tylorismusic-commits/amp-suite>
     a lv2:Plugin ;
@@ -702,8 +704,19 @@
         pg:group <https://github.com/tylorismusic-commits/amp-suite#cab> ;
     ] ,
     [
-        a lv2:OutputPort , lv2:ControlPort ;
+        a lv2:InputPort , lv2:ControlPort ;
         lv2:index 61 ;
+        lv2:symbol "tempo" ;
+        lv2:name "Delay Tempo" ;
+        lv2:default 120 ;
+        lv2:minimum 40 ;
+        lv2:maximum 300 ;
+        units:unit units:bpm ;
+        pg:group <https://github.com/tylorismusic-commits/amp-suite#delay> ;
+    ] ,
+    [
+        a lv2:OutputPort , lv2:ControlPort ;
+        lv2:index 62 ;
         lv2:symbol "out_peak_l" ;
         lv2:name "Output Peak Left" ;
         lv2:default 0 ;
@@ -715,7 +728,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 62 ;
+        lv2:index 63 ;
         lv2:symbol "out_peak_r" ;
         lv2:name "Output Peak Right" ;
         lv2:default 0 ;
@@ -727,7 +740,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 63 ;
+        lv2:index 64 ;
         lv2:symbol "in_peak_l" ;
         lv2:name "Input Peak Left" ;
         lv2:default 0 ;
@@ -739,7 +752,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 64 ;
+        lv2:index 65 ;
         lv2:symbol "in_peak_r" ;
         lv2:name "Input Peak Right" ;
         lv2:default 0 ;
@@ -751,7 +764,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 65 ;
+        lv2:index 66 ;
         lv2:symbol "out_vu" ;
         lv2:name "Output VU" ;
         lv2:default 0 ;
@@ -763,7 +776,7 @@
     ] ,
     [
         a lv2:OutputPort , lv2:ControlPort ;
-        lv2:index 66 ;
+        lv2:index 67 ;
         lv2:symbol "latency" ;
         lv2:name "Latency" ;
         lv2:default 0 ;
@@ -772,6 +785,15 @@
         lv2:designation lv2:latency ;
         lv2:portProperty pprops:notOnGUI ;
         pg:group <https://github.com/tylorismusic-commits/amp-suite#latency> ;
+    ] ,
+    [
+        a lv2:InputPort , atom:Sequence ;
+        lv2:index 68 ;
+        lv2:symbol "time" ;
+        lv2:name "Time" ;
+        lv2:designation time:position ;
+        atom:supports time:Position ;
+        pg:group <https://github.com/tylorismusic-commits/amp-suite#time> ;
     ] .
 
 
@@ -792,3 +814,5 @@
 <https://github.com/tylorismusic-commits/amp-suite#limiter> a pg:Group ; lv2:name "Limiter" .
 
 <https://github.com/tylorismusic-commits/amp-suite#latency> a pg:Group ; lv2:name "Latency" .
+
+<https://github.com/tylorismusic-commits/amp-suite#time> a pg:Group ; lv2:name "Time" .

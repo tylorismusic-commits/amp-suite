@@ -28,7 +28,7 @@ off, and the stock 1200 4×12 cab.
 M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 57-parameter host contract; CLAP state save/load.
+- ✅ 58-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and 8 scaffold presets.
 - ✅ LV2 metadata generated from the parameter table.
@@ -37,7 +37,9 @@ M1 is in progress:
 - ✅ **M1:** Guitarix Plexi EL34 power-amp table, per-recipe supply sag and a
   clamped feedback loop; presence has a practical post-power shelf until the
   full NFB pass.
-- ⏳ M1: oversampling, full NFB presence/resonance.
+- ✅ **M1:** 2×/4× half-band oversampling around the power stage (HQ = 4×,
+  Eco = 2×); the power-amp feedback and sag now keep state across blocks.
+- ⏳ M1: full NFB/blocking and per-model reference tuning.
 - ✅ **M1:** Guitarix TS9/808 circuit model; stereo tape-style delay; FDN
   reverb; pre-power/post-cab loop switch; free/host delay sync.
 - ✅ **M1:** seven generated CC0 factory cabs, fitted from the references and
@@ -47,6 +49,9 @@ M1 is in progress:
 - ✅ Per-amp user IR loading from `$XDG_DATA_HOME/amp-suite/irs/user`, with a
   watched folder, filename selection and CLAP state embedding; LV2 state copies
   selected WAVs into the host session via `state:makePath`.
+- ✅ Manual delay tempo (`tempo` control) for LV2 and non-transport hosts;
+  CLAP transport and the LV2 `time:Position` atom port override it when the
+  host supplies a timeline.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

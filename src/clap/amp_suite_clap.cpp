@@ -494,6 +494,9 @@ bool paramsValueToText(const clap_plugin_t* p, clap_id id, double value,
     case P_LIMITER_THRESH:
       std::snprintf(out, size, "%.1f dB", -24.0 + 24.0 * value);
       return true;
+    case P_BPM:
+      std::snprintf(out, size, "%.0f BPM", value);
+      return true;
     default:
       break;
   }

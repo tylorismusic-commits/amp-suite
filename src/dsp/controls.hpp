@@ -69,6 +69,7 @@ struct Controls {
   float delayTone = 0.5f;
   float delayMod = 0.2f;
   bool delayPingPong = false;
+  float bpm = 120.0f;       // manual tempo when the host has no transport
 
   // Reverb.
   bool reverbOn = false;

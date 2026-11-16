@@ -44,6 +44,12 @@ M1: tube-stage and tone-stack engine.
 - Portable user IR state: CLAP embeds the selected WAV bytes after the
   parameter block; LV2 stores a portable blob and copies the files into the
   host state directory via `state:makePath`.
+- 2×/4× half-band FIR oversampling around the power stage: HQ uses 4×, Eco
+  uses 2×. The power-amp feedback and supply sag now keep state across process
+  blocks instead of resetting every block.
+- Manual `tempo` control (40–300 BPM) for LV2 and hosts without transport;
+  CLAP transport and an LV2 `time:Position` atom-sequence input port override
+  it when the host supplies a timeline.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

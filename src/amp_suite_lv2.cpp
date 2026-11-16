@@ -5,8 +5,10 @@
 // Meter ports are appended after the parameters.
 
 #include <lv2/atom/atom.h>
+#include <lv2/atom/util.h>
 #include <lv2/core/lv2.h>
 #include <lv2/state/state.h>
+#include <lv2/time/time.h>
 #include <lv2/urid/urid.h>
 
 #include <cmath>
@@ -39,6 +41,7 @@ enum Port : uint32_t {
   PORT_IN_PEAK_R,
   PORT_OUT_VU,
   PORT_LATENCY,
+  PORT_TIME,
   PORT_COUNT
 };
 
@@ -57,6 +60,11 @@ struct Plugin {
   uint32_t uridParams = 0;
   uint32_t uridUserIrs = 0;
   uint32_t uridChunk = 0;
+  uint32_t uridPosition = 0;
+  uint32_t uridBpm = 0;
+  uint32_t uridFloat = 0;
+
+  const LV2_Atom_Sequence* timePort = nullptr;
 
   std::unique_ptr<float*[]> ports;
 
@@ -90,6 +98,9 @@ LV2_Handle instantiate(const LV2_Descriptor*, double rate,
     p->uridParams = p->map->map(p->map->handle, "urn:amp-suite:params");
     p->uridUserIrs = p->map->map(p->map->handle, "urn:amp-suite:user-irs");
     p->uridChunk = p->map->map(p->map->handle, LV2_ATOM__Chunk);
+    p->uridPosition = p->map->map(p->map->handle, LV2_TIME__Position);
+    p->uridBpm = p->map->map(p->map->handle, LV2_TIME__beatsPerMinute);
+    p->uridFloat = p->map->map(p->map->handle, LV2_ATOM__Float);
   }
   p->engine.prepare(p->sampleRate);
   if (bundlePath) {
@@ -114,6 +125,9 @@ void connectPort(LV2_Handle handle, uint32_t port, void* data) {
     case PORT_IN_PEAK_R: p->inPeakR = static_cast<float*>(data); break;
     case PORT_OUT_VU: p->outVu = static_cast<float*>(data); break;
     case PORT_LATENCY: p->latency = static_cast<float*>(data); break;
+    case PORT_TIME:
+      p->timePort = static_cast<const LV2_Atom_Sequence*>(data);
+      break;
     default:
       if (!p->ports) {
         p->ports = std::make_unique<float*[]>(PORT_COUNT);
@@ -123,6 +137,32 @@ void connectPort(LV2_Handle handle, uint32_t port, void* data) {
         p->ports[port] = static_cast<float*>(data);
       }
       break;
+  }
+}
+
+void updateTempo(Plugin* p) {
+  if (!p->timePort || !p->uridPosition || !p->uridBpm) {
+    return;
+  }
+  auto* seq = const_cast<LV2_Atom_Sequence*>(p->timePort);
+  LV2_ATOM_SEQUENCE_FOREACH(seq, ev) {
+    if (ev->body.type != p->uridPosition) {
+      continue;
+    }
+    const auto* obj = reinterpret_cast<const LV2_Atom_Object*>(&ev->body);
+    const LV2_Atom* bpmAtom = nullptr;
+    LV2_Atom_Object_Query query[] = {
+        {p->uridBpm, &bpmAtom},
+        LV2_ATOM_OBJECT_QUERY_END,
+    };
+    lv2_atom_object_query(obj, query);
+    if (bpmAtom && bpmAtom->type == p->uridFloat &&
+        bpmAtom->size == sizeof(float)) {
+      const float bpm = reinterpret_cast<const LV2_Atom_Float*>(bpmAtom)->body;
+      if (std::isfinite(bpm) && bpm > 1.0f) {
+        p->engine.setTempo(bpm, true);
+      }
+    }
   }
 }
 
@@ -164,6 +204,7 @@ void run(LV2_Handle handle, uint32_t frames) {
     }
     p->portsSeen = true;
   }
+  updateTempo(p);
   p->engine.setUserIrBank(p->userIr.bank());
   p->engine.setControls(amp::controlsFrom(p->shared));
 
@@ -192,6 +233,8 @@ void run(LV2_Handle handle, uint32_t frames) {
   p->shared.outPeakLDb.store(p->meters.outPeakLDb, std::memory_order_relaxed);
   p->shared.outPeakRDb.store(p->meters.outPeakRDb, std::memory_order_relaxed);
   p->shared.outVuDb.store(p->meters.outVuDb, std::memory_order_relaxed);
+  p->shared.bpm.store(p->meters.bpm, std::memory_order_relaxed);
+  p->shared.hostTempo.store(p->meters.hostTempo, std::memory_order_relaxed);
 }
 
 struct Lv2UserIrHeader {

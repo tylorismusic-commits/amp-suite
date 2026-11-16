@@ -562,6 +562,7 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_DELAY_MIX, cx[1] + 60, cy + 215, 26, "MIX", {}, true);
     knob(P_DELAY_TONE, cx[1] + 150, cy + 215, 26, "TONE", {}, true);
     knob(P_DELAY_MOD, cx[1] + 240, cy + 215, 26, "MOD", {}, true);
+    knob(P_BPM, cx[1] + 250, cy + 290, 18, "BPM", {}, true);
     foot(P_DELAY_ON, cx[1] + 150, cy + 330, 26, "DELAY");
 
     // Reverb card.
@@ -790,6 +791,9 @@ void Panel::tick(const Shared& shared, PanelState& state) const {
   state.outLevel = std::max(state.outLevelL, state.outLevelR);
   state.bpm = shared.bpm.load(std::memory_order_relaxed);
   state.hostTempo = shared.hostTempo.load(std::memory_order_relaxed);
+  if (!state.hostTempo) {
+    state.bpm = static_cast<float>(shared.get(P_BPM));
+  }
   if (++state.userIrScanTicks >= 60) {
     state.userIrScanTicks = 0;
     state.userIrs = listUserIrFiles(userIrDir());
@@ -1194,8 +1198,14 @@ void Panel::drawPedalPage(cairo_t* cr, const Shared& shared,
 
   text(cr, "GUITAR  >  808  >  AMP  >  DELAY  >  REVERB  >  CAB", 520, 592,
        11, 1, skin.legend.r, skin.legend.g, skin.legend.b);
-  text(cr, state.hostTempo ? "HOST TEMPO" : "FREE / 120 BPM", 980, 592, 10, 2,
-       skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  char tempo[64];
+  if (state.hostTempo) {
+    std::snprintf(tempo, sizeof(tempo), "HOST / %.1f BPM", state.bpm);
+  } else {
+    std::snprintf(tempo, sizeof(tempo), "FREE / %.0f BPM", state.bpm);
+  }
+  text(cr, tempo, 980, 592, 10, 2, skin.legendDim.r, skin.legendDim.g,
+       skin.legendDim.b);
 }
 
 void Panel::drawCabPage(cairo_t* cr, const Shared& shared,

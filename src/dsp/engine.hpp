@@ -18,6 +18,7 @@
 #include "delay.hpp"
 #include "params.hpp"
 #include "reverb.hpp"
+#include "oversample.hpp"
 #include "power_amp.hpp"
 #include "ts9.hpp"
 #include "recipe.hpp"
@@ -50,6 +51,7 @@ public:
     limiterGain_ = 1.0f;
     active_ = -1;
     lastModel_ = -1;
+    powerOs_ = 0;
   }
 
   void setControls(const Controls& c) noexcept {
@@ -65,8 +67,19 @@ public:
     ps.sag = r.powerSag;
     ps.output = r.outputTrim;
     ps.useTable = r.powerTable;
-    powerL_.prepare(sr_, ps);
-    powerR_.prepare(sr_, ps);
+    const int os = c.hq ? 4 : 2;
+    if (os != powerOs_) {
+      powerL_.prepare(sr_ * static_cast<float>(os), ps);
+      powerR_.prepare(sr_ * static_cast<float>(os), ps);
+      os1L_.prepare();
+      os1R_.prepare();
+      os2L_.prepare();
+      os2R_.prepare();
+      powerOs_ = os;
+    } else {
+      powerL_.setSpec(ps);
+      powerR_.setSpec(ps);
+    }
     toneSpec_ = toneStackSpec(r.tone);
     toneL_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
     toneR_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
@@ -109,7 +122,8 @@ public:
     const float cabLevel = c.cabBypass ? 1.0f : dbToGain(cabLevelDb(c.cabLevel));
     const float enabled = c.enabled ? 1.0f : 0.0f;
 
-    delay_.setTargets(c, bpm_);
+    const float tempo = hostTempo_ ? bpm_ : c.bpm;
+    delay_.setTargets(c, tempo);
     reverb_.setTargets(c);
 
     for (int i = 0; i < frames; ++i) {
@@ -161,8 +175,45 @@ public:
       }
 
       if (!rec.solidState) {
-        l = powerL_.process(l);
-        r = powerR_.process(r);
+        if (powerOs_ == 4) {
+          float a0 = 0.0f, a1 = 0.0f;
+          float b0 = 0.0f, b1 = 0.0f;
+          os1L_.up(l, a0, a1);
+          float p0 = powerL_.process(a0);
+          float p1 = powerL_.process(a1);
+          float q0 = 0.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;
+          os2L_.up(p0, q0, q1);
+          os2L_.up(p1, q2, q3);
+          q0 = powerL_.process(q0);
+          q1 = powerL_.process(q1);
+          q2 = powerL_.process(q2);
+          q3 = powerL_.process(q3);
+          l = os1L_.down(os2L_.down(q0, q1), os2L_.down(q2, q3));
+
+          os1R_.up(r, a0, a1);
+          p0 = powerR_.process(a0);
+          p1 = powerR_.process(a1);
+          os2R_.up(p0, q0, q1);
+          os2R_.up(p1, q2, q3);
+          q0 = powerR_.process(q0);
+          q1 = powerR_.process(q1);
+          q2 = powerR_.process(q2);
+          q3 = powerR_.process(q3);
+          r = os1R_.down(os2R_.down(q0, q1), os2R_.down(q2, q3));
+        } else if (powerOs_ == 2) {
+          float a0 = 0.0f, a1 = 0.0f;
+          os1L_.up(l, a0, a1);
+          a0 = powerL_.process(a0);
+          a1 = powerL_.process(a1);
+          l = os1L_.down(a0, a1);
+          os1R_.up(r, a0, a1);
+          a0 = powerR_.process(a0);
+          a1 = powerR_.process(a1);
+          r = os1R_.down(a0, a1);
+        } else {
+          l = powerL_.process(l);
+          r = powerR_.process(r);
+        }
       }
 
       l = presenceL_.process(l);
@@ -226,7 +277,7 @@ public:
     meters.outPeakRDb = gainToDb(outPeakR);
     meters.outPeakDb = std::max(meters.outPeakLDb, meters.outPeakRDb);
     meters.outVuDb = gainToDb(std::sqrt(vuPower_)) + 18.0f;
-    meters.bpm = bpm_;
+    meters.bpm = hostTempo_ ? bpm_ : c.bpm;
     meters.hostTempo = hostTempo_;
   }
 
@@ -247,6 +298,10 @@ public:
     cabLpR_.reset();
     powerL_.reset();
     powerR_.reset();
+    os1L_.reset();
+    os1R_.reset();
+    os2L_.reset();
+    os2R_.reset();
     presenceL_.reset();
     presenceR_.reset();
     resonanceL_.reset();
@@ -356,6 +411,11 @@ private:
   Biquad cabLpR_;
   PowerAmp powerL_;
   PowerAmp powerR_;
+  Oversampler2x os1L_;
+  Oversampler2x os1R_;
+  Oversampler2x os2L_;
+  Oversampler2x os2R_;
+  int powerOs_ = 0;
   Biquad presenceL_;
   Biquad presenceR_;
   Biquad resonanceL_;
