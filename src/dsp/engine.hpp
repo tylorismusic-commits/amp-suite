@@ -52,15 +52,28 @@ public:
     active_ = -1;
     lastModel_ = -1;
     powerOs_ = 0;
+    pendingModel_ = -1;
+    fadeDir_ = 0;
+    switchGain_ = 1.0f;
+    switchStep_ = 1.0f / std::max(1.0f, sr_ * 0.010f);
   }
 
   void setControls(const Controls& c) noexcept {
-    if (c.model != lastModel_) {
+    if (lastModel_ < 0) {
       lastModel_ = c.model;
       prepareRecipe(c.model);
+      pendingModel_ = -1;
+      fadeDir_ = 0;
     }
+    if (c.model != lastModel_ && fadeDir_ != -1) {
+      pendingModel_ = c.model;
+      fadeDir_ = -1;
+    }
+    const int activeModel = (fadeDir_ == -1 && pendingModel_ >= 0)
+                                ? lastModel_
+                                : c.model;
     controls_ = c;
-    const AmpRecipe& r = recipeFor(c.model);
+    const AmpRecipe& r = recipeFor(activeModel);
     PowerAmpSpec ps;
     ps.drive = r.powerDrive;
     ps.feedback = r.powerFeedback;
@@ -112,7 +125,9 @@ public:
 
   void process(float* left, float* right, int frames, Meters& meters) noexcept {
     const Controls c = controls_;
-    const AmpRecipe& rec = recipeFor(c.model);
+    const int procModel =
+        (fadeDir_ == -1 && lastModel_ >= 0) ? lastModel_ : c.model;
+    const AmpRecipe& rec = recipeFor(procModel);
     float inPeakL = 0.0f;
     float inPeakR = 0.0f;
     float outPeakL = 0.0f;
@@ -251,6 +266,30 @@ public:
       l *= enabled * outGain;
       r *= enabled * outGain;
 
+      // Brief zero-crossfade when the model changes: fade out, swap the
+      // recipe at silence, then fade in.  Ten milliseconds each way avoids
+      // clicks without a second full engine.
+      if (fadeDir_ < 0) {
+        switchGain_ -= switchStep_;
+        if (switchGain_ <= 0.0f) {
+          switchGain_ = 0.0f;
+          if (pendingModel_ >= 0) {
+            lastModel_ = pendingModel_;
+            prepareRecipe(pendingModel_);
+            pendingModel_ = -1;
+          }
+          fadeDir_ = 1;
+        }
+      } else if (fadeDir_ > 0) {
+        switchGain_ += switchStep_;
+        if (switchGain_ >= 1.0f) {
+          switchGain_ = 1.0f;
+          fadeDir_ = 0;
+        }
+      }
+      l *= switchGain_;
+      r *= switchGain_;
+
       if (c.limiterOn) {
         const float thresh = dbToGain(-24.0f + 24.0f * c.limiterThreshold);
         const float peakNow = std::max(std::fabs(l), std::fabs(r));
@@ -342,16 +381,20 @@ private:
   }
 
   void updateCabIR() noexcept {
-    int set = controls_.model;
-    if (controls_.model == 4 && controls_.cab == 1) {
+    // While fading down for a model switch, keep the old model's cab until
+    // the recipe swap at silence.
+    const int cabModel =
+        (fadeDir_ == -1 && lastModel_ >= 0) ? lastModel_ : controls_.model;
+    int set = cabModel;
+    if (cabModel == 4 && controls_.cab == 1) {
       set = CabBank::Recto;
     }
-    if (controls_.model == 6) {
+    if (cabModel == 6) {
       set = CabBank::Recto;
     }
     const CabIR* ir = nullptr;
     if (controls_.cab == 2 && activeUserBank_) {
-      const int model = std::min(std::max(controls_.model, 0), kAmpCount - 1);
+      const int model = std::min(std::max(cabModel, 0), kAmpCount - 1);
       const int index = controls_.userIr[model];
       if (index > 0 &&
           index <= static_cast<int>(activeUserBank_->entries.size())) {
@@ -386,6 +429,10 @@ private:
   Controls controls_;
   int lastModel_ = -1;
   int active_ = -1;
+  int pendingModel_ = -1;
+  int fadeDir_ = 0;
+  float switchGain_ = 1.0f;
+  float switchStep_ = 1.0f;
   float bpm_ = 120.0f;
   bool hostTempo_ = false;
   float vuCoeff_ = 0.0f;
