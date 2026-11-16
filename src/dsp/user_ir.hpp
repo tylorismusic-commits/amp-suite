@@ -109,6 +109,10 @@ public:
       dir_ = std::move(dir);
       sr_ = sampleRate;
     }
+    if (!dir_.empty()) {
+      std::error_code ec;
+      std::filesystem::create_directories(dir_, ec);
+    }
     rescanNow();
     quit_.store(false, std::memory_order_relaxed);
     thread_ = std::thread([this] { run(); });

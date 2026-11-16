@@ -1,6 +1,6 @@
 # Amp Suite — parameter and state contract
 
-**Status:** M0 scaffold. This file is the host ABI: parameter ids, LV2 port
+**Status:** pre-1.0 ABI. This file is the host ABI: parameter ids, LV2 port
 symbols and state layout are permanent after 1.0.0.
 
 Source of truth: `src/params.hpp`. `tools/gen_ttl.cpp` emits the LV2 metadata

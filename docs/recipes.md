@@ -1,8 +1,9 @@
 # Amp Suite — amp recipes
 
-**Status:** M1 in progress. The Guitarix-derived `TubeStage` and `ToneStack`
-are implemented; the power-amp table, sag/NFB and oversampling are next. This
-file is the recipe spec the implementation must satisfy.
+**Status:** M1 in progress. The Guitarix-derived `TubeStage`, `ToneStack`,
+power-amp table, sag/NFB, 2×/4× oversampling, generated factory cabs and user
+IRs are implemented. Full grid-blocking and per-model reference tuning remain.
+This file is the recipe spec the implementation must satisfy.
 
 ## Shared architecture
 
@@ -71,10 +72,12 @@ Each recipe controls:
   dedicated 6L6/EL84 tables are generated.
 - Supply sag is a per-recipe envelope (`powerSag`); Recto has the most,
   Block 120 the least. Grid-conduction/blocking is still to come.
-- Presence is approximated with a post-power high shelf plus a small,
-  clamped Guitarix feedback loop. A full NFB presence/resonance pass is next.
+- The power stage runs at 4× (HQ) or 2× (Eco) through a half-band FIR pair.
+- Presence uses the Guitarix feedback filter inside the power stage plus a
+  practical post-power high shelf. Resonance remains a post-power low shelf;
+  a fully coupled NFB resonance loop is still to come.
 - Each recipe is level-calibrated; `amp_probe` reports peak/RMS/THD.
-- Remove the aggressive SR/2.1 anti-alias low-pass once HIIR 2×/4× is in place;
-  measure the alias floor before/after.
+- The 2×/4× power-stage oversampling is in place; the alias floor still needs a
+  formal measurement in the release pass.
 - Validate each recipe against the reference captures listed in
   `docs/ir-provenance.md` and the NAM reference set.

@@ -1,6 +1,6 @@
 # Amp Suite — presets
 
-**Status:** M0 scaffold. The eight presets below are compiled into
+**Status:** first factory bank. The eight presets below are compiled into
 `src/presets.hpp` and emitted into `lv2/presets.ttl` by `tools/gen_ttl.cpp`.
 
 ## Startup
