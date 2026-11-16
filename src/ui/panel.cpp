@@ -5,6 +5,7 @@
 
 #include "presets.hpp"
 #include "version.hpp"
+#include "dsp/nam_files.hpp"
 #include "dsp/user_ir.hpp"
 
 #include <cairo-ft.h>
@@ -480,6 +481,7 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     b.label = "Preset";
     widgets_.push_back(b);
   }
+  pagePill(3, 606, 20, 58, 24, "NAM");
   pagePill(1, 690, 20, 76, 24, "PEDALS");
   pagePill(2, 774, 20, 58, 24, "CAB");
   pill(P_HQ, 840, 20, 58, 24, "HQ");
@@ -586,6 +588,10 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_REVERB_PREDELAY, cx[2] + 180, cy + 215, 26, "PRE-DLY", {}, true);
     foot(P_REVERB_ON, cx[2] + 150, cy + 330, 26, "REVERB");
 
+  } else if (state.page == 3) {
+    // NAM page.
+    pill(P_NAM_ON, 852, 300, 96, 24, "NAM");
+    knob(P_NAM_LEVEL, 900, 380, 26, "LEVEL", {}, true);
   } else {
     // Cabinet page.
     const bool alt = hasAlternate(model);
@@ -657,6 +663,28 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
     return handleFileBrowserClick(shared, state, x, y);
   }
   if (handlePresetClick(shared, state, x, y)) {
+    return true;
+  }
+  if (state.page == 3 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
+      y >= kUserBoxY && y <= kUserBoxY + kUserBoxH) {
+    if (y < kUserRowY) {
+      openFileBrowser(state, true);
+      return true;
+    }
+    const int row = static_cast<int>((y - kUserRowY) / kUserRowH) +
+                    state.namScroll;
+    const int files = static_cast<int>(state.namModels.size());
+    if (row == 0) {
+      shared.set(P_NAM_MODEL, 0.0);
+      shared.set(P_NAM_ON, 0.0);
+      markEdited(state);
+    } else if (row >= 1 && row <= files) {
+      shared.set(P_NAM_MODEL, static_cast<double>(row));
+      shared.set(P_NAM_ON, 1.0);
+      markEdited(state);
+    } else {
+      openFileBrowser(state, true);
+    }
     return true;
   }
   if (state.page == 2 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
@@ -803,6 +831,14 @@ bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
     state.userIrScroll = std::min(std::max(state.userIrScroll, 0), maxScroll);
     return true;
   }
+  if (state.page == 3 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
+      y >= kUserBoxY && y <= kUserBoxY + kUserBoxH) {
+    const int rows = static_cast<int>(state.namModels.size()) + 1;
+    const int maxScroll = std::max(0, rows - kUserRows);
+    state.namScroll += dy > 0.0 ? -1 : 1;
+    state.namScroll = std::min(std::max(state.namScroll, 0), maxScroll);
+    return true;
+  }
   for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it) {
     const Widget& w = *it;
     if (!hitWidget(w, x, y)) {
@@ -869,6 +905,13 @@ void Panel::tick(const Shared& shared, PanelState& state) const {
     const int maxScroll = std::max(0, rows - 7);
     state.userIrScroll =
         std::min(std::max(state.userIrScroll, 0), maxScroll);
+  }
+  if (++state.namScanTicks >= 60) {
+    state.namScanTicks = 0;
+    state.namModels = listNamFiles(userNamDir());
+    const int rows = static_cast<int>(state.namModels.size()) + 1;
+    const int maxScroll = std::max(0, rows - kUserRows);
+    state.namScroll = std::min(std::max(state.namScroll, 0), maxScroll);
   }
 }
 
@@ -1081,6 +1124,8 @@ void Panel::draw(cairo_t* cr, const Shared& shared, const PanelState& state) {
     drawAmpPage(cr, shared, state);
   } else if (state.page == 1) {
     drawPedalPage(cr, shared, state);
+  } else if (state.page == 3) {
+    drawNamPage(cr, shared, state);
   } else {
     drawCabPage(cr, shared, state);
   }
@@ -1425,6 +1470,13 @@ void Panel::drawFooter(cairo_t* cr, const Shared& shared,
   } else if (state.page == 2) {
     std::snprintf(buf, sizeof(buf), "CABINET  ·  %s  ·  %s", modelName(model),
                   cabName(model, cab));
+  } else if (state.page == 3) {
+    const int index = static_cast<int>(shared.get(P_NAM_MODEL) + 0.5);
+    const std::string name =
+        index > 0 && index <= static_cast<int>(state.namModels.size())
+            ? state.namModels[static_cast<size_t>(index - 1)]
+            : "none";
+    std::snprintf(buf, sizeof(buf), "NAM MODEL  ·  %s", name.c_str());
   } else {
     std::snprintf(buf, sizeof(buf), "%s  ·  %s", skin.caption,
                   cabName(model, cab));
@@ -1464,6 +1516,8 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
       Widget ww = w;
       if (w.param == P_HQ) {
         ww.label = on ? "HQ" : "ECO";
+      } else if (w.param == P_NAM_ON) {
+        ww.label = on ? "NAM ON" : "AMP ON";
       } else if (w.param == P_AMP_BYPASS) {
         ww.label = on ? "BYPASS ON" : "AMP ON";
       } else if (w.param == P_LOOP_POS) {
@@ -1851,10 +1905,12 @@ bool Panel::importUserIr(Shared& shared, PanelState& state,
   return true;
 }
 
-void Panel::openFileBrowser(PanelState& state) const {
+void Panel::openFileBrowser(PanelState& state, bool nam) const {
   std::error_code ec;
-  std::filesystem::create_directories(userIrDir(), ec);
-  state.fileBrowserDir = userIrDir();
+  const std::string dir = nam ? userNamDir() : userIrDir();
+  std::filesystem::create_directories(dir, ec);
+  state.fileBrowserDir = dir;
+  state.fileBrowserNam = nam;
   state.fileBrowserOpen = true;
   state.fileBrowserScroll = 0;
   refreshFileBrowser(state);
@@ -1883,7 +1939,8 @@ void Panel::refreshFileBrowser(PanelState& state) const {
     }
     if (entry.is_directory(ec)) {
       dirs.push_back({name, true, false});
-    } else if (entry.is_regular_file(ec) && isWavName(name)) {
+    } else if (entry.is_regular_file(ec) &&
+               (state.fileBrowserNam ? isNamName(name) : isWavName(name))) {
       files.push_back({name, false, false});
     }
   }
@@ -1917,8 +1974,9 @@ void Panel::drawFileBrowser(cairo_t* cr, const Shared& shared,
   cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.35);
   cairo_rectangle(cr, kFbX + 1, kFbY + 1, kFbW - 2, 36);
   cairo_fill(cr);
-  text(cr, shorten(state.fileBrowserDir, 82).c_str(), kFbX + 16, kFbY + 24,
-       10, 0, skin.btnText.r, skin.btnText.g, skin.btnText.b);
+  text(cr, state.fileBrowserNam ? "NAM MODELS" : "USER IR FILES",
+       kFbX + 16, kFbY + 24, 10, 0, skin.btnText.r, skin.btnText.g,
+       skin.btnText.b);
   text(cr, "CANCEL", kFbX + kFbW - 16, kFbY + 24, 10, 2, skin.accent.r,
        skin.accent.g, skin.accent.b);
   setRgb(cr, {1, 1, 1}, 0.10);
@@ -1967,7 +2025,9 @@ void Panel::drawFileBrowser(cairo_t* cr, const Shared& shared,
     cairo_fill(cr);
   }
 
-  text(cr, "Click a folder to open it. Click a WAV to import it.",
+  text(cr, state.fileBrowserNam
+              ? "Click a folder to open it. Click a .nam or WAV to import it."
+              : "Click a folder to open it. Click a WAV to import it.",
        kFbX + 18, kFbY + kFbH - 16, 9.5, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
   cairo_restore(cr);
@@ -2010,10 +2070,152 @@ bool Panel::handleFileBrowserClick(Shared& shared, PanelState& state,
     return true;
   }
   const std::string path = (dir / entry.name).string();
-  if (importUserIr(shared, state, path)) {
+  const bool ok = state.fileBrowserNam ? importNamModel(shared, state, path)
+                                       : importUserIr(shared, state, path);
+  if (ok) {
     state.fileBrowserOpen = false;
   }
   return true;
+}
+
+bool Panel::importNamModel(Shared& shared, PanelState& state,
+                           const std::string& path) const {
+  std::error_code ec;
+  const std::filesystem::path source(path);
+  if (!std::filesystem::is_regular_file(source, ec) ||
+      !isNamName(source.filename().string())) {
+    return false;
+  }
+  const std::string dir = userNamDir();
+  std::filesystem::create_directories(dir, ec);
+  if (ec) {
+    return false;
+  }
+  const std::filesystem::path target =
+      std::filesystem::path(dir) / source.filename();
+  bool same = false;
+  if (std::filesystem::exists(target, ec)) {
+    same = std::filesystem::equivalent(source, target, ec);
+  }
+  if (!same) {
+    std::filesystem::copy_file(source, target,
+                               std::filesystem::copy_options::overwrite_existing,
+                               ec);
+    if (ec) {
+      return false;
+    }
+  }
+  state.namModels = listNamFiles(dir);
+  const std::string name = source.filename().string();
+  int index = 0;
+  for (size_t i = 0; i < state.namModels.size(); ++i) {
+    if (state.namModels[i] == name) {
+      index = static_cast<int>(i) + 1;
+      break;
+    }
+  }
+  if (index == 0) {
+    return false;
+  }
+  shared.set(P_NAM_MODEL, static_cast<double>(index));
+  shared.set(P_NAM_ON, 1.0);
+  markEdited(state);
+  const int maxScroll =
+      std::max(0, static_cast<int>(state.namModels.size() + 1) - kUserRows);
+  state.namScroll = std::min(std::max(index - kUserRows / 2, 0), maxScroll);
+  return true;
+}
+
+bool Panel::importDroppedFile(Shared& shared, PanelState& state,
+                              const std::string& path) const {
+  std::string ext = std::filesystem::path(path).extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  if (ext == ".nam") {
+    return importNamModel(shared, state, path);
+  }
+  if (ext == ".wav") {
+    if (state.page == 3) {
+      return importNamModel(shared, state, path);
+    }
+    return importUserIr(shared, state, path);
+  }
+  return false;
+}
+
+void Panel::drawNamPage(cairo_t* cr, const Shared& shared,
+                        const PanelState& state) const {
+  const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
+  const Skin skin = skinFor(model);
+  text(cr, "NAM MODEL", 520, 150, 18, 1, skin.legend.r, skin.legend.g,
+       skin.legend.b);
+  text(cr, "Neural Amp Modeler capture", 520, 169, 10.5, 1, skin.legendDim.r,
+       skin.legendDim.g, skin.legendDim.b);
+
+  roundRect(cr, kUserBoxX, kUserBoxY, kUserBoxW, kUserBoxH, 6);
+  setRgb(cr, mix(skin.bodyBottom, {0, 0, 0}, 0.35));
+  cairo_fill(cr);
+  setRgb(cr, {1, 1, 1}, 0.10);
+  cairo_set_line_width(cr, 1.0);
+  roundRect(cr, kUserBoxX + 0.5, kUserBoxY + 0.5, kUserBoxW - 1,
+            kUserBoxH - 1, 6);
+  cairo_stroke(cr);
+  text(cr, "NAM MODELS", 76, kUserBoxY + 20, 11, 0, skin.legend.r,
+       skin.legend.g, skin.legend.b);
+  text(cr, userNamDir().c_str(), 76, kUserBoxY + 35, 8, 0, skin.legendDim.r,
+       skin.legendDim.g, skin.legendDim.b);
+  roundRect(cr, kUserBoxX + kUserBoxW - 94, kUserBoxY + 10, 82, 20, 3);
+  setRgb(cr, mix(skin.btnOff, {1, 1, 1}, 0.06));
+  cairo_fill(cr);
+  setRgb(cr, {0, 0, 0}, 0.35);
+  cairo_set_line_width(cr, 1.0);
+  roundRect(cr, kUserBoxX + kUserBoxW - 93.5, kUserBoxY + 10.5, 81, 19, 3);
+  cairo_stroke(cr);
+  text(cr, "BROWSE", kUserBoxX + kUserBoxW - 53, kUserBoxY + 24, 9.5, 1,
+       skin.btnText.r, skin.btnText.g, skin.btnText.b);
+
+  const int selected =
+      static_cast<int>(shared.get(P_NAM_MODEL) + 0.5);
+  const int files = static_cast<int>(state.namModels.size());
+  const int rows = std::min(kUserRows, files + 1);
+  for (int row = 0; row < rows; ++row) {
+    const int index = row + state.namScroll;
+    if (index > files) {
+      break;
+    }
+    const double ry = kUserRowY + row * kUserRowH;
+    if (index == selected) {
+      roundRect(cr, kUserBoxX + 4, ry + 1, kUserBoxW - 8, kUserRowH - 2, 3);
+      setRgb(cr, skin.accent, 0.35);
+      cairo_fill(cr);
+    }
+    char name[80];
+    if (index == 0) {
+      std::snprintf(name, sizeof(name), "None");
+    } else {
+      std::snprintf(name, sizeof(name), "%s",
+                    shorten(state.namModels[static_cast<size_t>(index - 1)],
+                            38)
+                        .c_str());
+    }
+    text(cr, name, kUserBoxX + 12, ry + 14, 9.5, 0,
+         index == selected ? skin.btnTextOn.r : skin.legend.r,
+         index == selected ? skin.btnTextOn.g : skin.legend.g,
+         index == selected ? skin.btnTextOn.b : skin.legend.b);
+  }
+  if (files == 0) {
+    text(cr, "Drop .nam files in this folder.", 76, kUserRowY + 26, 9, 0,
+         skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  }
+
+  text(cr, "NAM replaces the preamp and power amp.", 760, 520, 10, 0,
+       skin.legend.r, skin.legend.g, skin.legend.b);
+  text(cr, "808, delay/reverb loop, cab IR and output stay active.",
+       760, 538, 9.5, 0, skin.legendDim.r, skin.legendDim.g,
+       skin.legendDim.b);
+  text(cr, "Load a .nam model or a NAM-support WAV.", 760, 556, 9.5, 0,
+       skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 }
 
 std::vector<Panel::WidgetRect> Panel::widgetRects() const {

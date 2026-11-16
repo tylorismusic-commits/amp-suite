@@ -206,6 +206,52 @@ int main() {
     std::filesystem::remove_all(base, ec);
   }
 
+  // NAM page: browse/import a model and toggle it.
+  {
+    const std::string base =
+        "/tmp/amp-suite-layout-nam-" + std::to_string(::getpid());
+    const std::string namDir = base + "/amp-suite/nam";
+    std::error_code ec;
+    std::filesystem::remove_all(base, ec);
+    std::filesystem::create_directories(namDir, ec);
+    setenv("XDG_DATA_HOME", base.c_str(), 1);
+    {
+      std::ofstream out(namDir + "/Test Model.nam", std::ios::binary);
+      out << "{\"version\":\"0.5.4\",\"architecture\":\"WaveNet\","
+             "\"config\":{}}";
+    }
+    shared.set(amp::P_MODEL, 4.0);
+    shared.set(amp::P_NAM_MODEL, 0.0);
+    shared.set(amp::P_NAM_ON, 0.0);
+    state.page = 3;
+    panel.draw(cr, shared, state);
+    if (!panel.pointerDown(shared, state, 120.0, 320.0, false) ||
+        !state.fileBrowserOpen || !state.fileBrowserNam) {
+      std::fprintf(stderr, "NAM box did not open the NAM browser\n");
+      return 1;
+    }
+    panel.draw(cr, shared, state);
+    panel.pointerDown(shared, state, 240.0, 160.0, false);
+    if (std::fabs(shared.get(amp::P_NAM_MODEL) - 1.0) > 0.01 ||
+        shared.get(amp::P_NAM_ON) < 0.5 || state.fileBrowserOpen) {
+      std::fprintf(stderr, "NAM browser import did not select the model\n");
+      return 1;
+    }
+    panel.draw(cr, shared, state);
+    panel.pointerDown(shared, state, 900.0, 312.0, false);
+    if (shared.get(amp::P_NAM_ON) > 0.5) {
+      std::fprintf(stderr, "NAM pill did not toggle off\n");
+      return 1;
+    }
+    // The NAM header pill closes the page back to the amp.
+    panel.pointerDown(shared, state, 630.0, 32.0, false);
+    if (state.page != 0) {
+      std::fprintf(stderr, "NAM header pill did not close the page\n");
+      return 1;
+    }
+    std::filesystem::remove_all(base, ec);
+  }
+
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
   std::printf("amp_layout: ok\n");

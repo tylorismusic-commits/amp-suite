@@ -4,6 +4,7 @@
 //   amp_ui_preview <font-dir> <out-dir> [scale]
 
 #include "ui/panel.hpp"
+#include "presets.hpp"
 
 #include <cairo.h>
 #include <sys/stat.h>
@@ -28,6 +29,7 @@ int main(int argc, char** argv) {
   amp::Panel panel;
   panel.loadFont(fontDir);
   amp::Shared shared;
+  amp::applyStartupPreset(shared);
   amp::PanelState state;
 
   const int w = static_cast<int>(amp::kPanelWidth * scale);
@@ -38,8 +40,9 @@ int main(int argc, char** argv) {
 
   for (int model = 0; model < 7; ++model) {
     shared.set(amp::P_MODEL, static_cast<double>(model));
-    for (int page = 0; page < 3; ++page) {
+    for (int page = 0; page < 4; ++page) {
       state.page = page;
+      panel.tick(shared, state);
       cairo_save(cr);
       cairo_scale(cr, scale, scale);
       panel.draw(cr, shared, state);

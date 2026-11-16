@@ -20,7 +20,11 @@ copyright and license header is preserved and this file is updated.
 | **HIIR** (`unevens/hiir`) | WTFPL-2 | 2×/4× halfband oversampling |
 | **FFTConvolver** | MIT | Cab IR convolution |
 | **chowdsp_wdf** | BSD-3-Clause | Optional WDF escape hatch |
-| **NeuralAmpModelerCore** | MIT | Offline reference rendering only |
+| **NeuralAmpModelerCore** (`third_party/nam`) | MIT | NAM `.nam` / linear WAV model runtime |
+| **Eigen** (`third_party/nam/Dependencies/eigen`) | MPL-2.0 (some files BSD/Apache/MINPACK) | Matrix backend for NAM |
+| **nlohmann/json** (`third_party/nam/Dependencies/nlohmann`) | MIT | NAM model JSON parsing |
+| **libsamplerate** | BSD-2-Clause | Host-rate conversion around NAM models |
+| **NAM example model** (`test/fixtures/wavenet.nam`) | MIT | Loader smoke-test fixture from NeuralAmpModelerCore |
 | **clap-validator** | MIT | CI validation |
 
 ## Reference captures (not included)
@@ -33,3 +37,7 @@ parametric cab model. The generated factory IRs are original CC0 works.
 TONE3000 and the capture creators are not affiliated with Amp Suite and do not
 endorse it. Real amp/cab names are trademarks of their respective owners and
 appear only in documentation as descriptive references.
+
+Local **Kazrog AmpCraft 1992** IR sets are used as unshipped analysis
+references for Hot Rod, Crunch, Recto and the Hot Rod Greenback alternate. They
+are not copied into the repository, release tarball or plugin bundle.

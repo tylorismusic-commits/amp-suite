@@ -21,8 +21,10 @@
 #include <vector>
 
 #include "dsp/engine.hpp"
+#include "dsp/nam_library.hpp"
 #include "dsp/user_ir.hpp"
 #include "params.hpp"
+#include "presets.hpp"
 
 namespace {
 
@@ -52,6 +54,7 @@ struct Plugin {
   amp::Shared shared;
   amp::Engine engine;
   amp::UserIrLibrary userIr;
+  amp::NamLibrary nam;
   amp::Meters meters;
 
   const LV2_URID_Map* map = nullptr;
@@ -85,6 +88,7 @@ LV2_Handle instantiate(const LV2_Descriptor*, double rate,
                        const LV2_Feature* const* features) {
   auto* p = new Plugin();
   p->sampleRate = static_cast<float>(rate);
+  applyStartupPreset(p->shared);
   for (const LV2_Feature* const* f = features; f && *f; ++f) {
     if (!std::strcmp((*f)->URI, LV2_URID__map)) {
       p->map = static_cast<const LV2_URID_Map*>(f[0]->data);
@@ -107,6 +111,7 @@ LV2_Handle instantiate(const LV2_Descriptor*, double rate,
     p->engine.loadFactoryCabs(std::string(bundlePath) + "/irs");
   }
   p->userIr.start(amp::userIrDir(), p->sampleRate);
+  p->nam.start(amp::userNamDir(), p->sampleRate, 4096);
   p->engine.setUserIrBank(p->userIr.bank());
   p->engine.setControls(amp::controlsFrom(p->shared));
   return p;
@@ -169,6 +174,7 @@ void updateTempo(Plugin* p) {
 void activate(LV2_Handle handle) {
   auto* p = static_cast<Plugin*>(handle);
   p->userIr.setSampleRate(p->sampleRate);
+  p->nam.setHostRate(p->sampleRate);
   p->engine.setUserIrBank(p->userIr.bank());
   p->engine.reset();
   p->portsSeen = false;
@@ -205,7 +211,9 @@ void run(LV2_Handle handle, uint32_t frames) {
     p->portsSeen = true;
   }
   updateTempo(p);
+  p->nam.setSelected(static_cast<int>(p->shared.get(amp::P_NAM_MODEL) + 0.5));
   p->engine.setUserIrBank(p->userIr.bank());
+  p->engine.setNamModel(p->nam.model());
   p->engine.setControls(amp::controlsFrom(p->shared));
 
   if (p->audioOutL != p->audioInL) {

@@ -22,6 +22,19 @@ pkg_check_modules(LV2 REQUIRED IMPORTED_TARGET lv2)
 pkg_check_modules(CAIRO REQUIRED IMPORTED_TARGET cairo)
 pkg_check_modules(FREETYPE REQUIRED IMPORTED_TARGET freetype2)
 pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
+pkg_check_modules(SAMPLERATE REQUIRED IMPORTED_TARGET samplerate)
+
+file(GLOB AMP_NAM_SOURCES
+  "${CMAKE_SOURCE_DIR}/third_party/nam/NAM/*.cpp"
+  "${CMAKE_SOURCE_DIR}/third_party/nam/NAM/wavenet/*.cpp")
+add_library(nam_core OBJECT ${AMP_NAM_SOURCES})
+target_include_directories(nam_core PUBLIC
+  "${CMAKE_SOURCE_DIR}/third_party/nam/NAM"
+  "${CMAKE_SOURCE_DIR}/third_party/nam/Dependencies/nlohmann"
+  "${CMAKE_SOURCE_DIR}/third_party/nam/Dependencies/eigen")
+target_compile_features(nam_core PUBLIC cxx_std_20)
+target_compile_definitions(nam_core PUBLIC NAM_SAMPLE_FLOAT)
+set_target_properties(nam_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 set(AMP_UI_SOURCES src/ui/panel.cpp)
 set(AMP_DSP_SOURCES
@@ -46,6 +59,7 @@ target_include_directories(amp_suite PRIVATE
   ${AMP_GUITARIX_INCLUDES})
 target_link_libraries(amp_suite PRIVATE
   PkgConfig::CAIRO PkgConfig::FREETYPE PkgConfig::X11
+  PkgConfig::SAMPLERATE nam_core
   Threads::Threads ${CMAKE_DL_LIBS})
 target_compile_features(amp_suite PRIVATE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -86,7 +100,7 @@ add_library(amp_suite_lv2 MODULE
 target_include_directories(amp_suite_lv2 PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   ${AMP_GUITARIX_INCLUDES})
-target_link_libraries(amp_suite_lv2 PRIVATE PkgConfig::LV2 Threads::Threads)
+target_link_libraries(amp_suite_lv2 PRIVATE PkgConfig::LV2 PkgConfig::SAMPLERATE nam_core Threads::Threads)
 target_compile_features(amp_suite_lv2 PRIVATE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(amp_suite_lv2 PRIVATE -Wall -Wextra -fvisibility=hidden)
@@ -153,6 +167,7 @@ add_executable(amp_dsp_test test/test_dsp.cpp ${AMP_DSP_SOURCES})
 target_include_directories(amp_dsp_test PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   ${AMP_GUITARIX_INCLUDES})
+target_link_libraries(amp_dsp_test PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
 target_compile_features(amp_dsp_test PRIVATE cxx_std_17)
 add_test(NAME amp_dsp COMMAND amp_dsp_test)
 
@@ -160,9 +175,17 @@ add_executable(amp_user_ir_test test/test_user_ir.cpp ${AMP_DSP_SOURCES})
 target_include_directories(amp_user_ir_test PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   ${AMP_GUITARIX_INCLUDES})
-target_link_libraries(amp_user_ir_test PRIVATE Threads::Threads)
+target_link_libraries(amp_user_ir_test PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
 target_compile_features(amp_user_ir_test PRIVATE cxx_std_17)
 add_test(NAME amp_user_ir COMMAND amp_user_ir_test)
+
+add_executable(amp_nam_test test/test_nam.cpp)
+target_include_directories(amp_nam_test PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_link_libraries(amp_nam_test PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
+target_compile_definitions(amp_nam_test PRIVATE
+  NAM_TEST_MODEL="${CMAKE_SOURCE_DIR}/test/fixtures/wavenet.nam")
+target_compile_features(amp_nam_test PRIVATE cxx_std_17)
+add_test(NAME amp_nam COMMAND amp_nam_test)
 
 add_executable(amp_panel_test test/test_panel.cpp ${AMP_UI_SOURCES})
 target_include_directories(amp_panel_test PRIVATE "${CMAKE_SOURCE_DIR}/src")
@@ -220,12 +243,25 @@ target_compile_features(amp_clap_user_ir_test PRIVATE cxx_std_17)
 add_test(NAME amp_clap_user_ir
   COMMAND amp_clap_user_ir_test "$<TARGET_FILE:amp_suite>")
 
+add_executable(amp_clap_nam_test test/clap_nam_test.cpp)
+target_include_directories(amp_clap_nam_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  "${CMAKE_SOURCE_DIR}/third_party/clap/include")
+target_link_libraries(amp_clap_nam_test PRIVATE ${CMAKE_DL_LIBS})
+target_compile_definitions(amp_clap_nam_test PRIVATE
+  NAM_TEST_MODEL="${CMAKE_SOURCE_DIR}/test/fixtures/wavenet.nam")
+target_compile_features(amp_clap_nam_test PRIVATE cxx_std_17)
+add_test(NAME amp_clap_nam
+  COMMAND amp_clap_nam_test "$<TARGET_FILE:amp_suite>")
+
 add_executable(amp_tone_probe tools/tone_probe.cpp)
 target_include_directories(amp_tone_probe PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_link_libraries(amp_tone_probe PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
 target_compile_features(amp_tone_probe PRIVATE cxx_std_17)
 
 add_executable(amp_probe tools/amp_probe.cpp ${AMP_DSP_SOURCES})
 target_include_directories(amp_probe PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   ${AMP_GUITARIX_INCLUDES})
+target_link_libraries(amp_probe PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
 target_compile_features(amp_probe PRIVATE cxx_std_17)

@@ -65,6 +65,11 @@ M1: tube-stage and tone-stack engine.
 - Amp-section bypass (`amp_bypass`): the 808, delay/reverb loop, cab IR,
   output trim and limiter remain active; the preamp, tone stack and power amp
   are skipped.
+- NAM loader: vendored MIT NeuralAmpModelerCore, Eigen, nlohmann/json and
+  libsamplerate; dedicated NAM page with a file browser, drag-and-drop,
+  worker-thread model loading, host-rate resampling and a level trim.
+- Startup now applies the tuned Block 120 — Rhythm preset rather than the
+  neutral parameter defaults.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

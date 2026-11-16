@@ -75,6 +75,9 @@ enum ParamId : uint32_t {
   P_USER_IR_6,
   P_BPM,
   P_AMP_BYPASS,
+  P_NAM_ON,
+  P_NAM_MODEL,
+  P_NAM_LEVEL,
   P_COUNT
 };
 
@@ -230,6 +233,11 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      "bpm", {}},
     {"amp_bypass", "Amp Bypass", "Amp", 0.0, 1.0, 0.0, true, false, true, nullptr,
      {}},
+    {"nam_on", "NAM On", "NAM", 0.0, 1.0, 0.0, true, false, true, nullptr, {}},
+    {"nam_model", "NAM Model", "NAM", 0.0, 63.0, 0.0, true, false, false,
+     nullptr, {}},
+    {"nam_level", "NAM Level", "NAM", 0.0, 1.0, 0.5, false, false, false,
+     nullptr, {}},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -375,6 +383,9 @@ inline Controls controlsFrom(const Shared& s) {
   }
   c.bpm = static_cast<float>(s.get(P_BPM));
   c.ampBypass = s.get(P_AMP_BYPASS) > 0.5;
+  c.namOn = s.get(P_NAM_ON) > 0.5;
+  c.namModel = static_cast<int>(s.get(P_NAM_MODEL) + 0.5);
+  c.namLevel = static_cast<float>(s.get(P_NAM_LEVEL));
   return c;
 }
 

@@ -132,7 +132,7 @@ private:
     const int rc = XGetWindowProperty(
         dpy_, win_, selection_, 0, 0x1FFFFFFF, False, AnyPropertyType,
         &actualType, &actualFormat, &count, &remaining, &data);
-    if (rc != Success || !data || count == 0) {
+    if (rc != 0 || !data || count == 0) {
       if (data) {
         XFree(data);
       }

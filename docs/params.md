@@ -86,13 +86,23 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 56 | `user_ir_recto` | Recto User IR | 0–63 | 0 | stepped | per-amp user IR |
 | 57 | `tempo` | Delay Tempo | 40–300 | 120 | | bpm; manual tempo for LV2 and non-transport hosts |
 | 58 | `amp_bypass` | Amp Bypass | 0–1 | 0 | toggle | bypass preamp/tone/power; 808, loop, cab, output and limiter stay active |
+| 59 | `nam_on` | NAM On | 0–1 | 0 | toggle | use the selected NAM model instead of the amp |
+| 60 | `nam_model` | NAM Model | 0–63 | 0 | stepped | 0 none, 1–63 sorted NAM model file |
+| 61 | `nam_level` | NAM Level | 0–1 | 0.5 | | `-12 + 24v` dB trim |
 
-`P_COUNT = 59`.
+`P_COUNT = 62`.
 
 User IRs are WAV files in `$XDG_DATA_HOME/amp-suite/irs/user` (usually
 `~/.local/share/amp-suite/irs/user`). The list is sorted by filename; the
 parameter value is the 1-based index into that list. The plugin watches the
 directory, so newly dropped files appear without a restart.
+
+NAM models live in `$XDG_DATA_HOME/amp-suite/nam`. `.nam` models and NAM-compatible
+`.wav` linear models are supported. The model is loaded on a worker thread and
+runs at the host sample rate (resampled around the model when needed). NAM
+replaces the preamp/power amp; the 808, FX loop, cab, output and limiter remain
+active. The model file itself is local; the CLAP/LV2 state stores the selection
+index but does not embed the model.
 
 ## Model-specific visibility
 
@@ -146,6 +156,8 @@ continuous values:
 - `limiter_threshold` → dBFS
 - `user_ir_*` → filename or `None`
 - `tempo` → BPM
+- `nam_model` → model filename or `None`
+- `nam_level` → dB
 - toggles → `On` / `Off`
 
 After 1.0, symbols and ids must never change. Append new parameters at the end

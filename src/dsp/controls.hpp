@@ -33,6 +33,9 @@ struct Controls {
   float master = 0.45f;
   float output = 0.5f;
   bool ampBypass = false;   // skip preamp, tone stack and power amp
+  bool namOn = false;       // use a loaded NAM model in place of the amp
+  int namModel = 0;         // 1-based NAM library index
+  float namLevel = 0.5f;    // -12..+12 dB trim around the model normalization
 
   // Model-specific switches, in fixed slots.
   bool bright = false;      // Chorus Clean

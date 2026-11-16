@@ -45,9 +45,14 @@ struct PanelState {
   int userIrScanTicks = 60;
 
   bool fileBrowserOpen = false;
+  bool fileBrowserNam = false;
   std::string fileBrowserDir;
   std::vector<FileEntry> fileBrowserEntries;
   int fileBrowserScroll = 0;
+
+  std::vector<std::string> namModels;
+  int namScroll = 0;
+  int namScanTicks = 60;
 };
 
 class Panel {
@@ -78,6 +83,12 @@ public:
   // Copies a WAV into the user IR folder and selects it for the current amp.
   bool importUserIr(Shared& shared, PanelState& state,
                     const std::string& path) const;
+  // Copies a .nam/.wav model into the NAM folder and selects it.
+  bool importNamModel(Shared& shared, PanelState& state,
+                      const std::string& path) const;
+  // Routes a drag-and-dropped file by extension/current page.
+  bool importDroppedFile(Shared& shared, PanelState& state,
+                         const std::string& path) const;
 
   bool dragging() const { return dragParam_ >= 0; }
 
@@ -150,10 +161,12 @@ private:
   void drawLeds(cairo_t* cr, const PanelState& state, int model) const;
   void drawCabWindow(cairo_t* cr, const Shared& shared,
                      const PanelState& state, int model) const;
-  void openFileBrowser(PanelState& state) const;
+  void openFileBrowser(PanelState& state, bool nam = false) const;
   void refreshFileBrowser(PanelState& state) const;
   void drawFileBrowser(cairo_t* cr, const Shared& shared,
                        const PanelState& state) const;
+  void drawNamPage(cairo_t* cr, const Shared& shared,
+                   const PanelState& state) const;
   bool handleFileBrowserClick(Shared& shared, PanelState& state, double x,
                               double y);
   void text(cairo_t* cr, const char* s, double x, double y, double size,

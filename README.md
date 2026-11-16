@@ -28,7 +28,7 @@ off, and the stock 1200 4×12 cab.
 M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 59-parameter host contract; CLAP state save/load.
+- ✅ 62-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and a 24-preset factory bank with a scrolling browser.
 - ✅ LV2 metadata generated from the parameter table.
@@ -55,6 +55,9 @@ M1 is in progress:
   host supplies a timeline.
 - ✅ Amp-section bypass: keep the 808, FX loop, cab IR and output/limiter
   active while skipping the preamp, tone stack and power amp.
+- ✅ NAM loader: `.nam` and NAM-compatible WAV linear models in
+  `~/.local/share/amp-suite/nam`, with a dedicated NAM page, file browser,
+  drag-and-drop, worker-thread loading and host-rate resampling.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and
@@ -78,8 +81,9 @@ session format: do not rename the repository or GitHub account after 1.0.0.
 
 ## Building
 
-Requires CMake 3.16+, a C++17 compiler, and the Cairo, FreeType and X11
-development packages. `lilv` is optional but enables the LV2 host test.
+Requires CMake 3.16+, a C++17 compiler, and the Cairo, FreeType, X11,
+libsamplerate, LV2 and lilv development packages. The NAM core needs a C++20
+compiler.
 
 ```sh
 cmake -S . -B build
@@ -133,6 +137,7 @@ in `tools/requirements.txt`. Generated factory IRs are CC0.
 - `docs/params.md` — host parameter and state contract
 - `docs/recipes.md` — amp topology and first-pass targets
 - `docs/presets.md` — factory preset plan
+- `docs/nam.md` — NAM model loader, folders and sample-rate handling
 - `docs/ir-provenance.md` — cab reference and CC0 generation policy
 
 ## License

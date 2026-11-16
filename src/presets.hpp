@@ -24,10 +24,10 @@ struct Preset {
 inline constexpr Preset kPresets[] = {
     // --- Block 120 ---------------------------------------------------------
     {"Block 120 — Rhythm", "Rhythm", 4,
-     {{P_GAIN, 0.55f}, {P_BASS, 0.50f}, {P_MID, 0.45f}, {P_TREBLE, 0.55f},
-      {P_PRESENCE, 0.50f}, {P_RESONANCE, 0.50f}, {P_MASTER, 0.45f},
+     {{P_GAIN, 0.55f}, {P_BASS, 0.56f}, {P_MID, 0.38f}, {P_TREBLE, 0.60f},
+      {P_PRESENCE, 0.56f}, {P_RESONANCE, 0.56f}, {P_MASTER, 0.44f},
       {P_OUTPUT, 0.50f}, {P_CRUNCH, 1.0f}, {P_OD_ON, 1.0f},
-      {P_OD_DRIVE, 0.28f}, {P_OD_TONE, 0.50f}, {P_OD_LEVEL, 0.55f},
+      {P_OD_DRIVE, 0.30f}, {P_OD_TONE, 0.50f}, {P_OD_LEVEL, 0.55f},
       {P_DELAY_ON, 0.0f}, {P_REVERB_ON, 0.0f}, {P_CAB, 0.0f},
       {P_CAB_MIC, 0.0f}, {P_CAB_LEVEL, 0.60f}, {-1, 0.0f}}},
     {"Block 120 — Crunch", "Rhythm", 4,
@@ -237,5 +237,17 @@ inline constexpr Preset kPresets[] = {
 };
 
 constexpr int kPresetCount = static_cast<int>(sizeof(kPresets) / sizeof(kPresets[0]));
+
+// Apply the startup preset to a freshly constructed Shared.  The parameter
+// defaults stay neutral for manual model switching; the plugin starts on the
+// Block 120 rhythm snapshot shown in the preset bar.
+inline void applyStartupPreset(Shared& shared) {
+  shared.set(P_MODEL, static_cast<double>(kPresets[0].model));
+  for (const PresetValue& v : kPresets[0].values) {
+    if (v.param >= 0 && v.param < static_cast<int>(P_COUNT)) {
+      shared.set(static_cast<uint32_t>(v.param), static_cast<double>(v.value));
+    }
+  }
+}
 
 } // namespace amp

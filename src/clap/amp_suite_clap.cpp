@@ -24,8 +24,10 @@
 
 #include "dsp/engine.hpp"
 #include "dsp/common.hpp"
+#include "dsp/nam_library.hpp"
 #include "dsp/user_ir.hpp"
 #include "params.hpp"
+#include "presets.hpp"
 #include "version.hpp"
 #include "ui/geometry.hpp"
 #include "ui/panel.hpp"
@@ -171,7 +173,7 @@ private:
 
     panel_.loadFont(bundleResourceDir());
     xdnd_.init(dpy, win, [this](const std::string& path) {
-      panel_.importUserIr(shared_, state_, path);
+      panel_.importDroppedFile(shared_, state_, path);
     });
     {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -338,6 +340,7 @@ struct Plugin {
   Engine engine;
   Editor editor{shared};
   UserIrLibrary userIr;
+  NamLibrary nam;
   double sampleRate = 48000.0;
   Meters meters;
   std::atomic<bool> active{false};
@@ -458,6 +461,16 @@ bool paramsValueToText(const clap_plugin_t* p, clap_id id, double value,
   if (id >= P_COUNT || size == 0) {
     return false;
   }
+  if (id == P_NAM_MODEL) {
+    const int index = std::clamp(static_cast<int>(value + 0.5), 0, 63);
+    if (index == 0) {
+      std::snprintf(out, size, "None");
+    } else {
+      const std::string name = self(p)->nam.nameForIndex(index);
+      std::snprintf(out, size, "%s", name.empty() ? "None" : name.c_str());
+    }
+    return true;
+  }
   if (id >= P_USER_IR_0 && id <= P_USER_IR_6) {
     const int index = std::clamp(static_cast<int>(value + 0.5), 0, kUserIrMax);
     if (index == 0) {
@@ -504,6 +517,9 @@ bool paramsValueToText(const clap_plugin_t* p, clap_id id, double value,
       return true;
     case P_BPM:
       std::snprintf(out, size, "%.0f BPM", value);
+      return true;
+    case P_NAM_LEVEL:
+      std::snprintf(out, size, "%+.1f dB", -12.0 + 24.0 * value);
       return true;
     default:
       break;
@@ -925,6 +941,7 @@ bool pluginActivate(const clap_plugin_t* p, double sampleRate, uint32_t,
   s->sampleRate = sampleRate;
   s->engine.prepare(static_cast<float>(sampleRate));
   s->userIr.setSampleRate(static_cast<float>(sampleRate));
+  s->nam.setHostRate(sampleRate);
   s->engine.setUserIrBank(s->userIr.bank());
   s->engine.setControls(controlsFrom(s->shared));
   s->active.store(true, std::memory_order_relaxed);
@@ -969,7 +986,9 @@ clap_process_status pluginProcess(const clap_plugin_t* p,
     std::memcpy(right, inR, frames * sizeof(float));
   }
 
+  s->nam.setSelected(static_cast<int>(s->shared.get(P_NAM_MODEL) + 0.5));
   s->engine.setUserIrBank(s->userIr.bank());
+  s->engine.setNamModel(s->nam.model());
   s->engine.setControls(controlsFrom(s->shared));
   s->engine.process(left, right, static_cast<int>(frames), s->meters);
 
@@ -1010,6 +1029,7 @@ void pluginOnMainThread(const clap_plugin_t*) {}
 Plugin* createPlugin(const clap_host_t* host) {
   Plugin* s = new Plugin();
   s->host = host;
+  applyStartupPreset(s->shared);
   s->plugin.desc = &kDescriptor;
   s->plugin.plugin_data = s;
   s->plugin.init = pluginInit;
@@ -1025,6 +1045,7 @@ Plugin* createPlugin(const clap_host_t* host) {
   s->engine.prepare(48000.0f);
   s->engine.loadFactoryCabs(bundleResourceDir() + "/irs");
   s->userIr.start(userIrDir(), 48000.0f);
+  s->nam.start(userNamDir(), 48000.0, 4096);
   s->engine.setUserIrBank(s->userIr.bank());
   s->engine.setControls(controlsFrom(s->shared));
   s->editor.requestFlush = [s] {

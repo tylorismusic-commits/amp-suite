@@ -16,6 +16,7 @@
 #include "cab_convolver.hpp"
 #include "common.hpp"
 #include "delay.hpp"
+#include "nam_model.hpp"
 #include "params.hpp"
 #include "reverb.hpp"
 #include "oversample.hpp"
@@ -106,12 +107,17 @@ public:
     odL_.setControls(c.odDrive, c.odTone, c.odLevel);
     odR_.setControls(c.odDrive, c.odTone, c.odLevel);
     syncUserIrBank();
+    syncNamModel();
     updateCab(c);
     updateCabIR();
   }
 
   void setUserIrBank(std::shared_ptr<const UserIrBank> bank) noexcept {
     std::atomic_store(&userBankPending_, std::move(bank));
+  }
+
+  void setNamModel(std::shared_ptr<NamDSP> model) noexcept {
+    std::atomic_store(&namPending_, std::move(model));
   }
 
   bool loadFactoryCabs(const std::string& dir) noexcept {
@@ -125,8 +131,111 @@ public:
     hostTempo_ = valid;
   }
 
+  void processNam(float* left, float* right, int frames,
+                  Meters& meters) noexcept {
+    const Controls c = controls_;
+    const float cabLevel =
+        c.cabBypass ? 1.0f : dbToGain(cabLevelDb(c.cabLevel));
+    const float enabled = c.enabled ? 1.0f : 0.0f;
+    const float namTrim = dbToGain(-12.0f + 24.0f * c.namLevel);
+    const float tempo = hostTempo_ ? bpm_ : c.bpm;
+    delay_.setTargets(c, tempo);
+    reverb_.setTargets(c);
+    float inPeakL = 0.0f;
+    float inPeakR = 0.0f;
+    float outPeakL = 0.0f;
+    float outPeakR = 0.0f;
+
+    // Input trim and 808, then the NAM block.
+    for (int i = 0; i < frames; ++i) {
+      const float dryL = left[i];
+      const float dryR = right[i];
+      inPeakL = std::max(inPeakL, std::fabs(dryL));
+      inPeakR = std::max(inPeakR, std::fabs(dryR));
+      const float in = inputSmooth_.next();
+      const float trim = dbToGain((in - 0.5f) * 24.0f);
+      float l = dryL * trim;
+      float r = dryR * trim;
+      if (c.odOn) {
+        l = odL_.process(l);
+        r = odR_.process(r);
+      }
+      left[i] = l;
+      right[i] = r;
+    }
+    if (activeNam_) {
+      activeNam_->process(left, right, frames);
+    }
+    for (int i = 0; i < frames; ++i) {
+      left[i] *= namTrim;
+      right[i] *= namTrim;
+    }
+
+    // Loop, cab, output and limiter remain available around the NAM amp.
+    for (int i = 0; i < frames; ++i) {
+      float l = left[i];
+      float r = right[i];
+      if (c.loopPos == 0) {
+        delay_.process(l, r);
+        reverb_.process(l, r);
+      }
+      if (!c.cabBypass) {
+        l = cabHpL_.process(l);
+        r = cabHpR_.process(r);
+        if (cabConvolver_.active()) {
+          cabConvolver_.process(l, r);
+          l = cabLpL_.process(l);
+          r = cabLpR_.process(r);
+        } else {
+          l = cabLpL_.process(l);
+          r = cabLpR_.process(r);
+        }
+        l *= cabLevel;
+        r *= cabLevel;
+      }
+      if (c.loopPos == 1) {
+        delay_.process(l, r);
+        reverb_.process(l, r);
+      }
+      const float out = outputSmooth_.next();
+      const float outGain = dbToGain((out - 0.5f) * 24.0f);
+      l *= enabled * outGain;
+      r *= enabled * outGain;
+      if (c.limiterOn) {
+        const float thresh = dbToGain(-24.0f + 24.0f * c.limiterThreshold);
+        const float peakNow = std::max(std::fabs(l), std::fabs(r));
+        const float target = peakNow > thresh ? thresh / peakNow : 1.0f;
+        const float coeff =
+            target < limiterGain_ ? limiterAttack_ : limiterRelease_;
+        limiterGain_ = coeff * limiterGain_ + (1.0f - coeff) * target;
+        l = std::tanh(l * limiterGain_);
+        r = std::tanh(r * limiterGain_);
+      }
+      left[i] = l;
+      right[i] = r;
+      outPeakL = std::max(outPeakL, std::fabs(l));
+      outPeakR = std::max(outPeakR, std::fabs(r));
+      const float power = 0.5f * (l * l + r * r);
+      vuPower_ = vuCoeff_ * vuPower_ + (1.0f - vuCoeff_) * power;
+    }
+
+    meters.inPeakLDb = gainToDb(inPeakL);
+    meters.inPeakRDb = gainToDb(inPeakR);
+    meters.inPeakDb = std::max(meters.inPeakLDb, meters.inPeakRDb);
+    meters.outPeakLDb = gainToDb(outPeakL);
+    meters.outPeakRDb = gainToDb(outPeakR);
+    meters.outPeakDb = std::max(meters.outPeakLDb, meters.outPeakRDb);
+    meters.outVuDb = gainToDb(std::sqrt(vuPower_)) + 18.0f;
+    meters.bpm = tempo;
+    meters.hostTempo = hostTempo_;
+  }
+
   void process(float* left, float* right, int frames, Meters& meters) noexcept {
     const Controls c = controls_;
+    if (c.namOn && activeNam_) {
+      processNam(left, right, frames, meters);
+      return;
+    }
     const int procModel =
         (fadeDir_ == -1 && lastModel_ >= 0) ? lastModel_ : c.model;
     const AmpRecipe& rec = recipeFor(procModel);
@@ -335,6 +444,9 @@ public:
     odL_.reset();
     odR_.reset();
     cabConvolver_.reset();
+    if (activeNam_) {
+      activeNam_->reset();
+    }
     delay_.reset();
     reverb_.reset();
     cabHpL_.reset();
@@ -383,6 +495,13 @@ private:
     auto bank = std::atomic_load(&userBankPending_);
     if (bank != activeUserBank_) {
       activeUserBank_ = std::move(bank);
+    }
+  }
+
+  void syncNamModel() noexcept {
+    auto model = std::atomic_load(&namPending_);
+    if (model != activeNam_) {
+      activeNam_ = std::move(model);
     }
   }
 
@@ -459,6 +578,8 @@ private:
   const CabIR* activeCab_ = nullptr;
   std::shared_ptr<const UserIrBank> userBankPending_;
   std::shared_ptr<const UserIrBank> activeUserBank_;
+  std::shared_ptr<NamDSP> namPending_;
+  std::shared_ptr<NamDSP> activeNam_;
   Delay delay_;
   Reverb reverb_;
   HighPass2 cabHpL_;

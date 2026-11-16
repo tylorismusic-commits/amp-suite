@@ -287,7 +287,7 @@ LV2UI_Handle uiInstantiate(const LV2UI_Descriptor*, const char* /*pluginUri*/,
   std::string dir = bundlePath ? bundlePath : "";
   ui->panel.loadFont(dir);
   ui->xdnd.init(ui->dpy, ui->win, [ui](const std::string& path) {
-    if (ui->panel.importUserIr(ui->shared, ui->state, path)) {
+    if (ui->panel.importDroppedFile(ui->shared, ui->state, path)) {
       ui->dirty = true;
     }
   });
