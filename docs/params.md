@@ -76,8 +76,20 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 47 | `meter` | Meter | 0–1 | 0 | stepped, hidden | UI-only |
 | 48 | `limiter_on` | Limiter | 0–1 | 0 | toggle | output safety limiter |
 | 49 | `limiter_threshold` | Limiter Threshold | 0–1 | 1 | | `-24 + 24v` dBFS |
+| 50 | `user_ir_chorus` | Chorus Clean User IR | 0–63 | 0 | stepped | 0 none, 1–63 sorted user WAV |
+| 51 | `user_ir_chime` | Chime User IR | 0–63 | 0 | stepped | per-amp user IR |
+| 52 | `user_ir_crunch` | Crunch User IR | 0–63 | 0 | stepped | per-amp user IR |
+| 53 | `user_ir_hot_rod` | Hot Rod User IR | 0–63 | 0 | stepped | per-amp user IR |
+| 54 | `user_ir_block_120` | Block 120 User IR | 0–63 | 0 | stepped | per-amp user IR |
+| 55 | `user_ir_stealth` | Stealth User IR | 0–63 | 0 | stepped | per-amp user IR |
+| 56 | `user_ir_recto` | Recto User IR | 0–63 | 0 | stepped | per-amp user IR |
 
-`P_COUNT = 50`.
+`P_COUNT = 57`.
+
+User IRs are WAV files in `$XDG_DATA_HOME/amp-suite/irs/user` (usually
+`~/.local/share/amp-suite/irs/user`). The list is sorted by filename; the
+parameter value is the 1-based index into that list. The plugin watches the
+directory, so newly dropped files appear without a restart.
 
 ## Model-specific visibility
 
@@ -102,10 +114,23 @@ struct StateHeader { uint32_t version; uint32_t count; };
 StateHeader { 1, P_COUNT }
 double values[P_COUNT];
 double uiScale;
+struct UserIrStateHeader { uint32_t version; uint32_t count; };
+UserIrStateHeader { 1, n }
+repeat n times:
+  uint32_t amp;
+  uint32_t nameLen;
+  char     name[nameLen];
+  uint32_t dataLen;
+  uint8_t  wav[dataLen];
 ```
 
-LV2 state uses the same values; user IRs are added in M1 via
-`state:makePath`. The UI page is not stored.
+The user IR section is optional; a session that ends after `uiScale` still
+loads. Selected user WAVs are embedded so the session survives moving to a
+machine without the original files.
+
+LV2 state uses the same parameter values and a portable user-IR blob.
+Selected WAVs are also copied into the host state directory through
+`state:makePath` when the host provides it. The UI page is not stored.
 
 ## Text formatting
 
@@ -116,6 +141,7 @@ continuous values:
 - `cab_lowcut` / `cab_highcut` → Hz
 - `reverb_predelay` → milliseconds
 - `limiter_threshold` → dBFS
+- `user_ir_*` → filename or `None`
 - toggles → `On` / `Off`
 
 After 1.0, symbols and ids must never change. Append new parameters at the end

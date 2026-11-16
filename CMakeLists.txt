@@ -86,7 +86,7 @@ add_library(amp_suite_lv2 MODULE
 target_include_directories(amp_suite_lv2 PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   ${AMP_GUITARIX_INCLUDES})
-target_link_libraries(amp_suite_lv2 PRIVATE PkgConfig::LV2)
+target_link_libraries(amp_suite_lv2 PRIVATE PkgConfig::LV2 Threads::Threads)
 target_compile_features(amp_suite_lv2 PRIVATE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(amp_suite_lv2 PRIVATE -Wall -Wextra -fvisibility=hidden)
@@ -156,6 +156,14 @@ target_include_directories(amp_dsp_test PRIVATE
 target_compile_features(amp_dsp_test PRIVATE cxx_std_17)
 add_test(NAME amp_dsp COMMAND amp_dsp_test)
 
+add_executable(amp_user_ir_test test/test_user_ir.cpp ${AMP_DSP_SOURCES})
+target_include_directories(amp_user_ir_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  ${AMP_GUITARIX_INCLUDES})
+target_link_libraries(amp_user_ir_test PRIVATE Threads::Threads)
+target_compile_features(amp_user_ir_test PRIVATE cxx_std_17)
+add_test(NAME amp_user_ir COMMAND amp_user_ir_test)
+
 add_executable(amp_panel_test test/test_panel.cpp ${AMP_UI_SOURCES})
 target_include_directories(amp_panel_test PRIVATE "${CMAKE_SOURCE_DIR}/src")
 target_link_libraries(amp_panel_test PRIVATE PkgConfig::CAIRO PkgConfig::FREETYPE)
@@ -202,6 +210,15 @@ target_compile_features(amp_clap_host_test PRIVATE cxx_std_17)
 add_dependencies(amp_clap_host_test amp_suite_bundle)
 add_test(NAME amp_clap_host
   COMMAND amp_clap_host_test "${CMAKE_BINARY_DIR}/clap/AmpSuite.clap")
+
+add_executable(amp_clap_user_ir_test test/clap_user_ir_test.cpp)
+target_include_directories(amp_clap_user_ir_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  "${CMAKE_SOURCE_DIR}/third_party/clap/include")
+target_link_libraries(amp_clap_user_ir_test PRIVATE ${CMAKE_DL_LIBS})
+target_compile_features(amp_clap_user_ir_test PRIVATE cxx_std_17)
+add_test(NAME amp_clap_user_ir
+  COMMAND amp_clap_user_ir_test "$<TARGET_FILE:amp_suite>")
 
 add_executable(amp_tone_probe tools/tone_probe.cpp)
 target_include_directories(amp_tone_probe PRIVATE "${CMAKE_SOURCE_DIR}/src")

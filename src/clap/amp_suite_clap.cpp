@@ -24,6 +24,7 @@
 
 #include "dsp/engine.hpp"
 #include "dsp/common.hpp"
+#include "dsp/user_ir.hpp"
 #include "params.hpp"
 #include "version.hpp"
 #include "ui/geometry.hpp"
@@ -328,6 +329,7 @@ struct Plugin {
   Shared shared;
   Engine engine;
   Editor editor{shared};
+  UserIrLibrary userIr;
   double sampleRate = 48000.0;
   Meters meters;
   std::atomic<bool> active{false};
@@ -386,6 +388,14 @@ bool paramAppliesToModel(uint32_t param, int model) {
       return model == 2 || model == 4 || model == 5 || model == 6;
     case P_PRESENCE:
       return model != 0;
+    case P_USER_IR_0:
+    case P_USER_IR_1:
+    case P_USER_IR_2:
+    case P_USER_IR_3:
+    case P_USER_IR_4:
+    case P_USER_IR_5:
+    case P_USER_IR_6:
+      return param == P_USER_IR_0 + static_cast<uint32_t>(model);
     default:
       return true;
   }
@@ -437,9 +447,18 @@ bool isOn(double value) { return value > 0.5; }
 
 bool paramsValueToText(const clap_plugin_t* p, clap_id id, double value,
                        char* out, uint32_t size) {
-  (void)p;
   if (id >= P_COUNT || size == 0) {
     return false;
+  }
+  if (id >= P_USER_IR_0 && id <= P_USER_IR_6) {
+    const int index = std::clamp(static_cast<int>(value + 0.5), 0, kUserIrMax);
+    if (index == 0) {
+      std::snprintf(out, size, "None");
+    } else {
+      const std::string name = self(p)->userIr.nameForIndex(index);
+      std::snprintf(out, size, "%s", name.empty() ? "None" : name.c_str());
+    }
+    return true;
   }
   const ParamSpec& spec = kParamSpecs[id];
   if (const char* label = labelForValue(spec, value)) {
@@ -643,6 +662,11 @@ struct StateHeader {
   uint32_t count;
 };
 
+struct UserIrStateHeader {
+  uint32_t version;
+  uint32_t count;
+};
+
 bool stateSave(const clap_plugin_t* p, const clap_ostream_t* stream) {
   Plugin* s = self(p);
   if (!stream) {
@@ -662,8 +686,48 @@ bool stateSave(const clap_plugin_t* p, const clap_ostream_t* stream) {
       static_cast<int64_t>(sizeof(values))) {
     return false;
   }
-  return stream->write(stream, &scale, sizeof(scale)) ==
-         static_cast<int64_t>(sizeof(scale));
+  if (stream->write(stream, &scale, sizeof(scale)) !=
+      static_cast<int64_t>(sizeof(scale))) {
+    return false;
+  }
+
+  // Portable user IRs: embed the selected WAV files after the parameter
+  // block.  Older session files simply end here and still load.
+  std::vector<std::pair<int, std::pair<std::string, std::vector<unsigned char>>>>
+      irs;
+  for (int amp = 0; amp < 7; ++amp) {
+    const int index = static_cast<int>(
+        s->shared.get(P_USER_IR_0 + static_cast<uint32_t>(amp)) + 0.5);
+    std::string name;
+    std::vector<unsigned char> bytes;
+    if (index > 0 && s->userIr.bytesForIndex(index, name, bytes)) {
+      irs.push_back({amp, {name, std::move(bytes)}});
+    }
+  }
+  const UserIrStateHeader irHeader{1u, static_cast<uint32_t>(irs.size())};
+  if (stream->write(stream, &irHeader, sizeof(irHeader)) !=
+      static_cast<int64_t>(sizeof(irHeader))) {
+    return false;
+  }
+  for (const auto& item : irs) {
+    const uint32_t amp = static_cast<uint32_t>(item.first);
+    const uint32_t nameLen = static_cast<uint32_t>(item.second.first.size());
+    const uint32_t dataLen =
+        static_cast<uint32_t>(item.second.second.size());
+    if (stream->write(stream, &amp, sizeof(amp)) !=
+            static_cast<int64_t>(sizeof(amp)) ||
+        stream->write(stream, &nameLen, sizeof(nameLen)) !=
+            static_cast<int64_t>(sizeof(nameLen)) ||
+        stream->write(stream, item.second.first.data(), nameLen) !=
+            static_cast<int64_t>(nameLen) ||
+        stream->write(stream, &dataLen, sizeof(dataLen)) !=
+            static_cast<int64_t>(sizeof(dataLen)) ||
+        stream->write(stream, item.second.second.data(), dataLen) !=
+            static_cast<int64_t>(dataLen)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool stateLoad(const clap_plugin_t* p, const clap_istream_t* stream) {
@@ -690,6 +754,47 @@ bool stateLoad(const clap_plugin_t* p, const clap_istream_t* stream) {
           static_cast<int64_t>(sizeof(scale)) &&
       scale > 0.0) {
     s->editor.resize(scale);
+  }
+
+  UserIrStateHeader irHeader{};
+  if (stream->read(stream, &irHeader, sizeof(irHeader)) !=
+          static_cast<int64_t>(sizeof(irHeader)) ||
+      irHeader.version != 1u || irHeader.count > 7u) {
+    return true;
+  }
+  for (uint32_t i = 0; i < irHeader.count; ++i) {
+    uint32_t amp = 0;
+    uint32_t nameLen = 0;
+    uint32_t dataLen = 0;
+    if (stream->read(stream, &amp, sizeof(amp)) !=
+            static_cast<int64_t>(sizeof(amp)) ||
+        amp >= 7u ||
+        stream->read(stream, &nameLen, sizeof(nameLen)) !=
+            static_cast<int64_t>(sizeof(nameLen)) ||
+        nameLen > 1024u) {
+      return false;
+    }
+    std::string name(nameLen, '\0');
+    if (nameLen &&
+        stream->read(stream, name.data(), nameLen) !=
+            static_cast<int64_t>(nameLen)) {
+      return false;
+    }
+    if (stream->read(stream, &dataLen, sizeof(dataLen)) !=
+            static_cast<int64_t>(sizeof(dataLen)) ||
+        dataLen > 64u * 1024u * 1024u) {
+      return false;
+    }
+    std::vector<unsigned char> bytes(dataLen);
+    if (dataLen && stream->read(stream, bytes.data(), dataLen) !=
+                       static_cast<int64_t>(dataLen)) {
+      return false;
+    }
+    const int index = s->userIr.importWav(name, bytes, static_cast<int>(amp));
+    if (index > 0) {
+      s->shared.setFromHost(P_USER_IR_0 + amp,
+                            static_cast<double>(index));
+    }
   }
   return true;
 }
@@ -808,6 +913,8 @@ bool pluginActivate(const clap_plugin_t* p, double sampleRate, uint32_t,
   Plugin* s = self(p);
   s->sampleRate = sampleRate;
   s->engine.prepare(static_cast<float>(sampleRate));
+  s->userIr.setSampleRate(static_cast<float>(sampleRate));
+  s->engine.setUserIrBank(s->userIr.bank());
   s->engine.setControls(controlsFrom(s->shared));
   s->active.store(true, std::memory_order_relaxed);
   return true;
@@ -851,6 +958,7 @@ clap_process_status pluginProcess(const clap_plugin_t* p,
     std::memcpy(right, inR, frames * sizeof(float));
   }
 
+  s->engine.setUserIrBank(s->userIr.bank());
   s->engine.setControls(controlsFrom(s->shared));
   s->engine.process(left, right, static_cast<int>(frames), s->meters);
 
@@ -904,6 +1012,8 @@ Plugin* createPlugin(const clap_host_t* host) {
   s->plugin.on_main_thread = pluginOnMainThread;
   s->engine.prepare(48000.0f);
   s->engine.loadFactoryCabs(bundleResourceDir() + "/irs");
+  s->userIr.start(userIrDir(), 48000.0f);
+  s->engine.setUserIrBank(s->userIr.bank());
   s->engine.setControls(controlsFrom(s->shared));
   s->editor.requestFlush = [s] {
     if (s->host && s->host->request_process) {

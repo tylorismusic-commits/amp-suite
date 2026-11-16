@@ -66,6 +66,13 @@ enum ParamId : uint32_t {
   P_METER,
   P_LIMITER_ON,
   P_LIMITER_THRESH,
+  P_USER_IR_0,
+  P_USER_IR_1,
+  P_USER_IR_2,
+  P_USER_IR_3,
+  P_USER_IR_4,
+  P_USER_IR_5,
+  P_USER_IR_6,
   P_COUNT
 };
 
@@ -203,6 +210,20 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      nullptr, {}},
     {"limiter_threshold", "Limiter Threshold", "Limiter", 0.0, 1.0, 1.0,
      false, false, false, nullptr, {}},
+    {"user_ir_chorus", "Chorus Clean User IR", "Cab", 0.0, 63.0, 0.0, true,
+     false, false, nullptr, {}},
+    {"user_ir_chime", "Chime User IR", "Cab", 0.0, 63.0, 0.0, true, false,
+     false, nullptr, {}},
+    {"user_ir_crunch", "Crunch User IR", "Cab", 0.0, 63.0, 0.0, true, false,
+     false, nullptr, {}},
+    {"user_ir_hot_rod", "Hot Rod User IR", "Cab", 0.0, 63.0, 0.0, true, false,
+     false, nullptr, {}},
+    {"user_ir_block_120", "Block 120 User IR", "Cab", 0.0, 63.0, 0.0, true,
+     false, false, nullptr, {}},
+    {"user_ir_stealth", "Stealth User IR", "Cab", 0.0, 63.0, 0.0, true, false,
+     false, nullptr, {}},
+    {"user_ir_recto", "Recto User IR", "Cab", 0.0, 63.0, 0.0, true, false,
+     false, nullptr, {}},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -341,6 +362,9 @@ inline Controls controlsFrom(const Shared& s) {
   c.loopPos = static_cast<int>(s.get(P_LOOP_POS) + 0.5);
   c.limiterOn = s.get(P_LIMITER_ON) > 0.5;
   c.limiterThreshold = static_cast<float>(s.get(P_LIMITER_THRESH));
+  for (int i = 0; i < 7; ++i) {
+    c.userIr[i] = static_cast<int>(s.get(P_USER_IR_0 + i) + 0.5);
+  }
   return c;
 }
 

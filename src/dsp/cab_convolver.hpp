@@ -21,6 +21,30 @@ struct CabIR {
   std::vector<float> h;
 };
 
+// Normalize an impulse to unity magnitude at 1 kHz.  This keeps cab and mic
+// switching level-consistent regardless of how the source files were
+// normalized.
+inline void normalizeIrAt1k(std::vector<float>& h, int sampleRate) noexcept {
+  if (h.empty() || sampleRate <= 0) {
+    return;
+  }
+  const double w =
+      2.0 * 3.14159265358979323846 * 1000.0 / static_cast<double>(sampleRate);
+  double re = 0.0;
+  double im = 0.0;
+  for (size_t i = 0; i < h.size(); ++i) {
+    re += static_cast<double>(h[i]) * std::cos(w * static_cast<double>(i));
+    im += static_cast<double>(h[i]) * std::sin(w * static_cast<double>(i));
+  }
+  const double mag = std::sqrt(re * re + im * im);
+  if (mag > 1.0e-6) {
+    const float g = static_cast<float>(1.0 / mag);
+    for (float& v : h) {
+      v *= g;
+    }
+  }
+}
+
 class CabConvolver {
 public:
   void prepare(int maxTaps = 4096) noexcept {
@@ -114,7 +138,7 @@ public:
           ok = readWavMono(base + ".wav", data, targetRate);
         }
         if (ok && !data.empty()) {
-          normalizeIr(data, targetRate);
+          normalizeIrAt1k(data, targetRate);
           sets_[s].mic[m].h = std::move(data);
           loadedAny = true;
         } else {
@@ -146,27 +170,6 @@ public:
   }
 
 private:
-  static void normalizeIr(std::vector<float>& h, int sampleRate) noexcept {
-    if (h.empty() || sampleRate <= 0) {
-      return;
-    }
-    const double w = 2.0 * 3.14159265358979323846 * 1000.0 /
-                     static_cast<double>(sampleRate);
-    double re = 0.0;
-    double im = 0.0;
-    for (size_t i = 0; i < h.size(); ++i) {
-      re += static_cast<double>(h[i]) * std::cos(w * static_cast<double>(i));
-      im += static_cast<double>(h[i]) * std::sin(w * static_cast<double>(i));
-    }
-    const double mag = std::sqrt(re * re + im * im);
-    if (mag > 1.0e-6) {
-      const float g = static_cast<float>(1.0 / mag);
-      for (float& v : h) {
-        v *= g;
-      }
-    }
-  }
-
   struct SetData {
     CabIR mic[3];
   };

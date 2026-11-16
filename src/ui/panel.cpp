@@ -5,6 +5,7 @@
 
 #include "presets.hpp"
 #include "version.hpp"
+#include "dsp/user_ir.hpp"
 
 #include <cairo-ft.h>
 #include <ft2build.h>
@@ -162,6 +163,14 @@ constexpr double kPresetH = 36.0;
 constexpr double kListY = 54.0;
 constexpr double kListRow = 22.0;
 
+constexpr double kUserBoxX = 60.0;
+constexpr double kUserBoxY = 380.0;
+constexpr double kUserBoxW = 360.0;
+constexpr double kUserBoxH = 180.0;
+constexpr double kUserRowY = 432.0;
+constexpr double kUserRowH = 20.0;
+constexpr int kUserRows = 6;
+
 double knobAngle(double f) {
   return (135.0 + 270.0 * f) * kPi / 180.0;
 }
@@ -224,7 +233,7 @@ const char* cabName(int model, int cab) {
 
 const char* cabSubtitle(int model, int cab) {
   if (cab == 2) {
-    return "user IR (none) · factory fallback";
+    return "user impulse response · factory fallback";
   }
   switch (model) {
     case 0: return "open-back · chorus stereo";
@@ -240,6 +249,25 @@ const char* cabSubtitle(int model, int cab) {
 const char* modelName(int model) {
   const int m = std::min(std::max(model, 0), 6);
   return kModelLabels[m];
+}
+
+std::string shorten(std::string s, size_t maxLen = 40) {
+  if (s.size() > maxLen) {
+    s.resize(maxLen > 3 ? maxLen - 3 : 0);
+    s += "...";
+  }
+  return s;
+}
+
+std::string selectedUserIrName(const Shared& shared, const PanelState& state) {
+  const int model =
+      std::min(std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
+  const int index =
+      static_cast<int>(shared.get(P_USER_IR_0 + model) + 0.5);
+  if (index > 0 && index <= static_cast<int>(state.userIrs.size())) {
+    return shorten(state.userIrs[static_cast<size_t>(index - 1)], 30);
+  }
+  return {};
 }
 
 } // namespace
@@ -614,6 +642,26 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
   if (handlePresetClick(shared, state, x, y)) {
     return true;
   }
+  if (state.page == 2 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
+      y >= kUserBoxY && y <= kUserBoxY + kUserBoxH) {
+    if (y >= kUserRowY) {
+      const int row = static_cast<int>((y - kUserRowY) / kUserRowH) +
+                      state.userIrScroll;
+      const int files = static_cast<int>(state.userIrs.size());
+      const int model =
+          std::min(std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
+      if (row == 0) {
+        shared.set(P_USER_IR_0 + model, 0.0);
+        shared.set(P_CAB, 2.0);
+        markEdited(state);
+      } else if (row >= 1 && row <= files) {
+        shared.set(P_USER_IR_0 + model, static_cast<double>(row));
+        shared.set(P_CAB, 2.0);
+        markEdited(state);
+      }
+    }
+    return true;
+  }
   for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it) {
     const Widget& w = *it;
     if (!hitWidget(w, x, y)) {
@@ -697,6 +745,14 @@ void Panel::pointerUp() { dragParam_ = -1; }
 
 bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
                   double dy) {
+  if (state.page == 2 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
+      y >= kUserBoxY && y <= kUserBoxY + kUserBoxH) {
+    const int rows = static_cast<int>(state.userIrs.size()) + 1;
+    const int maxScroll = std::max(0, rows - kUserRows);
+    state.userIrScroll += dy > 0.0 ? -1 : 1;
+    state.userIrScroll = std::min(std::max(state.userIrScroll, 0), maxScroll);
+    return true;
+  }
   for (auto it = widgets_.rbegin(); it != widgets_.rend(); ++it) {
     const Widget& w = *it;
     if (!hitWidget(w, x, y)) {
@@ -734,6 +790,14 @@ void Panel::tick(const Shared& shared, PanelState& state) const {
   state.outLevel = std::max(state.outLevelL, state.outLevelR);
   state.bpm = shared.bpm.load(std::memory_order_relaxed);
   state.hostTempo = shared.hostTempo.load(std::memory_order_relaxed);
+  if (++state.userIrScanTicks >= 60) {
+    state.userIrScanTicks = 0;
+    state.userIrs = listUserIrFiles(userIrDir());
+    const int rows = static_cast<int>(state.userIrs.size()) + 1;
+    const int maxScroll = std::max(0, rows - 7);
+    state.userIrScroll =
+        std::min(std::max(state.userIrScroll, 0), maxScroll);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -969,8 +1033,11 @@ void Panel::drawAmpPage(cairo_t* cr, const Shared& shared,
   drawLeds(cr, shared, model);
 
   // Cab label in the right column.
+  const std::string userIr = selectedUserIrName(shared, state);
+  const char* cabLabel = cab == 2 && !userIr.empty() ? userIr.c_str()
+                                                     : cabName(model, cab);
   text(cr, "CABINET", 900, 180, 10, 1, 0.45, 0.47, 0.50);
-  text(cr, cabName(model, cab), 900, 202, 13, 1, 0.86, 0.88, 0.90);
+  text(cr, cabLabel, 900, 202, 13, 1, 0.86, 0.88, 0.90);
   text(cr, cabSubtitle(model, cab), 900, 220, 9.5, 1, 0.42, 0.44, 0.47);
 
   // Output limiter caption, above its pill and knob.
@@ -1024,7 +1091,10 @@ void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
   cairo_set_line_width(cr, 1.0);
   roundRect(cr, 178.5, 142.5, 553, 23, 3);
   cairo_stroke(cr);
-  text(cr, cabName(model, cab), 190, 159, 12, 0, 0.88, 0.90, 0.92);
+  const std::string userIr = selectedUserIrName(shared, state);
+  text(cr, cab == 2 && !userIr.empty() ? userIr.c_str()
+                                       : cabName(model, cab),
+       190, 159, 12, 0, 0.88, 0.90, 0.92);
   static const char* kMicNames[3] = {"DYNAMIC", "RIBBON", "BLEND"};
   const int mic = std::min(std::max(static_cast<int>(
                                         shared.get(P_CAB_MIC) + 0.5),
@@ -1130,7 +1200,6 @@ void Panel::drawPedalPage(cairo_t* cr, const Shared& shared,
 
 void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
                         const PanelState& state) const {
-  (void)shared;
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
   const Skin skin = skinFor(model);
@@ -1147,30 +1216,59 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
   text(cr, "USER", hasAlternate(model) ? 300 : 180, 190, 10, 0,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 
-  roundRect(cr, 60, 380, 360, 180, 6);
+  roundRect(cr, kUserBoxX, kUserBoxY, kUserBoxW, kUserBoxH, 6);
   setRgb(cr, mix(skin.bodyBottom, {0, 0, 0}, 0.35));
   cairo_fill(cr);
   setRgb(cr, {1, 1, 1}, 0.10);
   cairo_set_line_width(cr, 1.0);
-  roundRect(cr, 60.5, 380.5, 359, 179, 6);
+  roundRect(cr, kUserBoxX + 0.5, kUserBoxY + 0.5, kUserBoxW - 1,
+            kUserBoxH - 1, 6);
   cairo_stroke(cr);
-  text(cr, "USER IR", 76, 404, 11, 0, skin.legend.r, skin.legend.g,
+  text(cr, "USER IR FILES", 76, 400, 11, 0, skin.legend.r, skin.legend.g,
        skin.legend.b);
-  text(cr, "Factory IRs are embedded.", 76, 430, 11, 0, skin.legendDim.r,
+  text(cr, userIrDir().c_str(), 76, 415, 8, 0, skin.legendDim.r,
        skin.legendDim.g, skin.legendDim.b);
-  text(cr, "Drop WAV files in", 76, 454, 10, 0, skin.legendDim.r,
-       skin.legendDim.g, skin.legendDim.b);
-  text(cr, "~/.local/share/amp-suite/irs/user", 76, 472, 9.5, 0,
-       skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
-  text(cr, "User IR loading is next.", 76, 510, 10, 0, skin.legendDim.r,
-       skin.legendDim.g, skin.legendDim.b);
+
+  const int selected = static_cast<int>(
+      shared.get(P_USER_IR_0 + std::min(std::max(model, 0), 6)) + 0.5);
+  const int files = static_cast<int>(state.userIrs.size());
+  const int rows = std::min(kUserRows, files + 1);
+  for (int row = 0; row < rows; ++row) {
+    const int index = row + state.userIrScroll;
+    if (index > files) {
+      break;
+    }
+    const double ry = kUserRowY + row * kUserRowH;
+    if (index == selected) {
+      roundRect(cr, kUserBoxX + 4, ry + 1, kUserBoxW - 8, kUserRowH - 2, 3);
+      setRgb(cr, skin.accent, 0.35);
+      cairo_fill(cr);
+    }
+    char name[80];
+    if (index == 0) {
+      std::snprintf(name, sizeof(name), "None");
+    } else {
+      std::snprintf(name, sizeof(name), "%s",
+                    shorten(state.userIrs[static_cast<size_t>(index - 1)], 38)
+                        .c_str());
+    }
+    text(cr, name, kUserBoxX + 12, ry + 14, 9.5, 0,
+         index == selected ? skin.btnTextOn.r : skin.legend.r,
+         index == selected ? skin.btnTextOn.g : skin.legend.g,
+         index == selected ? skin.btnTextOn.b : skin.legend.b);
+  }
+  if (files == 0) {
+    text(cr, "Drop WAV files in this folder.", 76, 458, 9, 0,
+         skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  }
 
   text(cr, "MIC", 760, 196, 10, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
 
   if (cab == 2) {
-    text(cr, "User IR", 900, 246, 13, 1, skin.legend.r, skin.legend.g,
-         skin.legend.b);
+    const std::string userIr = selectedUserIrName(shared, state);
+    text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 900, 246, 13,
+         1, skin.legend.r, skin.legend.g, skin.legend.b);
   } else {
     text(cr, cabName(model, cab), 900, 246, 13, 1, skin.legend.r,
          skin.legend.g, skin.legend.b);

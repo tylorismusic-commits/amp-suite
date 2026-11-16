@@ -179,6 +179,7 @@ std::string buildPluginTtl() {
   out << "    lv2:majorVersion " << amp::kVersionMajor << " ;\n";
   out << "    lv2:minorVersion " << amp::kVersionMinor << " ;\n";
   out << "    lv2:microVersion " << amp::kVersionMicro << " ;\n";
+  out << "    lv2:extensionData <http://lv2plug.in/ns/ext/state#interface> ;\n";
   out << "    lv2:binary <" << kPluginBinary << "> ;\n";
   out << "    rdfs:seeAlso <manifest.ttl> ;\n";
   out << "    ui:ui <" << kUri << "#ui> ;\n";

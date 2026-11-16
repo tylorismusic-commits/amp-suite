@@ -38,6 +38,12 @@ M1: tube-stage and tone-stack engine.
 - Comp Suite-style panel pass: preset arrows and centered preset label,
   centered footer, output LED column, dB ticks and labels on the side meters,
   inset cab-window header strip, and numeric knob scales.
+- Per-amp user IR library: a watched `$XDG_DATA_HOME/amp-suite/irs/user`
+  folder, sorted filename list on the Cab page, seven stepped selection
+  parameters and direct convolution of the chosen user IR.
+- Portable user IR state: CLAP embeds the selected WAV bytes after the
+  parameter block; LV2 stores a portable blob and copies the files into the
+  host state directory via `state:makePath`.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

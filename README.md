@@ -28,7 +28,7 @@ off, and the stock 1200 4×12 cab.
 M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 50-parameter host contract; CLAP state save/load.
+- ✅ 57-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and 8 scaffold presets.
 - ✅ LV2 metadata generated from the parameter table.
@@ -44,7 +44,10 @@ M1 is in progress:
   convolved in the engine (57 / ribbon / blend variants, 48/96 kHz).
 - ✅ Comp Suite-style preset arrows, centered footer, LED output column,
   metering ticks, inset cab window and output limiter.
-- ⏳ M1: user IR loading and session-portable user IR state.
+- ✅ Per-amp user IR loading from `$XDG_DATA_HOME/amp-suite/irs/user`, with a
+  watched folder, filename selection and CLAP state embedding; LV2 state copies
+  selected WAVs into the host session via `state:makePath`.
+- ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and
 the Guitarix/CAPS tone-stack networks. EL34 models use the Guitarix Plexi
@@ -106,8 +109,9 @@ gitignored under `refs/irs/`.
 
 TONE3000 captures are T3K-licensed: free to use, but not redistributable
 without the author's permission. Amp Suite does not download, bundle or
-redistribute them. The user IR loader will read local WAV files in M1; the Cab
-page lists the folder and the manual documents the reference links.
+redistribute them. The user IR loader reads local WAV files from
+`$XDG_DATA_HOME/amp-suite/irs/user`; the Cab page lists the folder. Selected
+user IRs are embedded in CLAP sessions and copied into LV2 state.
 
 See `docs/ir-provenance.md` for the reference set and generation method.
 The fitter is offline-only; its Python dependencies are in

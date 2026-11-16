@@ -8,7 +8,9 @@
 #pragma once
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
+#include <memory>
 
 #include "biquad.hpp"
 #include "cab_convolver.hpp"
@@ -19,6 +21,7 @@
 #include "power_amp.hpp"
 #include "ts9.hpp"
 #include "recipe.hpp"
+#include "user_ir.hpp"
 
 namespace amp {
 
@@ -74,8 +77,13 @@ public:
     outputSmooth_.setTarget(c.output);
     odL_.setControls(c.odDrive, c.odTone, c.odLevel);
     odR_.setControls(c.odDrive, c.odTone, c.odLevel);
+    syncUserIrBank();
     updateCab(c);
     updateCabIR();
+  }
+
+  void setUserIrBank(std::shared_ptr<const UserIrBank> bank) noexcept {
+    std::atomic_store(&userBankPending_, std::move(bank));
   }
 
   bool loadFactoryCabs(const std::string& dir) noexcept {
@@ -271,6 +279,13 @@ private:
     resonanceR_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
   }
 
+  void syncUserIrBank() noexcept {
+    auto bank = std::atomic_load(&userBankPending_);
+    if (bank != activeUserBank_) {
+      activeUserBank_ = std::move(bank);
+    }
+  }
+
   void updateCabIR() noexcept {
     int set = controls_.model;
     if (controls_.model == 4 && controls_.cab == 1) {
@@ -279,11 +294,23 @@ private:
     if (controls_.model == 6) {
       set = CabBank::Recto;
     }
-    int mic = controls_.cabMic;
-    if (controls_.cab == 2) {
-      mic = 0;  // user IR loading is a later pass; fall back to factory
+    const CabIR* ir = nullptr;
+    if (controls_.cab == 2 && activeUserBank_) {
+      const int model = std::min(std::max(controls_.model, 0), kAmpCount - 1);
+      const int index = controls_.userIr[model];
+      if (index > 0 &&
+          index <= static_cast<int>(activeUserBank_->entries.size())) {
+        const CabIR* candidate =
+            &activeUserBank_->entries[static_cast<size_t>(index - 1)].ir;
+        if (!candidate->h.empty()) {
+          ir = candidate;
+        }
+      }
     }
-    const CabIR* ir = cabBank_.get(set, mic);
+    int mic = controls_.cabMic;
+    if (!ir) {
+      ir = cabBank_.get(set, mic);
+    }
     if (!ir) {
       ir = cabBank_.get(set, 0);
     }
@@ -319,6 +346,8 @@ private:
   CabBank cabBank_;
   CabConvolver cabConvolver_;
   const CabIR* activeCab_ = nullptr;
+  std::shared_ptr<const UserIrBank> userBankPending_;
+  std::shared_ptr<const UserIrBank> activeUserBank_;
   Delay delay_;
   Reverb reverb_;
   HighPass2 cabHpL_;

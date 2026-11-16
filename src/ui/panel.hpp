@@ -30,6 +30,9 @@ struct PanelState {
   float outPeakHold = 0.0f;
   float bpm = 120.0f;
   bool hostTempo = false;
+  std::vector<std::string> userIrs;
+  int userIrScroll = 0;
+  int userIrScanTicks = 60;
 };
 
 class Panel {
