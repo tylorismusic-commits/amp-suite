@@ -254,6 +254,7 @@ public:
     outVuDb.store(-120.0f, std::memory_order_relaxed);
     bpm.store(120.0f, std::memory_order_relaxed);
     hostTempo.store(false, std::memory_order_relaxed);
+    meterSerial.store(0, std::memory_order_relaxed);
   }
 
   double get(uint32_t p) const noexcept {
@@ -310,6 +311,7 @@ public:
   std::atomic<float> outVuDb;
   std::atomic<float> bpm;
   std::atomic<bool> hostTempo;
+  std::atomic<uint32_t> meterSerial;
 
 private:
   std::atomic<double> values_[P_COUNT];

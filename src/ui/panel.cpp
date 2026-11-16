@@ -828,16 +828,35 @@ void Panel::tick(const Shared& shared, PanelState& state) const {
   auto norm = [](float db, double minDb, double maxDb) {
     return static_cast<float>(dbToNorm(db, minDb, maxDb));
   };
-  const float inL = norm(shared.inPeakLDb.load(std::memory_order_relaxed), -60, 0);
-  const float inR = norm(shared.inPeakRDb.load(std::memory_order_relaxed), -60, 0);
-  const float outL = norm(shared.outPeakLDb.load(std::memory_order_relaxed), -60, 3);
-  const float outR = norm(shared.outPeakRDb.load(std::memory_order_relaxed), -60, 3);
+  // If the host bypasses the plug-in it may stop calling process().  The
+  // heartbeat stops and the meters decay instead of freezing at the last
+  // value.
+  const uint32_t serial =
+      shared.meterSerial.load(std::memory_order_relaxed);
+  if (serial != state.lastMeterSerial) {
+    state.lastMeterSerial = serial;
+    state.meterIdleTicks = 0;
+  } else if (state.meterIdleTicks < 1000) {
+    ++state.meterIdleTicks;
+  }
+  const bool idle = state.meterIdleTicks > 6;
+  const float inL =
+      idle ? 0.0f : norm(shared.inPeakLDb.load(std::memory_order_relaxed), -60, 0);
+  const float inR =
+      idle ? 0.0f : norm(shared.inPeakRDb.load(std::memory_order_relaxed), -60, 0);
+  const float outL =
+      idle ? 0.0f : norm(shared.outPeakLDb.load(std::memory_order_relaxed), -60, 3);
+  const float outR =
+      idle ? 0.0f : norm(shared.outPeakRDb.load(std::memory_order_relaxed), -60, 3);
   state.inLevelL = 0.65f * state.inLevelL + 0.35f * inL;
   state.inLevelR = 0.65f * state.inLevelR + 0.35f * inR;
   state.outLevelL = 0.65f * state.outLevelL + 0.35f * outL;
   state.outLevelR = 0.65f * state.outLevelR + 0.35f * outR;
   state.inLevel = std::max(state.inLevelL, state.inLevelR);
   state.outLevel = std::max(state.outLevelL, state.outLevelR);
+  state.outPeakDb = idle
+                        ? -120.0f
+                        : shared.outPeakDb.load(std::memory_order_relaxed);
   state.bpm = shared.bpm.load(std::memory_order_relaxed);
   state.hostTempo = shared.hostTempo.load(std::memory_order_relaxed);
   if (!state.hostTempo) {
@@ -1124,7 +1143,7 @@ void Panel::drawAmpPage(cairo_t* cr, const Shared& shared,
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
   drawCabWindow(cr, shared, state, model);
-  drawLeds(cr, shared, model);
+  drawLeds(cr, state, model);
 
   // Cab label in the right column.
   const std::string userIr = selectedUserIrName(shared, state);
@@ -1750,9 +1769,9 @@ void Panel::drawLevelMeter(cairo_t* cr, double x, double y, double w,
        skin.legendDim.b);
 }
 
-void Panel::drawLeds(cairo_t* cr, const Shared& shared, int model) const {
+void Panel::drawLeds(cairo_t* cr, const PanelState& state, int model) const {
   (void)model;
-  const double db = shared.outPeakDb.load(std::memory_order_relaxed);
+  const double db = state.outPeakDb;
   // Twelve output segments from -30 dBFS to +3 dBFS.  The column echoes the
   // LED ladder in Comp Suite while showing amp output level.
   for (int i = 0; i < 12; ++i) {

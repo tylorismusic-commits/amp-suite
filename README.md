@@ -111,9 +111,10 @@ build/amp_ui_preview assets/fonts /tmp/ampsuite-preview 1.0
 
 ## Cab IRs and TONE3000
 
-Factory cabs are original CC0 IRs generated from a parametric model fitted to
-smoothed reference captures. Reference WAVs are **not** shipped and are
-gitignored under `refs/irs/`.
+Factory cabs are original CC0 IRs synthesized from grouped, level-normalized
+reference magnitudes. The current set uses 1/12-octave minimum-phase synthesis
+with 57 / ribbon / blend groups, not a copy of any reference capture. Reference
+WAVs are **not** shipped and are gitignored under `refs/irs/`.
 
 TONE3000 captures are T3K-licensed: free to use, but not redistributable
 without the author's permission. Amp Suite does not download, bundle or
@@ -122,8 +123,8 @@ redistribute them. The user IR loader reads local WAV files from
 user IRs are embedded in CLAP sessions and copied into LV2 state.
 
 See `docs/ir-provenance.md` for the reference set and generation method.
-The fitter is offline-only; its Python dependencies are in
-`tools/requirements.txt`. Generated factory IRs are CC0.
+The synthesizer and validator are offline-only; their Python dependencies are
+in `tools/requirements.txt`. Generated factory IRs are CC0.
 
 ## Documentation
 

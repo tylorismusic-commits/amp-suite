@@ -57,6 +57,9 @@ M1: tube-stage and tone-stack engine.
   it when the host supplies a timeline.
 - 22-preset factory bank across Clean, Crunch, Rhythm, Lead, Doom and Ambient,
   with a ten-row scrolling preset browser.
+- Factory cab set regenerated with grouped 1/12-octave minimum-phase synthesis
+  (57 / ribbon / blend groups); mean target error is now 0.11–0.33 dB, max
+  0.7–2.3 dB.
 - Amp-section bypass (`amp_bypass`): the 808, delay/reverb loop, cab IR,
   output trim and limiter remain active; the preamp, tone stack and power amp
   are skipped.

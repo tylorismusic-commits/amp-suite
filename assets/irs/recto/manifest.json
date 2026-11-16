@@ -2,56 +2,135 @@
   "recto": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 0.7094845881664024,
-      "max_abs_db": 4.503576003616247,
-      "mean_abs_db": 0.7634263300775634,
-      "rms_db": 1.1219182848832414
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "recto",
-    "parameters": {
-      "baffle_f": 575.1442744581329,
-      "baffle_gain": 4.0,
-      "body_f": 232.5992720348705,
-      "body_gain": 6.0,
-      "body_q": 0.5,
-      "breakup1_f": 2967.3285335882183,
-      "breakup1_gain": -7.0,
-      "breakup1_q": 11.086377727099746,
-      "breakup2_f": 4023.908353891694,
-      "breakup2_gain": 2.5084274590438196,
-      "breakup2_q": 2.0,
-      "breakup3_f": 6989.590401506573,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 3.2906774552470766,
-      "gain": 8.0,
-      "hf_f": 6911.259642695091,
-      "hf_gain": -9.939917949816845,
-      "lp_f": 6086.969112261596,
-      "lp_q": 1.295719152314112,
-      "mic_hi_f": 5144.447302080709,
-      "mic_hi_gain": -12.09067965441726,
-      "mic_low_f": 194.3444597847895,
-      "mic_low_gain": -3.9485041269423338,
-      "presence_f": 3103.82400110107,
-      "presence_gain": 6.0,
-      "presence_q": 0.9087796335047121,
-      "res_f": 132.05010686458692,
-      "res_gain": 6.0,
-      "res_q": 1.0803989970769634,
-      "tilt": 1.639780693721253
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/1993-mesa-rectifier-os-standard-slant-4x12-v30s-97689",
       "https://www.tone3000.com/tones/mesa-rectifier-standard-2002-4x12-slanted-v30-multi-mics-67544"
     ],
-    "references": [
-      "1993 Mesa BR R121 1073.wav",
-      "1993 Mesa TR SM57 1073.wav",
-      "MRS - V30-01 - R10 - 04 (eoc)_dc.wav",
-      "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.479779390773377,
+          "mean_abs_db": 0.20090418245571612,
+          "offset_db": -13.212335773792299,
+          "rms_db": 0.32370783591951036
+        },
+        "references": [
+          "1993 Mesa BR R121 1073.wav",
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav",
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "1993 Mesa BR R121 1073.wav": 1.5,
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav": 0.5,
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav": 0.5
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9213080308159185,
+          "mean_abs_db": 0.15289185628317264,
+          "offset_db": -12.663592082552887,
+          "rms_db": 0.23794952758650006
+        },
+        "references": [
+          "1993 Mesa BL 545sd 1073.wav",
+          "1993 Mesa BR SM57 1073.wav",
+          "1993 Mesa BR Unidyne3 1073.wav",
+          "1993 Mesa TR SM57 1073 1200ohm.wav",
+          "1993 Mesa TR SM57 1073.wav",
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav",
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav",
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav",
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav",
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "1993 Mesa BL 545sd 1073.wav": 1.0,
+          "1993 Mesa BR SM57 1073.wav": 1.0,
+          "1993 Mesa BR Unidyne3 1073.wav": 1.0,
+          "1993 Mesa TR SM57 1073 1200ohm.wav": 1.0,
+          "1993 Mesa TR SM57 1073.wav": 1.0,
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav": 0.35
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9138474731712583,
+          "mean_abs_db": 0.13759657909643142,
+          "offset_db": -12.616042792609463,
+          "rms_db": 0.21694478857674904
+        },
+        "references": [
+          "1993 Mesa BL 545sd 1073.wav",
+          "1993 Mesa BR MD421u5 1073.wav",
+          "1993 Mesa BR R121 1073.wav",
+          "1993 Mesa BR SM57 1073.wav",
+          "1993 Mesa BR Unidyne3 1073.wav",
+          "1993 Mesa TR SM57 1073 1200ohm.wav",
+          "1993 Mesa TR SM57 1073.wav",
+          "MRS - V30-01 - MD421K - 01 (c)_dc.wav",
+          "MRS - V30-01 - MD421K - 03 (eoc+)_dc.wav",
+          "MRS - V30-01 - MD421K - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - MD421K - 05 (eoc-)_dc.wav",
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav",
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav",
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav",
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav",
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav",
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "1993 Mesa BL 545sd 1073.wav": 1.0,
+          "1993 Mesa BR MD421u5 1073.wav": 1.0,
+          "1993 Mesa BR R121 1073.wav": 1.0,
+          "1993 Mesa BR SM57 1073.wav": 1.0,
+          "1993 Mesa BR Unidyne3 1073.wav": 1.0,
+          "1993 Mesa TR SM57 1073 1200ohm.wav": 1.0,
+          "1993 Mesa TR SM57 1073.wav": 1.0,
+          "MRS - V30-01 - MD421K - 01 (c)_dc.wav": 0.4,
+          "MRS - V30-01 - MD421K - 03 (eoc+)_dc.wav": 0.4,
+          "MRS - V30-01 - MD421K - 04 (eoc)_dc.wav": 0.4,
+          "MRS - V30-01 - MD421K - 05 (eoc-)_dc.wav": 0.4,
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav": 0.4,
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav": 0.4
+        }
+      }
+    }
   }
 }

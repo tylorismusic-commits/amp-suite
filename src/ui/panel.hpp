@@ -35,6 +35,9 @@ struct PanelState {
   float outLevelL = 0.0f;
   float outLevelR = 0.0f;
   float outPeakHold = 0.0f;
+  float outPeakDb = -120.0f;
+  uint32_t lastMeterSerial = 0;
+  int meterIdleTicks = 0;
   float bpm = 120.0f;
   bool hostTempo = false;
   std::vector<std::string> userIrs;
@@ -144,7 +147,7 @@ private:
   void drawLevelMeter(cairo_t* cr, double x, double y, double w, double h,
                       double levelL, double levelR, int model,
                       bool labelsRight, double minDb, double maxDb) const;
-  void drawLeds(cairo_t* cr, const Shared& shared, int model) const;
+  void drawLeds(cairo_t* cr, const PanelState& state, int model) const;
   void drawCabWindow(cairo_t* cr, const Shared& shared,
                      const PanelState& state, int model) const;
   void openFileBrowser(PanelState& state) const;

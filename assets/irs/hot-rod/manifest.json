@@ -2,55 +2,122 @@
   "hot-rod": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 3.8606405609081063,
-      "max_abs_db": 13.772248625442952,
-      "mean_abs_db": 1.7398257380830133,
-      "rms_db": 2.7043635603517204
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "hot-rod",
-    "parameters": {
-      "baffle_f": 650.0,
-      "baffle_gain": -4.545018166580819,
-      "body_f": 182.9227745851914,
-      "body_gain": 6.0,
-      "body_q": 0.9672392304470466,
-      "breakup1_f": 2486.0290973531246,
-      "breakup1_gain": 5.0,
-      "breakup1_q": 3.299927077559846,
-      "breakup2_f": 3158.1259509673882,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 2.0,
-      "breakup3_f": 7105.507713155274,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 5.619751063740123,
-      "gain": 0.9460309649105635,
-      "hf_f": 12251.882301261574,
-      "hf_gain": 0.0,
-      "lp_f": 5266.310585708691,
-      "lp_q": 1.3,
-      "mic_hi_f": 9312.314199428063,
-      "mic_hi_gain": -2.0377981128190066,
-      "mic_low_f": 220.0,
-      "mic_low_gain": 3.711451363684705,
-      "presence_f": 3366.4602029770485,
-      "presence_gain": 6.0,
-      "presence_q": 0.6865585505944356,
-      "res_f": 140.0,
-      "res_gain": 6.0,
-      "res_q": 1.1903214654851504,
-      "tilt": 3.0
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/marshall-jcm800-lead-1960-4x12-g12t-75-104387"
     ],
-    "references": [
-      "SM57 BR center 1in.wav",
-      "SM57 BR center close.wav",
-      "SM57 BR edge close.wav",
-      "SM58 BL center close.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.6836560307008988,
+          "mean_abs_db": 0.19195878553466716,
+          "offset_db": -10.957976093243733,
+          "rms_db": 0.2996229983285024
+        },
+        "references": [
+          "SM58 BL center 1in.wav",
+          "SM58 BL center close.wav",
+          "SM58 BL edge close.wav",
+          "V2_SM58 center BR.wav",
+          "V2_SM58 edge BL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "SM58 BL center 1in.wav": 1.0,
+          "SM58 BL center close.wav": 1.0,
+          "SM58 BL edge close.wav": 1.0,
+          "V2_SM58 center BR.wav": 1.0,
+          "V2_SM58 edge BL.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.46656525543239,
+          "mean_abs_db": 0.19701720224702993,
+          "offset_db": -10.393995433608046,
+          "rms_db": 0.31175726617245325
+        },
+        "references": [
+          "ND257 center BR.wav",
+          "SM57 BR center 1in.wav",
+          "SM57 BR center close.wav",
+          "SM57 BR edge close.wav",
+          "V2_SM57 center BR.wav",
+          "V2_SM57 edge BL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "ND257 center BR.wav": 1.0,
+          "SM57 BR center 1in.wav": 1.0,
+          "SM57 BR center close.wav": 1.0,
+          "SM57 BR edge close.wav": 1.0,
+          "V2_SM57 center BR.wav": 1.0,
+          "V2_SM57 edge BL.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.5356218945336346,
+          "mean_abs_db": 0.17684328384121137,
+          "offset_db": -11.037633733202561,
+          "rms_db": 0.28004500734373416
+        },
+        "references": [
+          "ND257 center BR.wav",
+          "SM57 BR between close louder (old).wav",
+          "SM57 BR center 1in.wav",
+          "SM57 BR center close louder (old).wav",
+          "SM57 BR center close.wav",
+          "SM57 BR edge close louder (old).wav",
+          "SM57 BR edge close.wav",
+          "SM57_2 BR edge close.wav",
+          "SM58 BL center 1in.wav",
+          "SM58 BL center close.wav",
+          "SM58 BL edge close.wav",
+          "SM58_2 BL edge close.wav",
+          "V2_SM57 center BR.wav",
+          "V2_SM57 edge BL.wav",
+          "V2_SM58 center BR.wav",
+          "V2_SM58 edge BL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "ND257 center BR.wav": 1.0,
+          "SM57 BR between close louder (old).wav": 1.0,
+          "SM57 BR center 1in.wav": 1.0,
+          "SM57 BR center close louder (old).wav": 1.0,
+          "SM57 BR center close.wav": 1.0,
+          "SM57 BR edge close louder (old).wav": 1.0,
+          "SM57 BR edge close.wav": 1.0,
+          "SM57_2 BR edge close.wav": 1.0,
+          "SM58 BL center 1in.wav": 1.0,
+          "SM58 BL center close.wav": 1.0,
+          "SM58 BL edge close.wav": 1.0,
+          "SM58_2 BL edge close.wav": 1.0,
+          "V2_SM57 center BR.wav": 1.0,
+          "V2_SM57 edge BL.wav": 1.0,
+          "V2_SM58 center BR.wav": 1.0,
+          "V2_SM58 edge BL.wav": 1.0
+        }
+      }
+    }
   }
 }

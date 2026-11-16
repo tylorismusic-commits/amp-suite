@@ -2,54 +2,105 @@
   "chorus-clean": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 0.4545853912256867,
-      "max_abs_db": 4.809382777670976,
-      "mean_abs_db": 0.617513380168513,
-      "rms_db": 1.0046364699777632
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "chorus-clean",
-    "parameters": {
-      "baffle_f": 308.9596811662535,
-      "baffle_gain": -5.70606482629777,
-      "body_f": 320.0,
-      "body_gain": 6.0,
-      "body_q": 0.5763240679207863,
-      "breakup1_f": 2349.883463442446,
-      "breakup1_gain": -1.46484725569147,
-      "breakup1_q": 12.0,
-      "breakup2_f": 3856.6835121489994,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 4.688832789190225,
-      "breakup3_f": 6852.603114167422,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 7.363611829258055,
-      "gain": 0.49181321867737976,
-      "hf_f": 5937.232959125024,
-      "hf_gain": -13.380036996801008,
-      "lp_f": 16009.705271459392,
-      "lp_q": 1.1920342108679445,
-      "mic_hi_f": 4992.693174048869,
-      "mic_hi_gain": -12.260792993735963,
-      "mic_low_f": 131.3040343102603,
-      "mic_low_gain": 6.0,
-      "presence_f": 3834.1063896377495,
-      "presence_gain": 6.0,
-      "presence_q": 2.245421560990643,
-      "res_f": 96.94130915928464,
-      "res_gain": 4.955139760475497,
-      "res_q": 0.7,
-      "tilt": -2.2636996543222985
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/jc120-cab-impulses-1644"
     ],
-    "references": [
-      "C414 Cap Edge Close.wav",
-      "C414 Mid Close.wav",
-      "C636 Edge Cone Close.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            6000.0,
+            -2.0,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 0.7409705715382877,
+          "mean_abs_db": 0.13207882649928654,
+          "offset_db": -13.435254492932316,
+          "rms_db": 0.20285152855400773
+        },
+        "references": [
+          "C636 Cap Edge Close.wav",
+          "C636 Edge Cone Close.wav",
+          "C636 Mid Cone Close.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "C636 Cap Edge Close.wav": 1.0,
+          "C636 Edge Cone Close.wav": 1.0,
+          "C636 Mid Cone Close.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9960246826031565,
+          "mean_abs_db": 0.12082729860307619,
+          "offset_db": -13.346105960423907,
+          "rms_db": 0.20100827206346406
+        },
+        "references": [
+          "C414 Cap Edge Close.wav",
+          "C414 Edge Close.wav",
+          "C414 Mid Close.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "C414 Cap Edge Close.wav": 1.0,
+          "C414 Edge Close.wav": 1.0,
+          "C414 Mid Close.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9061679110119236,
+          "mean_abs_db": 0.10924360112282708,
+          "offset_db": -12.877104137466105,
+          "rms_db": 0.17781643891189497
+        },
+        "references": [
+          "C414 Cap Edge Close.wav",
+          "C414 Cap Edge far.wav",
+          "C414 Edge Close.wav",
+          "C414 Mid Close.wav",
+          "C636 Cap Edge Close.wav",
+          "C636 Cap Edge Far.wav",
+          "C636 Edge Cone Close.wav",
+          "C636 Mid Cone Close.wav",
+          "C636 Mid Cone Far.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "C414 Cap Edge Close.wav": 1.0,
+          "C414 Cap Edge far.wav": 1.0,
+          "C414 Edge Close.wav": 1.0,
+          "C414 Mid Close.wav": 1.0,
+          "C636 Cap Edge Close.wav": 1.0,
+          "C636 Cap Edge Far.wav": 1.0,
+          "C636 Edge Cone Close.wav": 1.0,
+          "C636 Mid Cone Close.wav": 1.0,
+          "C636 Mid Cone Far.wav": 1.0
+        }
+      }
+    }
   }
 }

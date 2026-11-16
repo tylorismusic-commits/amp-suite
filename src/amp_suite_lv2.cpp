@@ -235,6 +235,7 @@ void run(LV2_Handle handle, uint32_t frames) {
   p->shared.outVuDb.store(p->meters.outVuDb, std::memory_order_relaxed);
   p->shared.bpm.store(p->meters.bpm, std::memory_order_relaxed);
   p->shared.hostTempo.store(p->meters.hostTempo, std::memory_order_relaxed);
+  p->shared.meterSerial.fetch_add(1, std::memory_order_relaxed);
 }
 
 struct Lv2UserIrHeader {

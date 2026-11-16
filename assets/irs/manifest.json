@@ -2,377 +2,770 @@
   "block-120": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 1.4027800453691288,
-      "max_abs_db": 3.59933615951331,
-      "mean_abs_db": 0.9367143925374773,
-      "rms_db": 1.221028523464746
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "block-120",
-    "parameters": {
-      "baffle_f": 630.7918455470461,
-      "baffle_gain": 4.0,
-      "body_f": 170.73708443857268,
-      "body_gain": 6.0,
-      "body_q": 0.6526091272802692,
-      "breakup1_f": 1511.7699911029365,
-      "breakup1_gain": -7.0,
-      "breakup1_q": 3.8315653480394403,
-      "breakup2_f": 5337.124017644907,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 11.950955522984211,
-      "breakup3_f": 6921.629233979868,
-      "breakup3_gain": -4.795723513143575,
-      "breakup3_q": 2.5379356541199964,
-      "gain": 8.0,
-      "hf_f": 7901.718182256303,
-      "hf_gain": -19.711996427132384,
-      "lp_f": 14408.115900322597,
-      "lp_q": 1.3,
-      "mic_hi_f": 5928.735350739774,
-      "mic_hi_gain": -8.105897554492413,
-      "mic_low_f": 204.16377161125905,
-      "mic_low_gain": 0.4406959864896669,
-      "presence_f": 2594.8724997634768,
-      "presence_gain": 6.0,
-      "presence_q": 0.4915539037809033,
-      "res_f": 126.39829791242877,
-      "res_gain": 6.0,
-      "res_q": 2.383932578750245,
-      "tilt": 3.0
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/peavey-412ms-sheffield-1290-46881"
     ],
-    "references": [
-      "412MS_SHF_57_Cap.wav",
-      "412MS_SHF_57_CapEdge.wav",
-      "412MS_SHF_57_Cone.wav",
-      "412MS_SHF_57_Edge.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            6000.0,
+            -1.0,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 1.1246930996436455,
+          "mean_abs_db": 0.21726661761071306,
+          "offset_db": -12.49033807264733,
+          "rms_db": 0.292673227142956
+        },
+        "references": [
+          "412MS_SHF_AR5_Away.wav",
+          "412MS_SHF_AR5_Center.wav",
+          "412MS_SHF_AR5_Cone.wav",
+          "412MS_SHF_AR5_Edge.wav",
+          "412MS_SHF_AR5_Fig8OA.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "412MS_SHF_AR5_Away.wav": 1.0,
+          "412MS_SHF_AR5_Center.wav": 1.0,
+          "412MS_SHF_AR5_Cone.wav": 1.0,
+          "412MS_SHF_AR5_Edge.wav": 1.0,
+          "412MS_SHF_AR5_Fig8OA.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.2000743051830565,
+          "mean_abs_db": 0.2013538280645625,
+          "offset_db": -13.350044268473864,
+          "rms_db": 0.2999137872698805
+        },
+        "references": [
+          "412MS_SHF_57_Cap.wav",
+          "412MS_SHF_57_CapEdge.wav",
+          "412MS_SHF_57_CapOA.wav",
+          "412MS_SHF_57_Cone.wav",
+          "412MS_SHF_57_ConeOA.wav",
+          "412MS_SHF_57_Edge.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "412MS_SHF_57_Cap.wav": 1.0,
+          "412MS_SHF_57_CapEdge.wav": 1.0,
+          "412MS_SHF_57_CapOA.wav": 1.0,
+          "412MS_SHF_57_Cone.wav": 1.0,
+          "412MS_SHF_57_ConeOA.wav": 1.0,
+          "412MS_SHF_57_Edge.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.1239162051968412,
+          "mean_abs_db": 0.19912834802804016,
+          "offset_db": -12.571332296397754,
+          "rms_db": 0.2882218628522758
+        },
+        "references": [
+          "412MS_SHF_mix_57+57.wav",
+          "412MS_SHF_mix_57+815.wav",
+          "412MS_SHF_mix_AR5+57.wav",
+          "412MS_SHF_mix_AR5+815.wav",
+          "412MS_SHF_mix_TSM+815.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "412MS_SHF_mix_57+57.wav": 1.0,
+          "412MS_SHF_mix_57+815.wav": 1.0,
+          "412MS_SHF_mix_AR5+57.wav": 1.0,
+          "412MS_SHF_mix_AR5+815.wav": 1.0,
+          "412MS_SHF_mix_TSM+815.wav": 1.0
+        }
+      }
+    }
   },
   "chime": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 0.963190772239436,
-      "max_abs_db": 5.511505025249559,
-      "mean_abs_db": 0.8451454927549353,
-      "rms_db": 1.132476687815975
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "chime",
-    "parameters": {
-      "baffle_f": 593.4049578454922,
-      "baffle_gain": 1.7143153400415696,
-      "body_f": 285.1001662292189,
-      "body_gain": 6.0,
-      "body_q": 0.5,
-      "breakup1_f": 1533.7290052108303,
-      "breakup1_gain": -7.0,
-      "breakup1_q": 6.8847842839002436,
-      "breakup2_f": 5064.5913100261405,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 5.482682529677353,
-      "breakup3_f": 6672.822557622843,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 5.447569969184788,
-      "gain": 8.0,
-      "hf_f": 10499.31066635223,
-      "hf_gain": 0.0,
-      "lp_f": 5071.459620032085,
-      "lp_q": 1.2078235626464116,
-      "mic_hi_f": 6194.487551649872,
-      "mic_hi_gain": -7.128069337190018,
-      "mic_low_f": 127.46049980013724,
-      "mic_low_gain": 0.9455243195439136,
-      "presence_f": 3863.369328680837,
-      "presence_gain": 5.860549051719872,
-      "presence_q": 2.5504171871222443,
-      "res_f": 86.53187094271921,
-      "res_gain": 6.0,
-      "res_q": 3.377624440882451,
-      "tilt": 1.9403632011548715
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/vox-alnico-blue-2x12-98463"
     ],
-    "references": [
-      "VOX_ALNICO_BLUE_E906_centre_close_LL.wav",
-      "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav",
-      "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            5500.0,
+            -2.5,
+            0.7
+          ],
+          [
+            "low_shelf",
+            120.0,
+            0.8,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 1.135369312182537,
+          "mean_abs_db": 0.16694778249167364,
+          "offset_db": -10.875000901431651,
+          "rms_db": 0.23904353115646162
+        },
+        "references": [
+          "VOX_ALNICO_BLUE_E906_centre_far_LL.wav",
+          "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav",
+          "VOX_ALNICP_BLUE_E906_DUSTCAP_EDGE_LL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "VOX_ALNICO_BLUE_E906_centre_far_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav": 1.0,
+          "VOX_ALNICP_BLUE_E906_DUSTCAP_EDGE_LL.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.1413191302049221,
+          "mean_abs_db": 0.18617220137553717,
+          "offset_db": -11.468243831948124,
+          "rms_db": 0.2671389125264946
+        },
+        "references": [
+          "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav",
+          "VOX_ALNICO_BLUE_E906_centre_close_LL.wav",
+          "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_centre_close_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.1385208893585883,
+          "mean_abs_db": 0.17175178947681358,
+          "offset_db": -10.778594791707453,
+          "rms_db": 0.24575589211174753
+        },
+        "references": [
+          "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav",
+          "VOX_ALNICO_BLUE_E906_centre_close_LL.wav",
+          "VOX_ALNICO_BLUE_E906_centre_far_LL.wav",
+          "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav",
+          "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav",
+          "VOX_ALNICP_BLUE_E906_DUSTCAP_EDGE_LL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "VOX_ALNICO_BLUE_E906_Dustcap_edge_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_centre_close_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_centre_far_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav": 1.0,
+          "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav": 1.0,
+          "VOX_ALNICP_BLUE_E906_DUSTCAP_EDGE_LL.wav": 1.0
+        }
+      }
+    }
   },
   "chorus-clean": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 0.4545853912256867,
-      "max_abs_db": 4.809382777670976,
-      "mean_abs_db": 0.617513380168513,
-      "rms_db": 1.0046364699777632
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "chorus-clean",
-    "parameters": {
-      "baffle_f": 308.9596811662535,
-      "baffle_gain": -5.70606482629777,
-      "body_f": 320.0,
-      "body_gain": 6.0,
-      "body_q": 0.5763240679207863,
-      "breakup1_f": 2349.883463442446,
-      "breakup1_gain": -1.46484725569147,
-      "breakup1_q": 12.0,
-      "breakup2_f": 3856.6835121489994,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 4.688832789190225,
-      "breakup3_f": 6852.603114167422,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 7.363611829258055,
-      "gain": 0.49181321867737976,
-      "hf_f": 5937.232959125024,
-      "hf_gain": -13.380036996801008,
-      "lp_f": 16009.705271459392,
-      "lp_q": 1.1920342108679445,
-      "mic_hi_f": 4992.693174048869,
-      "mic_hi_gain": -12.260792993735963,
-      "mic_low_f": 131.3040343102603,
-      "mic_low_gain": 6.0,
-      "presence_f": 3834.1063896377495,
-      "presence_gain": 6.0,
-      "presence_q": 2.245421560990643,
-      "res_f": 96.94130915928464,
-      "res_gain": 4.955139760475497,
-      "res_q": 0.7,
-      "tilt": -2.2636996543222985
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/jc120-cab-impulses-1644"
     ],
-    "references": [
-      "C414 Cap Edge Close.wav",
-      "C414 Mid Close.wav",
-      "C636 Edge Cone Close.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            6000.0,
+            -2.0,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 0.7409705715382877,
+          "mean_abs_db": 0.13207882649928654,
+          "offset_db": -13.435254492932316,
+          "rms_db": 0.20285152855400773
+        },
+        "references": [
+          "C636 Cap Edge Close.wav",
+          "C636 Edge Cone Close.wav",
+          "C636 Mid Cone Close.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "C636 Cap Edge Close.wav": 1.0,
+          "C636 Edge Cone Close.wav": 1.0,
+          "C636 Mid Cone Close.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9960246826031565,
+          "mean_abs_db": 0.12082729860307619,
+          "offset_db": -13.346105960423907,
+          "rms_db": 0.20100827206346406
+        },
+        "references": [
+          "C414 Cap Edge Close.wav",
+          "C414 Edge Close.wav",
+          "C414 Mid Close.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "C414 Cap Edge Close.wav": 1.0,
+          "C414 Edge Close.wav": 1.0,
+          "C414 Mid Close.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9061679110119236,
+          "mean_abs_db": 0.10924360112282708,
+          "offset_db": -12.877104137466105,
+          "rms_db": 0.17781643891189497
+        },
+        "references": [
+          "C414 Cap Edge Close.wav",
+          "C414 Cap Edge far.wav",
+          "C414 Edge Close.wav",
+          "C414 Mid Close.wav",
+          "C636 Cap Edge Close.wav",
+          "C636 Cap Edge Far.wav",
+          "C636 Edge Cone Close.wav",
+          "C636 Mid Cone Close.wav",
+          "C636 Mid Cone Far.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "C414 Cap Edge Close.wav": 1.0,
+          "C414 Cap Edge far.wav": 1.0,
+          "C414 Edge Close.wav": 1.0,
+          "C414 Mid Close.wav": 1.0,
+          "C636 Cap Edge Close.wav": 1.0,
+          "C636 Cap Edge Far.wav": 1.0,
+          "C636 Edge Cone Close.wav": 1.0,
+          "C636 Mid Cone Close.wav": 1.0,
+          "C636 Mid Cone Far.wav": 1.0
+        }
+      }
+    }
   },
   "crunch": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 3.3898797535443137,
-      "max_abs_db": 5.554099612517957,
-      "mean_abs_db": 1.143551335691871,
-      "rms_db": 1.7403066457524392
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "crunch",
-    "parameters": {
-      "baffle_f": 650.0,
-      "baffle_gain": 4.0,
-      "body_f": 319.962836899672,
-      "body_gain": 6.0,
-      "body_q": 0.6066697354909008,
-      "breakup1_f": 2876.2956381145054,
-      "breakup1_gain": -7.0,
-      "breakup1_q": 12.0,
-      "breakup2_f": 4647.200115076754,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 7.304211493096669,
-      "breakup3_f": 7403.60756696749,
-      "breakup3_gain": -8.910964549108403,
-      "breakup3_q": 2.6993445015200233,
-      "gain": 8.0,
-      "hf_f": 10901.053386245947,
-      "hf_gain": 0.0,
-      "lp_f": 5196.901621213198,
-      "lp_q": 1.166205812727483,
-      "mic_hi_f": 7282.5510570777615,
-      "mic_hi_gain": 3.0,
-      "mic_low_f": 203.24510594725498,
-      "mic_low_gain": 0.38130638861679245,
-      "presence_f": 3209.7580736371665,
-      "presence_gain": 6.0,
-      "presence_q": 0.635710055001717,
-      "res_f": 124.19997720661424,
-      "res_gain": 6.0,
-      "res_q": 1.105212629999607,
-      "tilt": 1.0905783442491612
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/drps-orange-4x12-v30-impulse-response-80534"
     ],
-    "references": [
-      "DRPS Orange 4x12 V30 DYN421-DYn57-RBN121.wav",
-      "DRPS Orange 4x12 V30 DYN57.wav",
-      "DRPS Orange 4x12 V30 DYN906.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            6000.0,
+            -1.0,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 2.304005252081101,
+          "mean_abs_db": 0.3251915099713785,
+          "offset_db": -13.920460149430914,
+          "rms_db": 0.504370483932915
+        },
+        "references": [
+          "DRPS Orange 4x12 V30 DYN421-DYn57-RBN121.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "DRPS Orange 4x12 V30 DYN421-DYn57-RBN121.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 2.10817893470432,
+          "mean_abs_db": 0.2713612203071944,
+          "offset_db": -11.188718200403235,
+          "rms_db": 0.44008303823767037
+        },
+        "references": [
+          "DRPS Orange 4x12 V30 DYN57.wav",
+          "DRPS Orange 4x12 V30 DYN7B.wav",
+          "DRPS Orange 4x12 V30 DYN906.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "DRPS Orange 4x12 V30 DYN57.wav": 1.0,
+          "DRPS Orange 4x12 V30 DYN7B.wav": 1.0,
+          "DRPS Orange 4x12 V30 DYN906.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 2.115056684169293,
+          "mean_abs_db": 0.26934986886991913,
+          "offset_db": -11.775661878064032,
+          "rms_db": 0.43998691284138647
+        },
+        "references": [
+          "DRPS Orange 4x12 V30 DYN421-DYn57-RBN121.wav",
+          "DRPS Orange 4x12 V30 DYN57.wav",
+          "DRPS Orange 4x12 V30 DYN7B.wav",
+          "DRPS Orange 4x12 V30 DYN906.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "DRPS Orange 4x12 V30 DYN421-DYn57-RBN121.wav": 1.0,
+          "DRPS Orange 4x12 V30 DYN57.wav": 1.0,
+          "DRPS Orange 4x12 V30 DYN7B.wav": 1.0,
+          "DRPS Orange 4x12 V30 DYN906.wav": 1.0
+        }
+      }
+    }
   },
   "hot-rod": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 3.8606405609081063,
-      "max_abs_db": 13.772248625442952,
-      "mean_abs_db": 1.7398257380830133,
-      "rms_db": 2.7043635603517204
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "hot-rod",
-    "parameters": {
-      "baffle_f": 650.0,
-      "baffle_gain": -4.545018166580819,
-      "body_f": 182.9227745851914,
-      "body_gain": 6.0,
-      "body_q": 0.9672392304470466,
-      "breakup1_f": 2486.0290973531246,
-      "breakup1_gain": 5.0,
-      "breakup1_q": 3.299927077559846,
-      "breakup2_f": 3158.1259509673882,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 2.0,
-      "breakup3_f": 7105.507713155274,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 5.619751063740123,
-      "gain": 0.9460309649105635,
-      "hf_f": 12251.882301261574,
-      "hf_gain": 0.0,
-      "lp_f": 5266.310585708691,
-      "lp_q": 1.3,
-      "mic_hi_f": 9312.314199428063,
-      "mic_hi_gain": -2.0377981128190066,
-      "mic_low_f": 220.0,
-      "mic_low_gain": 3.711451363684705,
-      "presence_f": 3366.4602029770485,
-      "presence_gain": 6.0,
-      "presence_q": 0.6865585505944356,
-      "res_f": 140.0,
-      "res_gain": 6.0,
-      "res_q": 1.1903214654851504,
-      "tilt": 3.0
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/marshall-jcm800-lead-1960-4x12-g12t-75-104387"
     ],
-    "references": [
-      "SM57 BR center 1in.wav",
-      "SM57 BR center close.wav",
-      "SM57 BR edge close.wav",
-      "SM58 BL center close.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.6836560307008988,
+          "mean_abs_db": 0.19195878553466716,
+          "offset_db": -10.957976093243733,
+          "rms_db": 0.2996229983285024
+        },
+        "references": [
+          "SM58 BL center 1in.wav",
+          "SM58 BL center close.wav",
+          "SM58 BL edge close.wav",
+          "V2_SM58 center BR.wav",
+          "V2_SM58 edge BL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "SM58 BL center 1in.wav": 1.0,
+          "SM58 BL center close.wav": 1.0,
+          "SM58 BL edge close.wav": 1.0,
+          "V2_SM58 center BR.wav": 1.0,
+          "V2_SM58 edge BL.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.46656525543239,
+          "mean_abs_db": 0.19701720224702993,
+          "offset_db": -10.393995433608046,
+          "rms_db": 0.31175726617245325
+        },
+        "references": [
+          "ND257 center BR.wav",
+          "SM57 BR center 1in.wav",
+          "SM57 BR center close.wav",
+          "SM57 BR edge close.wav",
+          "V2_SM57 center BR.wav",
+          "V2_SM57 edge BL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "ND257 center BR.wav": 1.0,
+          "SM57 BR center 1in.wav": 1.0,
+          "SM57 BR center close.wav": 1.0,
+          "SM57 BR edge close.wav": 1.0,
+          "V2_SM57 center BR.wav": 1.0,
+          "V2_SM57 edge BL.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.5356218945336346,
+          "mean_abs_db": 0.17684328384121137,
+          "offset_db": -11.037633733202561,
+          "rms_db": 0.28004500734373416
+        },
+        "references": [
+          "ND257 center BR.wav",
+          "SM57 BR between close louder (old).wav",
+          "SM57 BR center 1in.wav",
+          "SM57 BR center close louder (old).wav",
+          "SM57 BR center close.wav",
+          "SM57 BR edge close louder (old).wav",
+          "SM57 BR edge close.wav",
+          "SM57_2 BR edge close.wav",
+          "SM58 BL center 1in.wav",
+          "SM58 BL center close.wav",
+          "SM58 BL edge close.wav",
+          "SM58_2 BL edge close.wav",
+          "V2_SM57 center BR.wav",
+          "V2_SM57 edge BL.wav",
+          "V2_SM58 center BR.wav",
+          "V2_SM58 edge BL.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "ND257 center BR.wav": 1.0,
+          "SM57 BR between close louder (old).wav": 1.0,
+          "SM57 BR center 1in.wav": 1.0,
+          "SM57 BR center close louder (old).wav": 1.0,
+          "SM57 BR center close.wav": 1.0,
+          "SM57 BR edge close louder (old).wav": 1.0,
+          "SM57 BR edge close.wav": 1.0,
+          "SM57_2 BR edge close.wav": 1.0,
+          "SM58 BL center 1in.wav": 1.0,
+          "SM58 BL center close.wav": 1.0,
+          "SM58 BL edge close.wav": 1.0,
+          "SM58_2 BL edge close.wav": 1.0,
+          "V2_SM57 center BR.wav": 1.0,
+          "V2_SM57 edge BL.wav": 1.0,
+          "V2_SM58 center BR.wav": 1.0,
+          "V2_SM58 edge BL.wav": 1.0
+        }
+      }
+    }
   },
   "recto": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 0.7094845881664024,
-      "max_abs_db": 4.503576003616247,
-      "mean_abs_db": 0.7634263300775634,
-      "rms_db": 1.1219182848832414
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "recto",
-    "parameters": {
-      "baffle_f": 575.1442744581329,
-      "baffle_gain": 4.0,
-      "body_f": 232.5992720348705,
-      "body_gain": 6.0,
-      "body_q": 0.5,
-      "breakup1_f": 2967.3285335882183,
-      "breakup1_gain": -7.0,
-      "breakup1_q": 11.086377727099746,
-      "breakup2_f": 4023.908353891694,
-      "breakup2_gain": 2.5084274590438196,
-      "breakup2_q": 2.0,
-      "breakup3_f": 6989.590401506573,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 3.2906774552470766,
-      "gain": 8.0,
-      "hf_f": 6911.259642695091,
-      "hf_gain": -9.939917949816845,
-      "lp_f": 6086.969112261596,
-      "lp_q": 1.295719152314112,
-      "mic_hi_f": 5144.447302080709,
-      "mic_hi_gain": -12.09067965441726,
-      "mic_low_f": 194.3444597847895,
-      "mic_low_gain": -3.9485041269423338,
-      "presence_f": 3103.82400110107,
-      "presence_gain": 6.0,
-      "presence_q": 0.9087796335047121,
-      "res_f": 132.05010686458692,
-      "res_gain": 6.0,
-      "res_q": 1.0803989970769634,
-      "tilt": 1.639780693721253
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/1993-mesa-rectifier-os-standard-slant-4x12-v30s-97689",
       "https://www.tone3000.com/tones/mesa-rectifier-standard-2002-4x12-slanted-v30-multi-mics-67544"
     ],
-    "references": [
-      "1993 Mesa BR R121 1073.wav",
-      "1993 Mesa TR SM57 1073.wav",
-      "MRS - V30-01 - R10 - 04 (eoc)_dc.wav",
-      "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.479779390773377,
+          "mean_abs_db": 0.20090418245571612,
+          "offset_db": -13.212335773792299,
+          "rms_db": 0.32370783591951036
+        },
+        "references": [
+          "1993 Mesa BR R121 1073.wav",
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav",
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "1993 Mesa BR R121 1073.wav": 1.5,
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav": 0.5,
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav": 0.5
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9213080308159185,
+          "mean_abs_db": 0.15289185628317264,
+          "offset_db": -12.663592082552887,
+          "rms_db": 0.23794952758650006
+        },
+        "references": [
+          "1993 Mesa BL 545sd 1073.wav",
+          "1993 Mesa BR SM57 1073.wav",
+          "1993 Mesa BR Unidyne3 1073.wav",
+          "1993 Mesa TR SM57 1073 1200ohm.wav",
+          "1993 Mesa TR SM57 1073.wav",
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav",
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav",
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav",
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav",
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "1993 Mesa BL 545sd 1073.wav": 1.0,
+          "1993 Mesa BR SM57 1073.wav": 1.0,
+          "1993 Mesa BR Unidyne3 1073.wav": 1.0,
+          "1993 Mesa TR SM57 1073 1200ohm.wav": 1.0,
+          "1993 Mesa TR SM57 1073.wav": 1.0,
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav": 0.35,
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav": 0.35
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 0.9138474731712583,
+          "mean_abs_db": 0.13759657909643142,
+          "offset_db": -12.616042792609463,
+          "rms_db": 0.21694478857674904
+        },
+        "references": [
+          "1993 Mesa BL 545sd 1073.wav",
+          "1993 Mesa BR MD421u5 1073.wav",
+          "1993 Mesa BR R121 1073.wav",
+          "1993 Mesa BR SM57 1073.wav",
+          "1993 Mesa BR Unidyne3 1073.wav",
+          "1993 Mesa TR SM57 1073 1200ohm.wav",
+          "1993 Mesa TR SM57 1073.wav",
+          "MRS - V30-01 - MD421K - 01 (c)_dc.wav",
+          "MRS - V30-01 - MD421K - 03 (eoc+)_dc.wav",
+          "MRS - V30-01 - MD421K - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - MD421K - 05 (eoc-)_dc.wav",
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav",
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav",
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav",
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav",
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav",
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav",
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "1993 Mesa BL 545sd 1073.wav": 1.0,
+          "1993 Mesa BR MD421u5 1073.wav": 1.0,
+          "1993 Mesa BR R121 1073.wav": 1.0,
+          "1993 Mesa BR SM57 1073.wav": 1.0,
+          "1993 Mesa BR Unidyne3 1073.wav": 1.0,
+          "1993 Mesa TR SM57 1073 1200ohm.wav": 1.0,
+          "1993 Mesa TR SM57 1073.wav": 1.0,
+          "MRS - V30-01 - MD421K - 01 (c)_dc.wav": 0.4,
+          "MRS - V30-01 - MD421K - 03 (eoc+)_dc.wav": 0.4,
+          "MRS - V30-01 - MD421K - 04 (eoc)_dc.wav": 0.4,
+          "MRS - V30-01 - MD421K - 05 (eoc-)_dc.wav": 0.4,
+          "MRS - V30-01 - R10 - 01 (c)_dc.wav": 0.4,
+          "MRS - V30-01 - R10 - 04 (eoc)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 01 (c)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 02 (eoc++)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 03 (eoc+)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 05 (eoc-)_dc.wav": 0.4,
+          "MRS - V30-01 - SM57 - 06 (eoc--)_dc.wav": 0.4
+        }
+      }
+    }
   },
   "stealth": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 1.346602377755643,
-      "max_abs_db": 8.209353351186424,
-      "mean_abs_db": 1.0463126159821896,
-      "rms_db": 1.7507257707231898
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "stealth",
-    "parameters": {
-      "baffle_f": 379.3311617841955,
-      "baffle_gain": 3.6224109460975376,
-      "body_f": 221.98396837202816,
-      "body_gain": 6.0,
-      "body_q": 0.5611313542259821,
-      "breakup1_f": 2252.33053533415,
-      "breakup1_gain": 3.930338252442818,
-      "breakup1_q": 3.4141993964290367,
-      "breakup2_f": 4761.3911527243135,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 4.889574918354849,
-      "breakup3_f": 7907.589781621331,
-      "breakup3_gain": -9.0,
-      "breakup3_q": 2.2892282775703303,
-      "gain": 8.0,
-      "hf_f": 5373.026073976197,
-      "hf_gain": -3.2519823295107013,
-      "lp_f": 5970.838443979731,
-      "lp_q": 0.5916281566396748,
-      "mic_hi_f": 4952.2345176409735,
-      "mic_hi_gain": -3.299841592431135,
-      "mic_low_f": 97.38721949457866,
-      "mic_low_gain": -6.0,
-      "presence_f": 3971.865961914183,
-      "presence_gain": 6.0,
-      "presence_q": 2.104720478742025,
-      "res_f": 129.44408760320098,
-      "res_gain": 6.0,
-      "res_q": 1.6578731133443654,
-      "tilt": 3.0
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/celestion-g12-evh-evh-5150iii-4x12-40738"
     ],
-    "references": [
-      "G12-EVH LL 5150III 4x12 SM57 1.50in 0.0in VP28.wav",
-      "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
-      "G12-EVH UR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
-      "G12-EVH UR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            5500.0,
+            -2.5,
+            0.7
+          ],
+          [
+            "low_shelf",
+            120.0,
+            0.8,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 1.7745121258868952,
+          "mean_abs_db": 0.18332542607382432,
+          "offset_db": -13.585535823624861,
+          "rms_db": 0.28744321943396434
+        },
+        "references": [
+          "G12-EVH LL 5150III 4x12 SM57 2.00in 0.0in CL7603.wav",
+          "G12-EVH LR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav",
+          "G12-EVH UR 5150III 4x12 SM57 2.25in 0.0in CL7603.wav",
+          "G12-EVH UR 5150III 4x12 SM57 2.50in 0.0in CL7603.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "G12-EVH LL 5150III 4x12 SM57 2.00in 0.0in CL7603.wav": 1.0,
+          "G12-EVH LR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UR 5150III 4x12 SM57 2.25in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UR 5150III 4x12 SM57 2.50in 0.0in CL7603.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.8178082629872643,
+          "mean_abs_db": 0.1838313521974042,
+          "offset_db": -13.271674019565653,
+          "rms_db": 0.29487019759213123
+        },
+        "references": [
+          "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav",
+          "G12-EVH LL 5150III 4x12 SM57 1.75in 0.0in CL7603.wav",
+          "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+          "G12-EVH UL 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+          "G12-EVH UR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+          "G12-EVH UR 5150III 4x12 SM57 1.75in 0.0in CL7603.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav": 1.0,
+          "G12-EVH LL 5150III 4x12 SM57 1.75in 0.0in CL7603.wav": 1.0,
+          "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UL 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UR 5150III 4x12 SM57 1.75in 0.0in CL7603.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.8617415997301352,
+          "mean_abs_db": 0.18939577946107955,
+          "offset_db": -13.358273320362914,
+          "rms_db": 0.30889263279362356
+        },
+        "references": [
+          "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav",
+          "G12-EVH LL 5150III 4x12 SM57 2.25in 0.0in CL7603.wav",
+          "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+          "G12-EVH UL 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+          "G12-EVH UR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "G12-EVH LL 5150III 4x12 SM57 1.00in 0.0in CL7603.wav": 1.0,
+          "G12-EVH LL 5150III 4x12 SM57 2.25in 0.0in CL7603.wav": 1.0,
+          "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UL 5150III 4x12 SM57 1.50in 0.0in CL7603.wav": 1.0,
+          "G12-EVH UR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav": 1.0
+        }
+      }
+    }
   }
 }

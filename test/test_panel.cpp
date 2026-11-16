@@ -4,6 +4,7 @@
 #include "ui/panel.hpp"
 
 #include <cairo.h>
+#include <cmath>
 
 int main() {
   amp::Panel panel;
@@ -14,6 +15,28 @@ int main() {
       cairo_image_surface_create(CAIRO_FORMAT_ARGB32, amp::kPanelWidth,
                                  amp::kPanelHeight);
   cairo_t* cr = cairo_create(surface);
+
+  // A stopped process stream must decay the meters instead of freezing them
+  // (this is what happens when the host bypasses the plug-in).
+  shared.inPeakLDb.store(0.0f);
+  shared.inPeakRDb.store(0.0f);
+  shared.outPeakLDb.store(0.0f);
+  shared.outPeakRDb.store(0.0f);
+  shared.outPeakDb.store(0.0f);
+  shared.meterSerial.store(1);
+  panel.tick(shared, state);
+  if (!(state.inLevelL > 0.1f)) {
+    std::fprintf(stderr, "meter did not respond to a fresh process block\n");
+    return 1;
+  }
+  for (int i = 0; i < 80; ++i) {
+    panel.tick(shared, state);
+  }
+  if (state.inLevelL > 0.05f || state.outLevelL > 0.05f ||
+      state.outPeakDb > -100.0f) {
+    std::fprintf(stderr, "meters did not decay after process stopped\n");
+    return 1;
+  }
 
   for (int page = 0; page < 3; ++page) {
     state.page = page;

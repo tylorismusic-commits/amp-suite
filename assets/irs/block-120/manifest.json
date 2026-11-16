@@ -2,55 +2,107 @@
   "block-120": {
     "generated": "2026-11-15",
     "license": "CC0-1.0",
-    "metrics": {
-      "loss": 1.4027800453691288,
-      "max_abs_db": 3.59933615951331,
-      "mean_abs_db": 0.9367143925374773,
-      "rms_db": 1.221028523464746
-    },
-    "model_version": 1,
+    "method": "minimum-phase magnitude synthesis",
+    "model_version": 2,
     "name": "block-120",
-    "parameters": {
-      "baffle_f": 630.7918455470461,
-      "baffle_gain": 4.0,
-      "body_f": 170.73708443857268,
-      "body_gain": 6.0,
-      "body_q": 0.6526091272802692,
-      "breakup1_f": 1511.7699911029365,
-      "breakup1_gain": -7.0,
-      "breakup1_q": 3.8315653480394403,
-      "breakup2_f": 5337.124017644907,
-      "breakup2_gain": 5.0,
-      "breakup2_q": 11.950955522984211,
-      "breakup3_f": 6921.629233979868,
-      "breakup3_gain": -4.795723513143575,
-      "breakup3_q": 2.5379356541199964,
-      "gain": 8.0,
-      "hf_f": 7901.718182256303,
-      "hf_gain": -19.711996427132384,
-      "lp_f": 14408.115900322597,
-      "lp_q": 1.3,
-      "mic_hi_f": 5928.735350739774,
-      "mic_hi_gain": -8.105897554492413,
-      "mic_low_f": 204.16377161125905,
-      "mic_low_gain": 0.4406959864896669,
-      "presence_f": 2594.8724997634768,
-      "presence_gain": 6.0,
-      "presence_q": 0.4915539037809033,
-      "res_f": 126.39829791242877,
-      "res_gain": 6.0,
-      "res_q": 2.383932578750245,
-      "tilt": 3.0
-    },
     "reference_license": "T3K (not redistributed)",
     "reference_urls": [
       "https://www.tone3000.com/tones/peavey-412ms-sheffield-1290-46881"
     ],
-    "references": [
-      "412MS_SHF_57_Cap.wav",
-      "412MS_SHF_57_CapEdge.wav",
-      "412MS_SHF_57_Cone.wav",
-      "412MS_SHF_57_Edge.wav"
-    ]
+    "variants": {
+      "121": {
+        "eq": [
+          [
+            "high_shelf",
+            6000.0,
+            -1.0,
+            0.7
+          ]
+        ],
+        "metrics": {
+          "max_abs_db": 1.1246930996436455,
+          "mean_abs_db": 0.21726661761071306,
+          "offset_db": -12.49033807264733,
+          "rms_db": 0.292673227142956
+        },
+        "references": [
+          "412MS_SHF_AR5_Away.wav",
+          "412MS_SHF_AR5_Center.wav",
+          "412MS_SHF_AR5_Cone.wav",
+          "412MS_SHF_AR5_Edge.wav",
+          "412MS_SHF_AR5_Fig8OA.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "412MS_SHF_AR5_Away.wav": 1.0,
+          "412MS_SHF_AR5_Center.wav": 1.0,
+          "412MS_SHF_AR5_Cone.wav": 1.0,
+          "412MS_SHF_AR5_Edge.wav": 1.0,
+          "412MS_SHF_AR5_Fig8OA.wav": 1.0
+        }
+      },
+      "57": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.2000743051830565,
+          "mean_abs_db": 0.2013538280645625,
+          "offset_db": -13.350044268473864,
+          "rms_db": 0.2999137872698805
+        },
+        "references": [
+          "412MS_SHF_57_Cap.wav",
+          "412MS_SHF_57_CapEdge.wav",
+          "412MS_SHF_57_CapOA.wav",
+          "412MS_SHF_57_Cone.wav",
+          "412MS_SHF_57_ConeOA.wav",
+          "412MS_SHF_57_Edge.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "412MS_SHF_57_Cap.wav": 1.0,
+          "412MS_SHF_57_CapEdge.wav": 1.0,
+          "412MS_SHF_57_CapOA.wav": 1.0,
+          "412MS_SHF_57_Cone.wav": 1.0,
+          "412MS_SHF_57_ConeOA.wav": 1.0,
+          "412MS_SHF_57_Edge.wav": 1.0
+        }
+      },
+      "blend": {
+        "eq": [],
+        "metrics": {
+          "max_abs_db": 1.1239162051968412,
+          "mean_abs_db": 0.19912834802804016,
+          "offset_db": -12.571332296397754,
+          "rms_db": 0.2882218628522758
+        },
+        "references": [
+          "412MS_SHF_mix_57+57.wav",
+          "412MS_SHF_mix_57+815.wav",
+          "412MS_SHF_mix_AR5+57.wav",
+          "412MS_SHF_mix_AR5+815.wav",
+          "412MS_SHF_mix_TSM+815.wav"
+        ],
+        "smoothing_octaves": 0.08333333333333333,
+        "taps": {
+          "48k": 2048,
+          "96k": 4096
+        },
+        "weights": {
+          "412MS_SHF_mix_57+57.wav": 1.0,
+          "412MS_SHF_mix_57+815.wav": 1.0,
+          "412MS_SHF_mix_AR5+57.wav": 1.0,
+          "412MS_SHF_mix_AR5+815.wav": 1.0,
+          "412MS_SHF_mix_TSM+815.wav": 1.0
+        }
+      }
+    }
   }
 }
