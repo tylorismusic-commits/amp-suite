@@ -75,6 +75,30 @@ Outputs per amp: `cab_<amp>_57`, `cab_<amp>_121`, `cab_<amp>_blend`;
   be a model, not a copy.
 - 2048 taps, minimum-phase, no added algorithmic latency.
 
+
+## Generated factory set (0.2.0)
+
+| Cab | Generated files | Mean / max error (57) | Notes |
+|---|---|---:|---|
+| Chorus Clean | `assets/irs/chorus-clean/` | 0.47 / 2.36 dB | JC-120 2×12 |
+| Chime | `assets/irs/chime/` | 0.75 / 2.89 dB | AC30 alnico 2×12 |
+| Crunch | `assets/irs/crunch/` | 1.22 / 5.66 dB | Orange 4×12 V30 |
+| Hot Rod | `assets/irs/hot-rod/` | 1.32 / 3.91 dB | Marshall 1960 G12T-75 |
+| Block 120 | `assets/irs/block-120/` | 0.83 / 3.78 dB | Peavey 412MS Sheffield 1290 |
+| Stealth EL34 | `assets/irs/stealth/` | 0.63 / 4.25 dB | EVH 5150III G12-EVH |
+| Recto / OS | `assets/irs/recto/` | 0.55 / 2.02 dB | 1993 OS anchor + 2002 cross-check |
+
+Each set contains `57`, `121` and `blend` variants at 48 kHz (2048 taps) and
+96 kHz (4096 taps). The engine normalizes each IR to unity at 1 kHz so cab and
+mic switching stays level-consistent; the cab level control still trims the
+final level.
+
+The Mesa OS set is shared by the Recto default and the Block 120 alternate.
+The Block 120 default remains the Sheffield 1290 cab.
+
+The aggregate manifest is `assets/irs/manifest.json`; per-cab manifests record
+the fitted parameters and reference URLs.
+
 ## Manifest
 
 `assets/irs/manifest.json` records, per output: model version, fitted

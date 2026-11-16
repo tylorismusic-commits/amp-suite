@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "biquad.hpp"
+#include "cab_convolver.hpp"
 #include "common.hpp"
 #include "delay.hpp"
 #include "params.hpp"
@@ -32,6 +33,7 @@ public:
     outputSmooth_.reset(0.5f);
     odL_.prepare(sr_);
     odR_.prepare(sr_);
+    cabConvolver_.prepare(4096);
     delay_.prepare(sr_);
     reverb_.prepare(sr_);
     cabHpL_.set(70.0f, sr_);
@@ -70,6 +72,13 @@ public:
     odL_.setControls(c.odDrive, c.odTone, c.odLevel);
     odR_.setControls(c.odDrive, c.odTone, c.odLevel);
     updateCab(c);
+    updateCabIR();
+  }
+
+  bool loadFactoryCabs(const std::string& dir) noexcept {
+    const bool ok = cabBank_.load(dir, sr_);
+    updateCabIR();
+    return ok;
   }
 
   void setTempo(float bpm, bool valid) noexcept {
@@ -152,13 +161,19 @@ public:
       l *= master;
       r *= master;
 
-      // Scaffold cab: a fixed speaker-ish band-pass.  Replaced by IR
-      // convolution in M1.
+      // Cab: factory IR convolution when available, fixed speaker filter as
+      // a fallback for builds without generated assets.
       if (!c.cabBypass) {
         l = cabHpL_.process(l);
         r = cabHpR_.process(r);
-        l = cabLpL_.process(l);
-        r = cabLpR_.process(r);
+        if (cabConvolver_.active()) {
+          cabConvolver_.process(l, r);
+          l = cabLpL_.process(l);
+          r = cabLpR_.process(r);
+        } else {
+          l = cabLpL_.process(l);
+          r = cabLpR_.process(r);
+        }
         l *= cabLevel;
         r *= cabLevel;
       }
@@ -201,6 +216,7 @@ public:
     toneR_.reset();
     odL_.reset();
     odR_.reset();
+    cabConvolver_.reset();
     delay_.reset();
     reverb_.reset();
     cabHpL_.reset();
@@ -240,6 +256,28 @@ private:
     resonanceR_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);
   }
 
+  void updateCabIR() noexcept {
+    int set = controls_.model;
+    if (controls_.model == 4 && controls_.cab == 1) {
+      set = CabBank::Recto;
+    }
+    if (controls_.model == 6) {
+      set = CabBank::Recto;
+    }
+    int mic = controls_.cabMic;
+    if (controls_.cab == 2) {
+      mic = 0;  // user IR loading is a later pass; fall back to factory
+    }
+    const CabIR* ir = cabBank_.get(set, mic);
+    if (!ir) {
+      ir = cabBank_.get(set, 0);
+    }
+    if (ir != activeCab_) {
+      activeCab_ = ir;
+      cabConvolver_.setIR(ir);
+    }
+  }
+
   void updateCab(const Controls& c) noexcept {
     cabHpL_.set(cabLowCutHz(c.cabLowCut), sr_);
     cabHpR_.set(cabLowCutHz(c.cabLowCut), sr_);
@@ -263,6 +301,9 @@ private:
   Smoothed outputSmooth_;
   Ts9 odL_;
   Ts9 odR_;
+  CabBank cabBank_;
+  CabConvolver cabConvolver_;
+  const CabIR* activeCab_ = nullptr;
   Delay delay_;
   Reverb reverb_;
   HighPass2 cabHpL_;

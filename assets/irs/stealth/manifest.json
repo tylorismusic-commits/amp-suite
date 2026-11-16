@@ -1,0 +1,56 @@
+{
+  "stealth": {
+    "generated": "2026-11-15",
+    "license": "CC0-1.0",
+    "metrics": {
+      "loss": 1.346602377755643,
+      "max_abs_db": 8.209353351186424,
+      "mean_abs_db": 1.0463126159821896,
+      "rms_db": 1.7507257707231898
+    },
+    "model_version": 1,
+    "name": "stealth",
+    "parameters": {
+      "baffle_f": 379.3311617841955,
+      "baffle_gain": 3.6224109460975376,
+      "body_f": 221.98396837202816,
+      "body_gain": 6.0,
+      "body_q": 0.5611313542259821,
+      "breakup1_f": 2252.33053533415,
+      "breakup1_gain": 3.930338252442818,
+      "breakup1_q": 3.4141993964290367,
+      "breakup2_f": 4761.3911527243135,
+      "breakup2_gain": 5.0,
+      "breakup2_q": 4.889574918354849,
+      "breakup3_f": 7907.589781621331,
+      "breakup3_gain": -9.0,
+      "breakup3_q": 2.2892282775703303,
+      "gain": 8.0,
+      "hf_f": 5373.026073976197,
+      "hf_gain": -3.2519823295107013,
+      "lp_f": 5970.838443979731,
+      "lp_q": 0.5916281566396748,
+      "mic_hi_f": 4952.2345176409735,
+      "mic_hi_gain": -3.299841592431135,
+      "mic_low_f": 97.38721949457866,
+      "mic_low_gain": -6.0,
+      "presence_f": 3971.865961914183,
+      "presence_gain": 6.0,
+      "presence_q": 2.104720478742025,
+      "res_f": 129.44408760320098,
+      "res_gain": 6.0,
+      "res_q": 1.6578731133443654,
+      "tilt": 3.0
+    },
+    "reference_license": "T3K (not redistributed)",
+    "reference_urls": [
+      "https://www.tone3000.com/tones/celestion-g12-evh-evh-5150iii-4x12-40738"
+    ],
+    "references": [
+      "G12-EVH LL 5150III 4x12 SM57 1.50in 0.0in VP28.wav",
+      "G12-EVH LR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+      "G12-EVH UR 5150III 4x12 SM57 1.50in 0.0in CL7603.wav",
+      "G12-EVH UR 5150III 4x12 SM57 2.00in 0.0in CL7603.wav"
+    ]
+  }
+}

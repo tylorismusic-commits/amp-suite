@@ -27,4 +27,9 @@ Validate:
 ```
 
 The generated files are `cab_<name>_57`, `_121`, `_blend`, at 48 kHz and
-96 kHz. `manifest.json` records the fitted parameters and metrics.
+96 kHz. Each cab directory has a `manifest.json` with its fitted parameters and
+metrics; the aggregate is `manifest.json` at this level.
+
+Generated set: `chorus-clean`, `chime`, `crunch`, `hot-rod`, `block-120`,
+`stealth`, `recto`. The `recto` set is shared by the Recto tab and the Block 120
+OS alternate. Each IR is normalized to unity at 1 kHz for level consistency.

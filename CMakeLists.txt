@@ -60,15 +60,21 @@ set_target_properties(amp_suite PROPERTIES
 set(AMP_RESOURCE_FILES
   "${CMAKE_SOURCE_DIR}/assets/fonts/Jost-ExtraBold.ttf"
   "${CMAKE_SOURCE_DIR}/assets/fonts/OFL.txt")
+file(GLOB AMP_IR_FILES "${CMAKE_SOURCE_DIR}/assets/irs/*/*.wav")
 
 add_custom_target(amp_suite_bundle ALL
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/clap/AmpSuite.resources"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${AMP_RESOURCE_FILES}
           "${CMAKE_BINARY_DIR}/clap/AmpSuite.resources/"
-  DEPENDS amp_suite ${AMP_RESOURCE_FILES})
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_SOURCE_DIR}/assets/irs"
+          "${CMAKE_BINARY_DIR}/clap/AmpSuite.resources/irs"
+  DEPENDS amp_suite ${AMP_RESOURCE_FILES} ${AMP_IR_FILES})
 
 install(TARGETS amp_suite LIBRARY DESTINATION "${CLAP_DIR}")
 install(FILES ${AMP_RESOURCE_FILES}
+        DESTINATION "${CLAP_DIR}/AmpSuite.resources")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/irs"
         DESTINATION "${CLAP_DIR}/AmpSuite.resources")
 
 # ---------------------------------------------------------------------------
@@ -125,7 +131,10 @@ add_custom_target(amp_lv2_bundle ALL
           "${CMAKE_SOURCE_DIR}/lv2/manifest.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/presets.ttl"
           "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2/"
-  DEPENDS amp_suite_lv2 amp_suite_ui amp_lv2_ttl)
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_SOURCE_DIR}/assets/irs"
+          "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2/irs"
+  DEPENDS amp_suite_lv2 amp_suite_ui amp_lv2_ttl ${AMP_IR_FILES})
 
 install(TARGETS amp_suite_lv2 amp_suite_ui
         LIBRARY DESTINATION "${LV2_DIR}/amp-suite.lv2")
@@ -133,6 +142,8 @@ install(FILES
           "${CMAKE_SOURCE_DIR}/lv2/amp_suite.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/manifest.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/presets.ttl"
+        DESTINATION "${LV2_DIR}/amp-suite.lv2")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/irs"
         DESTINATION "${LV2_DIR}/amp-suite.lv2")
 
 # ---------------------------------------------------------------------------

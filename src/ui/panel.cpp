@@ -224,7 +224,7 @@ const char* cabName(int model, int cab) {
 
 const char* cabSubtitle(int model, int cab) {
   if (cab == 2) {
-    return "user impulse response";
+    return "user IR (none) · factory fallback";
   }
   switch (model) {
     case 0: return "open-back · chorus stereo";
@@ -1114,13 +1114,13 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
   cairo_stroke(cr);
   text(cr, "USER IR", 76, 404, 11, 0, skin.legend.r, skin.legend.g,
        skin.legend.b);
-  text(cr, "No user IR loaded.", 76, 430, 11, 0, skin.legendDim.r,
+  text(cr, "Factory IRs are embedded.", 76, 430, 11, 0, skin.legendDim.r,
        skin.legendDim.g, skin.legendDim.b);
   text(cr, "Drop WAV files in", 76, 454, 10, 0, skin.legendDim.r,
        skin.legendDim.g, skin.legendDim.b);
   text(cr, "~/.local/share/amp-suite/irs/user", 76, 472, 9.5, 0,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
-  text(cr, "IR loading lands in M1.", 76, 510, 10, 0, skin.legendDim.r,
+  text(cr, "User IR loading is next.", 76, 510, 10, 0, skin.legendDim.r,
        skin.legendDim.g, skin.legendDim.b);
 
   text(cr, "MIC", 760, 196, 10, 0, skin.legendDim.r, skin.legendDim.g,

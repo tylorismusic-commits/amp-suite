@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
 
     amp::Engine e;
     e.prepare(sr);
+    e.loadFactoryCabs("assets/irs");
     e.setControls(amp::controlsFrom(s));
     std::vector<float> l(n), r(n);
     for (int i = 0; i < n; ++i) {
@@ -64,6 +65,7 @@ int main(int argc, char** argv) {
     }
     amp::Engine e2;
     e2.prepare(sr);
+    e2.loadFactoryCabs("assets/irs");
     e2.setControls(amp::controlsFrom(s));
     e2.process(tl.data(), tr.data(), n, m);
     double mag[11] = {};

@@ -900,6 +900,7 @@ Plugin* createPlugin(const clap_host_t* host) {
   s->plugin.get_extension = pluginGetExtension;
   s->plugin.on_main_thread = pluginOnMainThread;
   s->engine.prepare(48000.0f);
+  s->engine.loadFactoryCabs(bundleResourceDir() + "/irs");
   s->engine.setControls(controlsFrom(s->shared));
   s->editor.requestFlush = [s] {
     if (s->host && s->host->request_process) {

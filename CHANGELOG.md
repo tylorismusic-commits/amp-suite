@@ -27,6 +27,12 @@ M1: tube-stage and tone-stack engine.
   bypass trails.
 - FX loop routing: pre-power (default) or post-cab.
 - Stress test for the loop at maximum feedback/decay/wet.
+- Seven generated CC0 factory cabs, fitted from the reference captures and
+  embedded in the CLAP/LV2 bundles.
+- Direct-FIR cab convolution with 57/ribbon/blend variants and 1 kHz level
+  normalization; fixed speaker filter retained as a missing-asset fallback.
+- Cab page copy now reflects embedded factory IRs; user IR loading is the next
+  pass.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

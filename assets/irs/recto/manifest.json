@@ -1,0 +1,57 @@
+{
+  "recto": {
+    "generated": "2026-11-15",
+    "license": "CC0-1.0",
+    "metrics": {
+      "loss": 0.7094845881664024,
+      "max_abs_db": 4.503576003616247,
+      "mean_abs_db": 0.7634263300775634,
+      "rms_db": 1.1219182848832414
+    },
+    "model_version": 1,
+    "name": "recto",
+    "parameters": {
+      "baffle_f": 575.1442744581329,
+      "baffle_gain": 4.0,
+      "body_f": 232.5992720348705,
+      "body_gain": 6.0,
+      "body_q": 0.5,
+      "breakup1_f": 2967.3285335882183,
+      "breakup1_gain": -7.0,
+      "breakup1_q": 11.086377727099746,
+      "breakup2_f": 4023.908353891694,
+      "breakup2_gain": 2.5084274590438196,
+      "breakup2_q": 2.0,
+      "breakup3_f": 6989.590401506573,
+      "breakup3_gain": -9.0,
+      "breakup3_q": 3.2906774552470766,
+      "gain": 8.0,
+      "hf_f": 6911.259642695091,
+      "hf_gain": -9.939917949816845,
+      "lp_f": 6086.969112261596,
+      "lp_q": 1.295719152314112,
+      "mic_hi_f": 5144.447302080709,
+      "mic_hi_gain": -12.09067965441726,
+      "mic_low_f": 194.3444597847895,
+      "mic_low_gain": -3.9485041269423338,
+      "presence_f": 3103.82400110107,
+      "presence_gain": 6.0,
+      "presence_q": 0.9087796335047121,
+      "res_f": 132.05010686458692,
+      "res_gain": 6.0,
+      "res_q": 1.0803989970769634,
+      "tilt": 1.639780693721253
+    },
+    "reference_license": "T3K (not redistributed)",
+    "reference_urls": [
+      "https://www.tone3000.com/tones/1993-mesa-rectifier-os-standard-slant-4x12-v30s-97689",
+      "https://www.tone3000.com/tones/mesa-rectifier-standard-2002-4x12-slanted-v30-multi-mics-67544"
+    ],
+    "references": [
+      "1993 Mesa BR R121 1073.wav",
+      "1993 Mesa TR SM57 1073.wav",
+      "MRS - V30-01 - R10 - 04 (eoc)_dc.wav",
+      "MRS - V30-01 - SM57 - 04 (eoc)_dc.wav"
+    ]
+  }
+}

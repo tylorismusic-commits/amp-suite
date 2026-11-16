@@ -1,0 +1,55 @@
+{
+  "crunch": {
+    "generated": "2026-11-15",
+    "license": "CC0-1.0",
+    "metrics": {
+      "loss": 3.3898797535443137,
+      "max_abs_db": 5.554099612517957,
+      "mean_abs_db": 1.143551335691871,
+      "rms_db": 1.7403066457524392
+    },
+    "model_version": 1,
+    "name": "crunch",
+    "parameters": {
+      "baffle_f": 650.0,
+      "baffle_gain": 4.0,
+      "body_f": 319.962836899672,
+      "body_gain": 6.0,
+      "body_q": 0.6066697354909008,
+      "breakup1_f": 2876.2956381145054,
+      "breakup1_gain": -7.0,
+      "breakup1_q": 12.0,
+      "breakup2_f": 4647.200115076754,
+      "breakup2_gain": 5.0,
+      "breakup2_q": 7.304211493096669,
+      "breakup3_f": 7403.60756696749,
+      "breakup3_gain": -8.910964549108403,
+      "breakup3_q": 2.6993445015200233,
+      "gain": 8.0,
+      "hf_f": 10901.053386245947,
+      "hf_gain": 0.0,
+      "lp_f": 5196.901621213198,
+      "lp_q": 1.166205812727483,
+      "mic_hi_f": 7282.5510570777615,
+      "mic_hi_gain": 3.0,
+      "mic_low_f": 203.24510594725498,
+      "mic_low_gain": 0.38130638861679245,
+      "presence_f": 3209.7580736371665,
+      "presence_gain": 6.0,
+      "presence_q": 0.635710055001717,
+      "res_f": 124.19997720661424,
+      "res_gain": 6.0,
+      "res_q": 1.105212629999607,
+      "tilt": 1.0905783442491612
+    },
+    "reference_license": "T3K (not redistributed)",
+    "reference_urls": [
+      "https://www.tone3000.com/tones/drps-orange-4x12-v30-impulse-response-80534"
+    ],
+    "references": [
+      "DRPS Orange 4x12 V30 DYN421-DYn57-RBN121.wav",
+      "DRPS Orange 4x12 V30 DYN57.wav",
+      "DRPS Orange 4x12 V30 DYN906.wav"
+    ]
+  }
+}

@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstring>
 #include <memory>
+#include <string>
 
 #include "dsp/engine.hpp"
 #include "params.hpp"
@@ -55,11 +56,15 @@ struct Plugin {
   float* latency = nullptr;
 };
 
-LV2_Handle instantiate(const LV2_Descriptor*, double rate, const char*,
+LV2_Handle instantiate(const LV2_Descriptor*, double rate,
+                       const char* bundlePath,
                        const LV2_Feature* const*) {
   auto* p = new Plugin();
   p->sampleRate = static_cast<float>(rate);
   p->engine.prepare(p->sampleRate);
+  if (bundlePath) {
+    p->engine.loadFactoryCabs(std::string(bundlePath) + "/irs");
+  }
   p->engine.setControls(amp::controlsFrom(p->shared));
   return p;
 }

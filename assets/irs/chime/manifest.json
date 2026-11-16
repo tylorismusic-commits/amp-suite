@@ -1,0 +1,55 @@
+{
+  "chime": {
+    "generated": "2026-11-15",
+    "license": "CC0-1.0",
+    "metrics": {
+      "loss": 0.963190772239436,
+      "max_abs_db": 5.511505025249559,
+      "mean_abs_db": 0.8451454927549353,
+      "rms_db": 1.132476687815975
+    },
+    "model_version": 1,
+    "name": "chime",
+    "parameters": {
+      "baffle_f": 593.4049578454922,
+      "baffle_gain": 1.7143153400415696,
+      "body_f": 285.1001662292189,
+      "body_gain": 6.0,
+      "body_q": 0.5,
+      "breakup1_f": 1533.7290052108303,
+      "breakup1_gain": -7.0,
+      "breakup1_q": 6.8847842839002436,
+      "breakup2_f": 5064.5913100261405,
+      "breakup2_gain": 5.0,
+      "breakup2_q": 5.482682529677353,
+      "breakup3_f": 6672.822557622843,
+      "breakup3_gain": -9.0,
+      "breakup3_q": 5.447569969184788,
+      "gain": 8.0,
+      "hf_f": 10499.31066635223,
+      "hf_gain": 0.0,
+      "lp_f": 5071.459620032085,
+      "lp_q": 1.2078235626464116,
+      "mic_hi_f": 6194.487551649872,
+      "mic_hi_gain": -7.128069337190018,
+      "mic_low_f": 127.46049980013724,
+      "mic_low_gain": 0.9455243195439136,
+      "presence_f": 3863.369328680837,
+      "presence_gain": 5.860549051719872,
+      "presence_q": 2.5504171871222443,
+      "res_f": 86.53187094271921,
+      "res_gain": 6.0,
+      "res_q": 3.377624440882451,
+      "tilt": 1.9403632011548715
+    },
+    "reference_license": "T3K (not redistributed)",
+    "reference_urls": [
+      "https://www.tone3000.com/tones/vox-alnico-blue-2x12-98463"
+    ],
+    "references": [
+      "VOX_ALNICO_BLUE_E906_centre_close_LL.wav",
+      "VOX_ALNICO_BLUE_E906_cone_edge_LL.wav",
+      "VOX_ALNICO_BLUE_E906_mid_cone_LL.wav"
+    ]
+  }
+}
