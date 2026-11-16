@@ -126,8 +126,8 @@ private:
   void drawPill(cairo_t* cr, const Widget& w, bool on, int model) const;
   void drawFootswitch(cairo_t* cr, const Widget& w, bool on, int model) const;
   void drawLevelMeter(cairo_t* cr, double x, double y, double w, double h,
-                      double dbL, double dbR, int model, bool labelsRight,
-                      double minDb, double maxDb) const;
+                      double levelL, double levelR, int model,
+                      bool labelsRight, double minDb, double maxDb) const;
   void drawLeds(cairo_t* cr, const Shared& shared, int model) const;
   void drawCabWindow(cairo_t* cr, const Shared& shared,
                      const PanelState& state, int model) const;

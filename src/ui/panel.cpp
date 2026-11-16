@@ -1156,8 +1156,8 @@ void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
 
   const bool two = (model == 0 || model == 1);
   struct Cone { double x, y, r; };
-  static const Cone kFour[4] = {{292, 216, 44}, {455, 216, 44},
-                                {292, 284, 44}, {455, 284, 44}};
+  static const Cone kFour[4] = {{410, 204, 33}, {500, 204, 33},
+                                {410, 274, 33}, {500, 274, 33}};
   static const Cone kTwo[2] = {{355, 244, 58}, {545, 244, 58}};
   const Cone* cones = two ? kTwo : kFour;
   const int coneCount = two ? 2 : 4;
@@ -1638,7 +1638,7 @@ void Panel::drawFootswitch(cairo_t* cr, const Widget& w, bool on,
 }
 
 void Panel::drawLevelMeter(cairo_t* cr, double x, double y, double w,
-                           double h, double dbL, double dbR, int model,
+                           double h, double levelL, double levelR, int model,
                            bool labelsRight, double minDb, double maxDb) const {
   const Skin skin = skinFor(model);
   const double gap = 4.0;
@@ -1653,7 +1653,7 @@ void Panel::drawLevelMeter(cairo_t* cr, double x, double y, double w,
     cairo_rectangle(cr, bx + 0.5, y + 0.5, w - 1, h - 1);
     cairo_stroke(cr);
 
-    const double v = dbToNorm(ch == 0 ? dbL : dbR, minDb, maxDb);
+    const double v = clamp01(ch == 0 ? levelL : levelR);
     const double top = y + h * (1.0 - v);
     if (v > 0.0) {
       cairo_pattern_t* pat = cairo_pattern_create_linear(0, top, 0, y + h);
