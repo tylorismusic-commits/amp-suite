@@ -98,6 +98,8 @@ public:
     toneR_.set(toneSpec_, c.bass, c.mid, c.treble, sr_);
     powerL_.setPresence(c.presence);
     powerR_.setPresence(c.presence);
+    powerL_.setResonance(c.resonance);
+    powerR_.setResonance(c.resonance);
     setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
@@ -365,8 +367,8 @@ private:
   }
 
   void setPresenceResonance(const Controls& c) noexcept {
-    const float presenceDb = (c.presence - 0.5f) * 10.0f;
-    const float resonanceDb = (c.resonance - 0.5f) * 12.0f;
+    const float presenceDb = (c.presence - 0.5f) * 6.0f;
+    const float resonanceDb = (c.resonance - 0.5f) * 6.0f;
     presenceL_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
     presenceR_.highShelf(3200.0f, presenceDb, 0.7f, sr_);
     resonanceL_.lowShelf(120.0f, resonanceDb, 0.7f, sr_);

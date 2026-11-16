@@ -162,6 +162,7 @@ constexpr double kPresetW = 330.0;
 constexpr double kPresetH = 36.0;
 constexpr double kListY = 54.0;
 constexpr double kListRow = 22.0;
+constexpr int kListVisible = 10;
 
 constexpr double kUserBoxX = 60.0;
 constexpr double kUserBoxY = 300.0;
@@ -746,6 +747,13 @@ void Panel::pointerUp() { dragParam_ = -1; }
 
 bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
                   double dy) {
+  if (state.presetOpen && x >= kPresetX && x <= kPresetX + kPresetW &&
+      y >= kListY && y <= kListY + kListVisible * kListRow + 10) {
+    const int maxScroll = std::max(0, kPresetCount - kListVisible);
+    state.presetScroll += dy > 0.0 ? -1 : 1;
+    state.presetScroll = std::min(std::max(state.presetScroll, 0), maxScroll);
+    return true;
+  }
   if (state.page == 2 && x >= kUserBoxX && x <= kUserBoxX + kUserBoxW &&
       y >= kUserBoxY && y <= kUserBoxY + kUserBoxH) {
     const int rows = static_cast<int>(state.userIrs.size()) + 1;
@@ -846,7 +854,7 @@ void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
                            const PanelState& state) const {
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const Skin skin = skinFor(model);
-  const double h = kPresetCount * kListRow + 10.0;
+  const double h = kListVisible * kListRow + 10.0;
   roundRect(cr, kPresetX, kListY, kPresetW, h, 5);
   setRgb(cr, mix(skin.headerBg, {0, 0, 0}, 0.15));
   cairo_fill(cr);
@@ -855,8 +863,15 @@ void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
   roundRect(cr, kPresetX + 0.5, kListY + 0.5, kPresetW - 1, h - 1, 5);
   cairo_stroke(cr);
 
-  for (int i = 0; i < kPresetCount; ++i) {
-    const double y = kListY + 5 + i * kListRow;
+  cairo_save(cr);
+  roundRect(cr, kPresetX + 1, kListY + 1, kPresetW - 2, h - 2, 4);
+  cairo_clip(cr);
+  for (int row = 0; row < kListVisible; ++row) {
+    const int i = state.presetScroll + row;
+    if (i < 0 || i >= kPresetCount) {
+      break;
+    }
+    const double y = kListY + 5 + row * kListRow;
     if (i == state.presetIndex) {
       roundRect(cr, kPresetX + 3, y, kPresetW - 6, kListRow - 1, 3);
       setRgb(cr, skin.accent, 0.35);
@@ -866,6 +881,26 @@ void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
          skin.btnText.r, skin.btnText.g, skin.btnText.b);
     text(cr, kPresets[i].category, kPresetX + kPresetW - 10, y + 15, 9.5, 2,
          skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  }
+  cairo_restore(cr);
+
+  // Slim scroll indicator.
+  if (kPresetCount > kListVisible) {
+    const double trackY = kListY + 6;
+    const double trackH = h - 12;
+    const double thumbH =
+        std::max(12.0, trackH * kListVisible / kPresetCount);
+    const int maxScroll = kPresetCount - kListVisible;
+    const double thumbY =
+        trackY + (trackH - thumbH) *
+                     (maxScroll > 0 ? state.presetScroll / double(maxScroll)
+                                    : 0.0);
+    cairo_rectangle(cr, kPresetX + kPresetW - 4, trackY, 2.0, trackH);
+    setRgb(cr, {0, 0, 0}, 0.45);
+    cairo_fill(cr);
+    cairo_rectangle(cr, kPresetX + kPresetW - 4, thumbY, 2.0, thumbH);
+    setRgb(cr, skin.accent, 0.8);
+    cairo_fill(cr);
   }
 }
 
@@ -890,10 +925,21 @@ bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
       return true;
     }
     state.presetOpen = true;
+    if (state.presetIndex >= 0) {
+      state.presetScroll =
+          std::min(std::max(state.presetIndex - kListVisible / 2, 0),
+                   std::max(0, kPresetCount - kListVisible));
+    } else {
+      state.presetScroll = 0;
+    }
     return true;
   }
-  for (int i = 0; i < kPresetCount; ++i) {
-    const double rowY = kListY + 5 + i * kListRow;
+  for (int row = 0; row < kListVisible; ++row) {
+    const int i = state.presetScroll + row;
+    if (i < 0 || i >= kPresetCount) {
+      break;
+    }
+    const double rowY = kListY + 5 + row * kListRow;
     if (x >= kPresetX && x <= kPresetX + kPresetW && y >= rowY &&
         y < rowY + kListRow) {
       applyPreset(shared, state, i);
@@ -902,7 +948,7 @@ bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
     }
   }
   if (inBar || x < kPresetX || x > kPresetX + kPresetW || y < kListY ||
-      y > kListY + kPresetCount * kListRow + 10) {
+      y > kListY + kListVisible * kListRow + 10) {
     state.presetOpen = false;
   }
   return true;

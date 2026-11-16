@@ -52,6 +52,8 @@ M1: tube-stage and tone-stack engine.
 - Manual `tempo` control (40–300 BPM) for LV2 and hosts without transport;
   CLAP transport and an LV2 `time:Position` atom-sequence input port override
   it when the host supplies a timeline.
+- 22-preset factory bank across Clean, Crunch, Rhythm, Lead, Doom and Ambient,
+  with a ten-row scrolling preset browser.
 - `amp_probe` and `amp_tone_probe` development tools.
 - Parametric cab-IR model/fitter (`tools/ir_model.py`, `tools/ir_fit.py`,
   `tools/ir_validate.py`) with a synthetic self-test and CC0 output policy.

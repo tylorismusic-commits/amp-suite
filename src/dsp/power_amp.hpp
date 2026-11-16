@@ -33,6 +33,7 @@ public:
     sagAttack_ = 1.0f - timeCoeff(12.0f, sr_);
     sagRelease_ = 1.0f - timeCoeff(140.0f, sr_);
     setPresence(0.5f);
+    setResonance(0.5f);
     reset();
   }
 
@@ -59,16 +60,31 @@ public:
     b1_ = static_cast<float>((B0 - 2.0 * B1 * sr_) / a);
   }
 
+  // Resonance is a low-frequency trim in the NFB path: at high settings the
+  // feedback is reduced at low frequencies, which lets the speaker/transformer
+  // low end through; at low settings the loop is tighter.
+  void setResonance(float resonance) noexcept {
+    const double r = std::clamp(static_cast<double>(resonance), 0.0, 1.0);
+    resonanceDepth_ = static_cast<float>((r - 0.5) * 1.0);
+    const double fc = 140.0;
+    resonanceCoeff_ = static_cast<float>(
+        1.0 - std::exp(-2.0 * 3.14159265358979323846 * fc /
+                       static_cast<double>(sr_)));
+  }
+
   void reset() noexcept {
     x1_ = 0.0f;
     y1_ = 0.0f;
     previous_ = 0.0f;
     sag_ = 1.0f;
+    resLp_ = 0.0f;
   }
 
   float process(float x) noexcept {
     float v = x * spec_.drive;
-    const float fb = feedbackFilter(previous_);
+    float fb = feedbackFilter(previous_);
+    resLp_ += (fb - resLp_) * resonanceCoeff_;
+    fb -= resonanceDepth_ * resLp_;
     // The Guitarix feedback filter is narrow; keep the loop well inside its
     // stable range so a bad preset cannot latch the stage.
     const float fbAmount = std::min(spec_.feedback, 0.12f);
@@ -113,6 +129,9 @@ private:
   float sag_ = 1.0f;
   float sagAttack_ = 0.1f;
   float sagRelease_ = 0.01f;
+  float resLp_ = 0.0f;
+  float resonanceDepth_ = 0.0f;
+  float resonanceCoeff_ = 0.0f;
 };
 
 } // namespace amp

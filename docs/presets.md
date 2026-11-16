@@ -1,6 +1,6 @@
 # Amp Suite — presets
 
-**Status:** first factory bank. The eight presets below are compiled into
+**Status:** factory bank. The presets below are compiled into
 `src/presets.hpp` and emitted into `lv2/presets.ttl` by `tools/gen_ttl.cpp`.
 
 ## Startup
@@ -9,34 +9,50 @@
 - Preset: **Block 120 — Rhythm**
 - 808: **on** (Drive 0.28, Tone 0.5, Level 0.55)
 - Delay/reverb: off
-- Cab: 1200 4×12
+- Cab: **1200 4×12**, dynamic mic, cab level 0.60
 
-## Scaffold bank
+## Factory bank
 
-| Preset | Category | Model | Intent |
-|---|---|---|---|
-| Block 120 — Rhythm | Rhythm | Block 120 | boosted 5150 rhythm, stock 1200 cab |
-| Block 120 — OS | Lead | Block 120 | same amp, late-90s OS V30 cab |
-| Chorus Clean | Clean | Chorus Clean | solid-state clean with chorus |
-| Chime | Crunch | Chime | AC30 top boost edge |
-| Crunch | Crunch | Crunch | Rockerverb dirty channel |
-| Hot Rod | Crunch | Hot Rod | modded British lead |
-| Stealth Lead | Lead | Stealth EL34 | modern tight high gain |
-| Recto Modern | Lead | Recto | scooped modern Recto |
+| # | Preset | Category | Model | Intent |
+|---:|---|---|---|---|
+| 1 | Block 120 — Rhythm | Rhythm | Block 120 | boosted 5150 rhythm, stock 1200 cab |
+| 2 | Block 120 — Crunch | Rhythm | Block 120 | hotter rhythm, more upper-mid bite |
+| 3 | Block 120 — Lead | Lead | Block 120 | lead mode, dotted-8th delay + plate |
+| 4 | Block 120 — OS | Lead | Block 120 | same amp, late-90s OS V30 cab |
+| 5 | Chorus Clean — Clean | Clean | Chorus Clean | solid-state clean, chorus on |
+| 6 | Chorus Clean — Chorus | Clean | Chorus Clean | bright, deeper chorus |
+| 7 | Chorus Clean — Ambient | Ambient | Chorus Clean | slow chorus, quarter-note delay, plate |
+| 8 | Chime — Edge | Crunch | Chime | AC30 top-boost edge |
+| 9 | Chime — Top Boost | Crunch | Chime | hotter top boost, 808 light |
+| 10 | Crunch — Dirty | Crunch | Crunch | Rockerverb dirty channel, 100 W |
+| 11 | Crunch — Doom | Doom | Crunch | dark, thick, 50 W, plate |
+| 12 | Hot Rod — Rhythm | Rhythm | Hot Rod | modded British rhythm, 808 light |
+| 13 | Hot Rod — Lead | Lead | Hot Rod | lead voice, dotted-8th delay |
+| 14 | Stealth — Rhythm | Rhythm | Stealth EL34 | tight modern rhythm |
+| 15 | Stealth — Lead | Lead | Stealth EL34 | lead voice, delay + plate |
+| 16 | Recto — Modern | Lead | Recto | scooped modern Recto, silicon |
+| 17 | Recto — Raw | Crunch | Recto | lower-gain raw mode, voice B |
+| 18 | Recto — Vintage | Lead | Recto | tube rectifier, voice C, delay + plate |
+| 19 | Track Clean | Ambient | Chorus Clean | tracking clean with plate |
+| 20 | Track Crunch | Rhythm | Chime | tracking crunch with spring |
+| 21 | Track Rhythm | Rhythm | Block 120 | tracking rhythm, blend mic |
+| 22 | Track Lead | Lead | Block 120 | tracking lead, OS cab, delay + plate |
+
+The preset browser shows ten rows at a time and scrolls with the mouse wheel.
+Categories are shown on the right of each row.
+
+## Applying presets
+
+A preset sets the parameters listed in `src/presets.hpp`; unlisted parameters
+are left at their current values. The model and all listed controls are
+updated together. Presets store host-sync divisions and free-time values, so a
+host-synced lead preset follows the project tempo.
+
+User IR selections are not part of the factory presets. If a preset uses a
+factory cab and the current amp has a user IR selected, applying the preset
+sets `cab` back to 0 or 1 as listed.
 
 ## Target 1.0 bank
 
-- Four per amp: Clean / Crunch / Rhythm / Lead (or model equivalents).
-- Six rig presets combining amp, pedals and cab, including:
-  - "Track Clean" — Chorus Clean, chorus on, plate reverb
-  - "Track Crunch" — Chime, 808 off, spring reverb
-  - "Track Rhythm" — Block 120, 808 on, stock cab
-  - "Track Lead" — Block 120 OS or Stealth, delay + plate
-  - "Track Doom" — Crunch, fuzz-adjacent gain, dark cab
-  - "Track Ambient" — Chorus Clean, long delay + plate
-- Bank categories: Clean, Crunch, Rhythm, Lead, Doom, Ambient.
-- Factory presets use factory cabs only. User presets may reference user IRs;
-  if the IR is missing, the amp falls back to its factory cab and the Cab page
-  reports the missing file.
-- Presets store `delay_sync`, `delay_div` and `delay_time` so host-synced
-  presets follow the project tempo and free-time presets keep their ms value.
+The 22-preset bank above is the 1.0 candidate. Additional per-amp clean/crunch
+variants can be appended later without changing the parameter ABI.
