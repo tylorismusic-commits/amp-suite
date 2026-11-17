@@ -542,7 +542,7 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_GATE_THRESH, 118, 215, 22, "THRESH", {}, true);
     knob(P_GATE_DECAY, 118, 300, 20, "DECAY", {}, true);
     knob(P_INPUT, 90, 520, 22, "INPUT", kTrimScale, true);
-    knob(P_MASTER, 465, 520, 26, "MASTER", kToneScale);
+    knob(P_MASTER, 465, 520, 26, "MASTER", {"-18", "-9", "0"});
     knob(P_OUTPUT, 900, 520, 30, "OUTPUT", kTrimScale);
 
     // Amp bypass: keep the 808, loop and cab active without the preamp/power.

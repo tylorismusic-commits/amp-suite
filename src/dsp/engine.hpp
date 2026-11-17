@@ -186,22 +186,17 @@ public:
     // 1.2 kHz focus.  This is the "tight" high-pass a 5150-style preamp has:
     // it keeps the low string from dominating the clipper and lets the upper
     // harmonics carry the aggression.
-    const float tightHz =
-        (c.model == 4 || c.model == 5 || c.model == 6)
-            ? 105.0f
-            : ((c.model == 2 || c.model == 3) ? 80.0f : 20.0f);
-    const float focusDb =
-        (c.model == 4 || c.model == 5 || c.model == 6)
-            ? 2.5f
-            : ((c.model == 2 || c.model == 3) ? 1.0f : 0.0f);
+    // Only the three high-gain models get this voicing; the clean, Vox,
+    // Orange and Marshall models keep their existing balance.
+    const bool highGainModel =
+        c.model == 4 || c.model == 5 || c.model == 6;
+    const float tightHz = highGainModel ? 105.0f : 20.0f;
+    const float focusDb = highGainModel ? 2.5f : 0.0f;
     preTightL_.set(tightHz, sr_);
     preTightR_.set(tightHz, sr_);
     preFocusL_.peak(1200.0f, focusDb, 0.8f, sr_);
     preFocusR_.peak(1200.0f, focusDb, 0.8f, sr_);
-    const float airDb =
-        (c.model == 4 || c.model == 5 || c.model == 6)
-            ? 3.0f
-            : ((c.model == 2 || c.model == 3) ? 1.0f : 0.0f);
+    const float airDb = highGainModel ? 3.0f : 0.0f;
     postAirL_.highShelf(5000.0f, airDb, 0.7f, sr_);
     postAirR_.highShelf(5000.0f, airDb, 0.7f, sr_);
     gateThreshold_ = dbToGain(-80.0f + 60.0f * c.gateThreshold);
