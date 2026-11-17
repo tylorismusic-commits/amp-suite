@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0-alpha.1 — 2026-11-17
+
+Follow-up alpha with crossfade/state fixes and the README screenshot.
+
+- Only reset the NAM DSP on an engine that is actually using it; the idle
+  crossfade engine no longer wipes the active NAM state.
+- NAM cab/model/IR changes use a short fade-out, block-boundary apply and
+  fade-in because two engines cannot process one NAM model concurrently.
+- Asynchronous NAM model loads trigger the same mute.
+- The processed path fades back in after a true-bypass power-on.
+- Docs cleanup and the Amp Suite amp-page screenshot.
+
 ## 0.2.0-alpha — 2026-11-17
 
 First public alpha release for Linux x86_64 (CLAP + LV2).
