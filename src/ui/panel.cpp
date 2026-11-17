@@ -659,13 +659,13 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     button(P_CAB, 300, 200, 110, 28, 2.0, "USER");
 
     for (int i = 0; i < 8; ++i) {
-      button(P_CAB_SET, 540, 222 + i * 30, 180, 26, i + 1,
+      button(P_CAB_SET, 530, 300 + i * 30, 180, 26, i + 1,
              kParamSpecs[P_CAB_SET].labels.names[i + 1]);
     }
 
-    button(P_CAB_MIC, 760, 200, 80, 26, 0.0, "DYNAMIC");
-    button(P_CAB_MIC, 850, 200, 80, 26, 1.0, "RIBBON");
-    button(P_CAB_MIC, 940, 200, 70, 26, 2.0, "BLEND");
+    button(P_CAB_MIC, 725, 200, 80, 26, 0.0, "DYNAMIC");
+    button(P_CAB_MIC, 815, 200, 80, 26, 1.0, "RIBBON");
+    button(P_CAB_MIC, 905, 200, 70, 26, 2.0, "BLEND");
 
     knob(P_CAB_LEVEL, 760, 340, 28, "LEVEL", {}, true);
     knob(P_CAB_LOWCUT, 850, 340, 26, "LOW CUT", {}, true);
@@ -1478,9 +1478,9 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
        skin.legendDim.b);
   text(cr, "USER", 310, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
-  text(cr, "FACTORY CABS", 630, 207, 10, 1, skin.legend.r, skin.legend.g,
+  text(cr, "FACTORY CABS", 620, 285, 10, 1, skin.legend.r, skin.legend.g,
        skin.legend.b);
-  text(cr, "Select any cab for the current amp.", 630, 476, 9, 1,
+  text(cr, "Select any cab for the current amp.", 620, 552, 9, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 
   roundRect(cr, kUserBoxX, kUserBoxY, kUserBoxW, kUserBoxH, 6);
@@ -1546,10 +1546,10 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
     text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 885, 262, 13,
          1, skin.legend.r, skin.legend.g, skin.legend.b);
   } else {
-    text(cr, cabName(model, cab, cabSet), 885, 262, 13, 1, skin.legend.r,
+    text(cr, cabName(model, cab, cabSet), 850, 262, 13, 1, skin.legend.r,
          skin.legend.g, skin.legend.b);
   }
-  text(cr, "Factory cabs are CC0 and embedded.", 885, 282, 9.5, 1,
+  text(cr, "Factory cabs are CC0 and embedded.", 850, 282, 9.5, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 }
 

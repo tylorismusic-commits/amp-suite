@@ -108,8 +108,14 @@ M1: tube-stage and tone-stack engine.
   load with `cab_set` at Auto.
 - The input knob is aligned with the gate column and the master knob sits
   lower so its label clears the EQ row.
-- The model/IR mute is now 15 ms out, 20 ms silent hold and a slower 40 ms
-  fade-in, so the new amp's level arrives as a swell rather than a step.
+- Model and cab/IR changes now use a dual-engine 40 ms linear crossfade
+  instead of a mute.  The standby engine is configured and run alongside the
+  active one, so there is no silent gap and the IR swap is blended.
+- A 50 ms startup fade-in after prepare/activate masks the first block and
+  the cabinet IR onset on first launch.
+- The cab-page factory list is centred in the middle column and aligned with
+  the user-IR box; the mic buttons are centred over the level/cut controls.
+- Removed unused engine state and the unused WAV `readU16` helper.
 - Tone3000 A2 comparisons for the JC-120, AC30, Rockerverb and 1959 Super
   Lead led to small post-preamp body/focus/air trims on Chime, Crunch and
   Hot Rod.  The clean model was already very close.

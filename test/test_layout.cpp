@@ -261,7 +261,7 @@ int main() {
     state.presetOpen = false;
     panel.draw(cr, shared, state);
     // Fourth factory-cab row: G12T-75 4x12.
-    panel.pointerDown(shared, state, 630.0, 325.0, false);
+    panel.pointerDown(shared, state, 620.0, 403.0, false);
     panel.pointerUp();
     if (shared.get(amp::P_CAB) < 0.5 ||
         std::fabs(shared.get(amp::P_CAB_SET) - 4.0) > 0.01) {

@@ -65,10 +65,12 @@ M1 is in progress:
   instead of sticking to a bias offset.
 - ✅ Stable, sample-rate-independent power-amp feedback; high-gain models no
   longer self-oscillate or warble at low Gain, and clean up below 4.5.
-- ✅ Host-tempo delay sync with named note divisions, and a 15/20/40 ms
-  fade-through-silence on amp-model and cab/IR changes.
+- ✅ Host-tempo delay sync with named note divisions, and a 40 ms dual-engine
+  crossfade on amp-model and cab/IR changes.  A 50 ms fade-in masks first
+  launch.
 - ✅ Amp-faceplate grille with the active model name in the Jost logo style.
-- ✅ Any factory cab can be paired with any amp; the cab page lists all eight.
+- ✅ Any factory cab can be paired with any amp; the cab page lists all eight
+  in a centred factory-cab list.
 - ✅ Input knob aligned with the gate column; master moved down clear of the EQ.
 - ✅ **M1:** user IR loading and portable user IR state.
 

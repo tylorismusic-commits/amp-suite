@@ -1,6 +1,7 @@
 // Amp Suite — DSP smoke test
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include "dsp/crossfade_engine.hpp"
 #include "dsp/engine.hpp"
 #include "params.hpp"
 
@@ -117,6 +118,62 @@ int main() {
     }
     if (!sawMute || !sawSignal) {
       std::fprintf(stderr, "model change did not mute then resume\n");
+      return 1;
+    }
+  }
+
+  // The dual-engine wrapper must crossfade model changes without a silent
+  // gap, and must fade in after prepare().
+  {
+    amp::CrossfadeEngine e;
+    e.prepare(48000.0f);
+    amp::Controls c;
+    c.model = 4;
+    c.gain = 0.6f;
+    c.cabBypass = true;
+    c.odOn = false;
+    c.gateOn = false;
+    c.limiterOn = false;
+    std::vector<float> l(512), r(512);
+    amp::Meters m;
+    auto fill = [&](int block) {
+      for (int i = 0; i < 512; ++i) {
+        l[i] = r[i] =
+            0.2f * std::sin(2.0 * 3.14159265 * 220.0 *
+                            (block * 512 + i) / 48000.0);
+      }
+    };
+    fill(0);
+    e.setControls(c);
+    e.process(l.data(), r.data(), 512, m);
+    if (std::fabs(l[0]) > 1.0e-6f) {
+      std::fprintf(stderr, "crossfade engine did not fade in after prepare\n");
+      return 1;
+    }
+    for (int b = 1; b < 20; ++b) {
+      fill(b);
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+    }
+    c.model = 5;
+    double minRms = 1.0e9;
+    bool finite = true;
+    for (int b = 20; b < 40; ++b) {
+      fill(b);
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+      finite = finite && finiteBuffer(l, r);
+      if (b <= 26) {
+        double energy = 0.0;
+        for (float v : l) {
+          energy += static_cast<double>(v) * v;
+        }
+        minRms = std::min(minRms, std::sqrt(energy / l.size()));
+      }
+    }
+    if (!finite || minRms < 1.0e-3) {
+      std::fprintf(stderr, "crossfade model change muted or went non-finite: %.6f\n",
+                   minRms);
       return 1;
     }
   }

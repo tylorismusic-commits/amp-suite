@@ -66,7 +66,6 @@ public:
     compGain_ = 1.0f;
     compEnv_ = 0.0f;
     compOn_ = false;
-    active_ = -1;
     // prepare() clears the convolver, so force the next updateCabIR() to
     // install the current IR again.  Without this, activate() after the
     // constructor's first setControls() leaves the cab convolver empty
@@ -286,6 +285,22 @@ public:
   }
 
   bool cabReady() const noexcept { return cabConvolver_.active(); }
+
+  const Controls& currentControls() const noexcept { return controls_; }
+
+  // Apply a complete control set immediately, bypassing the single-engine
+  // model-switch fade.  The dual-engine wrapper uses this for its standby.
+  void configure(const Controls& c) noexcept {
+    lastModel_ = c.model;
+    prepareRecipe(c.model);
+    controls_ = c;
+    applyControls(c);
+    pendingModel_ = -1;
+    switchReady_ = false;
+    switchHold_ = 0;
+    fadeDir_ = 0;
+    switchGain_ = 1.0f;
+  }
 
   bool loadFactoryCabs(const std::string& dir) noexcept {
     const bool ok = cabBank_.load(dir, sr_);
@@ -558,7 +573,6 @@ public:
       if (!c.ampBypass && !rec.solidState) {
         if (powerOs_ == 4) {
           float a0 = 0.0f, a1 = 0.0f;
-          float b0 = 0.0f, b1 = 0.0f;
           os1L_.up(l, a0, a1);
           float p0 = powerL_.process(a0);
           float p1 = powerL_.process(a1);
@@ -864,7 +878,6 @@ private:
   float preGain_ = 0.0f;
   Controls controls_;
   int lastModel_ = -1;
-  int active_ = -1;
   int pendingModel_ = -1;
   Controls pendingControls_;
   bool switchReady_ = false;

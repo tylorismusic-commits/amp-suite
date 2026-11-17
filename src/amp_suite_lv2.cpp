@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "dsp/engine.hpp"
+#include "dsp/crossfade_engine.hpp"
 #include "dsp/nam_library.hpp"
 #include "dsp/user_ir.hpp"
 #include "params.hpp"
@@ -52,7 +52,7 @@ struct Plugin {
   float lastPort[amp::P_COUNT] = {};
   bool portsSeen = false;
   amp::Shared shared;
-  amp::Engine engine;
+  amp::CrossfadeEngine engine;
   amp::UserIrLibrary userIr;
   amp::NamLibrary nam;
   amp::Meters meters;

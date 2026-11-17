@@ -22,7 +22,7 @@
 #include <string>
 #include <thread>
 
-#include "dsp/engine.hpp"
+#include "dsp/crossfade_engine.hpp"
 #include "dsp/common.hpp"
 #include "dsp/nam_library.hpp"
 #include "dsp/user_ir.hpp"
@@ -359,7 +359,7 @@ struct Plugin {
   clap_plugin_t plugin{};
   const clap_host_t* host = nullptr;
   Shared shared;
-  Engine engine;
+  amp::CrossfadeEngine engine;
   Editor editor{shared};
   UserIrLibrary userIr;
   NamLibrary nam;

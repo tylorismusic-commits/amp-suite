@@ -21,12 +21,6 @@ inline bool readWavMono(const std::string& path, std::vector<float>& out,
   if (!in) {
     return false;
   }
-  auto readU16 = [&](uint16_t& v) {
-    unsigned char b[2];
-    if (!in.read(reinterpret_cast<char*>(b), 2)) return false;
-    v = static_cast<uint16_t>(b[0] | (b[1] << 8));
-    return true;
-  };
   auto readU32 = [&](uint32_t& v) {
     unsigned char b[4];
     if (!in.read(reinterpret_cast<char*>(b), 4)) return false;
