@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.2.0 — 2026-11-15
+## 0.2.0-alpha — 2026-11-17
+
+First public alpha release for Linux x86_64 (CLAP + LV2).
 
 M1: tube-stage and tone-stack engine.
 

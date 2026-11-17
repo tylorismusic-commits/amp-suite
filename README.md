@@ -1,6 +1,9 @@
 # Amp Suite
 
-**Version 0.2.0 — M1 in progress** · GPL-3.0-or-later
+**Version 0.2.0 Alpha — Linux x86_64** · GPL-3.0-or-later
+
+> **First public alpha.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha).
+> Expect interface and preset changes before 1.0.
 
 Seven guitar amps in one plugin, with an 808 boost, delay, reverb and a cab
 section:
@@ -23,9 +26,26 @@ changes size (1040×640, locked aspect, 0.5×–2× resize).
 The plugin starts on **Block 120 — Rhythm** with the 808 on, delay and reverb
 off, and the stock 1200 4×12 cab.
 
+## Install (alpha)
+
+Download `amp-suite-0.2.0-alpha-linux-x86_64.zip`, unzip it, and run:
+
+```sh
+cd amp-suite-0.2.0-alpha-linux-x86_64
+./install.sh
+```
+
+This installs the CLAP bundle to `~/.clap` and the LV2 bundle to `~/.lv2`.
+Re-scan plug-ins in REAPER afterwards. Requirements: Linux x86_64, X11, and a
+CLAP or LV2 host (REAPER is the primary target). Uninstall with
+`./uninstall.sh`.
+
+Alpha limitations: Linux/X11 only, no Windows or macOS binaries, and the
+factory cabinets are first-pass synthesized IRs.
+
 ## Status
 
-M1 is in progress:
+0.2.0 alpha status:
 
 - ✅ CLAP and LV2 bundles build and load.
 - ✅ 66-parameter host contract; CLAP state save/load (older 65-value sessions still load).
