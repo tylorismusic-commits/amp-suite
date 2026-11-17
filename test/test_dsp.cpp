@@ -178,6 +178,54 @@ int main() {
     }
   }
 
+  // With NAM on, a cab/model change uses the short mute path instead of
+  // sharing the NAM DSP between two engines.
+  {
+    amp::CrossfadeEngine e;
+    e.prepare(48000.0f);
+    amp::Controls c;
+    c.model = 4;
+    c.gain = 0.6f;
+    c.cabBypass = true;
+    c.odOn = false;
+    c.gateOn = false;
+    c.limiterOn = false;
+    c.namOn = true;
+    std::vector<float> l(512), r(512);
+    amp::Meters m;
+    auto fill = [&](int block) {
+      for (int i = 0; i < 512; ++i) {
+        l[i] = r[i] =
+            0.2f * std::sin(2.0 * 3.14159265 * 220.0 *
+                            (block * 512 + i) / 48000.0);
+      }
+    };
+    for (int b = 0; b < 20; ++b) {
+      fill(b);
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+    }
+    c.cab = 1.0f;
+    c.cabSet = 1.0;
+    bool sawMute = false;
+    bool sawSignal = false;
+    bool finite = true;
+    for (int b = 20; b < 40; ++b) {
+      fill(b);
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+      finite = finite && finiteBuffer(l, r);
+      for (float v : l) {
+        if (std::fabs(v) < 1.0e-7f) sawMute = true;
+        if (b >= 30 && std::fabs(v) > 1.0e-4f) sawSignal = true;
+      }
+    }
+    if (!finite || !sawMute || !sawSignal) {
+      std::fprintf(stderr, "NAM change mute did not complete\n");
+      return 1;
+    }
+  }
+
   // Tempo sync: a 1/4-note delay must follow the supplied BPM.
   {
     auto echoMs = [](float bpm) {

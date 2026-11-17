@@ -34,6 +34,12 @@ public:
     crossfadeSamples_ = std::max(1, static_cast<int>(sr_ * 0.040f));
     startupGain_ = 0.0f;
     startupStep_ = 1.0f / std::max(1.0f, sr_ * 0.050f);
+    namMuteActive_ = false;
+    namMuteIn_ = false;
+    namApplyReady_ = false;
+    namMuteGain_ = 1.0f;
+    namMuteOutStep_ = 1.0f / std::max(1.0f, sr_ * 0.015f);
+    namMuteInStep_ = 1.0f / std::max(1.0f, sr_ * 0.040f);
     hasControls_ = false;
     last_ = Controls{};
     scratchSize_ = 8192;
@@ -74,6 +80,10 @@ public:
     phase_ = 0;
     crossfadeCount_ = 0;
     startupGain_ = 0.0f;
+    namMuteActive_ = false;
+    namMuteIn_ = false;
+    namApplyReady_ = false;
+    namMuteGain_ = 1.0f;
     hasControls_ = false;
   }
 
@@ -94,15 +104,28 @@ public:
     // Power is a true bypass and must be immediate; cancel any transition.
     if (c.enabled != last_.enabled) {
       phase_ = 0;
+      namMuteActive_ = false;
+      namMuteIn_ = false;
+      namApplyReady_ = false;
+      namMuteGain_ = 1.0f;
       if (a_) a_->setControls(c);
       if (b_) b_->setControls(c);
       last_ = c;
       return;
     }
 
-    // Two engines must never process the same NAM DSP at once, so cab/model
-    // changes with NAM already on keep the single-engine fade path.
+    // Two engines must never process the same NAM DSP at once.  With NAM
+    // already on, use a short mute around cab/model/IR changes instead.
     if (c.namOn && last_.namOn) {
+      if (namMuteActive_ || hardChange(last_, c)) {
+        namPending_ = c;
+        if (!namMuteActive_) {
+          namMuteActive_ = true;
+          namMuteIn_ = false;
+          namMuteGain_ = 1.0f;
+        }
+        return;
+      }
       phase_ = 0;
       activeEngine()->setControls(c);
       last_ = c;
@@ -110,6 +133,12 @@ public:
     }
 
     const bool namToggle = c.namOn != last_.namOn;
+    if (namToggle) {
+      namMuteActive_ = false;
+      namMuteIn_ = false;
+      namApplyReady_ = false;
+      namMuteGain_ = 1.0f;
+    }
     if (hardChange(last_, c) || namToggle) {
       if (phase_ == 0) {
         Engine* standby = standbyEngine();
@@ -131,6 +160,12 @@ public:
   void process(float* left, float* right, int frames, Meters& meters) noexcept {
     if (!a_) {
       return;
+    }
+    if (namApplyReady_) {
+      activeEngine()->setControls(namPending_);
+      last_ = namPending_;
+      namApplyReady_ = false;
+      namMuteIn_ = true;
     }
     if (phase_ == 0) {
       activeEngine()->process(left, right, frames, meters);
@@ -190,6 +225,28 @@ public:
         }
       }
     }
+
+    // NAM cab/model changes use a short mute because both engines cannot
+    // share the same NAM DSP during a crossfade.
+    if (namMuteActive_) {
+      for (int i = 0; i < frames; ++i) {
+        if (!namMuteIn_) {
+          namMuteGain_ -= namMuteOutStep_;
+          if (namMuteGain_ <= 0.0f) {
+            namMuteGain_ = 0.0f;
+            namApplyReady_ = true;
+          }
+        } else {
+          namMuteGain_ += namMuteInStep_;
+          if (namMuteGain_ >= 1.0f) {
+            namMuteGain_ = 1.0f;
+            namMuteActive_ = false;
+          }
+        }
+        left[i] *= namMuteGain_;
+        right[i] *= namMuteGain_;
+      }
+    }
   }
 
 private:
@@ -218,6 +275,13 @@ private:
   float sr_ = 48000.0f;
   float startupGain_ = 0.0f;
   float startupStep_ = 0.0f;
+  bool namMuteActive_ = false;
+  bool namMuteIn_ = false;
+  bool namApplyReady_ = false;
+  float namMuteGain_ = 1.0f;
+  float namMuteOutStep_ = 0.0f;
+  float namMuteInStep_ = 0.0f;
+  Controls namPending_{};
   int scratchSize_ = 8192;
   std::vector<float> oldL_;
   std::vector<float> oldR_;
