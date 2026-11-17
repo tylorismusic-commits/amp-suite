@@ -252,6 +252,36 @@ int main() {
     std::filesystem::remove_all(base, ec);
   }
 
+  // When the host supplies tempo, the manual BPM knob is hidden and the
+  // delay page shows the host tempo instead.
+  {
+    state.page = 1;
+    state.presetOpen = false;
+    state.hostTempo = true;
+    state.bpm = 90.0;
+    shared.set(amp::P_DELAY_SYNC, 1.0);
+    panel.draw(cr, shared, state);
+    bool hasBpm = false;
+    for (const auto& r : panel.widgetRects()) {
+      if (r.param == amp::P_BPM) hasBpm = true;
+    }
+    if (hasBpm) {
+      std::fprintf(stderr, "manual BPM knob shown while the host supplies tempo\n");
+      return 1;
+    }
+    state.hostTempo = false;
+    panel.draw(cr, shared, state);
+    hasBpm = false;
+    for (const auto& r : panel.widgetRects()) {
+      if (r.param == amp::P_BPM) hasBpm = true;
+    }
+    if (!hasBpm) {
+      std::fprintf(stderr, "manual BPM knob missing without host tempo\n");
+      return 1;
+    }
+    state.page = 0;
+  }
+
   // Double-click resets a knob to its preset value; right-click/typed entry
   // accepts a value (including dB suffixes).
   {
