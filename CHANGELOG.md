@@ -90,6 +90,15 @@ M1: tube-stage and tone-stack engine.
   switching on at a threshold.
 - Power button is now a true bypass: the dry input is passed through
   untouched, independent of the host bypass.
+- First-load fix: the cab IR is re-installed after the host's extra
+  `prepare()`/activate pass, and the factory cabs reload at the project
+  sample rate.  A fresh instance no longer starts without its cabinet until
+  an amp switch.
+- Amp-model changes now use a 15 ms fade-out/silence/fade-in, masking the
+  power-amp and cabinet-IR state change.
+- Delay tempo sync is covered by a regression test (1/4 note at 120 BPM =
+  500 ms, at 60 BPM = 1000 ms), and the pedal page names the sync state,
+  ping-pong mode, selected division and reverb pre-delay.
 - Startup now applies the tuned Block 120 — Rhythm preset rather than the
   neutral parameter defaults. The Gain knob now drives the tube preamp over a
   36 dB range (previously it only affected the solid-state path), high-gain

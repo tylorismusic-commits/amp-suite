@@ -966,8 +966,15 @@ void pluginDestroy(const clap_plugin_t* p) { delete self(p); }
 bool pluginActivate(const clap_plugin_t* p, double sampleRate, uint32_t,
                     uint32_t) {
   Plugin* s = self(p);
+  const bool rateChanged = s->sampleRate != sampleRate;
   s->sampleRate = sampleRate;
   s->engine.prepare(static_cast<float>(sampleRate));
+  // Re-load the factory cabs only when the host rate differs from the
+  // constructor's 48 kHz load; a same-rate re-activation must not re-read
+  // 48 WAVs on the audio start path.
+  if (rateChanged) {
+    s->engine.loadFactoryCabs(bundleResourceDir() + "/irs");
+  }
   s->userIr.setSampleRate(static_cast<float>(sampleRate));
   s->nam.setHostRate(sampleRate);
   s->engine.setUserIrBank(s->userIr.bank());

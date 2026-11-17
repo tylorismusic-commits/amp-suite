@@ -601,7 +601,9 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_DELAY_MIX, cx[1] + 60, cy + 215, 26, "MIX", {}, true);
     knob(P_DELAY_TONE, cx[1] + 150, cy + 215, 26, "TONE", {}, true);
     knob(P_DELAY_MOD, cx[1] + 240, cy + 215, 26, "MOD", {}, true);
-    knob(P_BPM, cx[1] + 240, cy + 290, 18, "BPM", {}, true);
+    if (shared.get(P_DELAY_SYNC) <= 0.5 || !state.hostTempo) {
+      knob(P_BPM, cx[1] + 240, cy + 290, 18, "BPM", {}, true);
+    }
     foot(P_DELAY_ON, cx[1] + 150, cy + 330, 26, "DELAY");
 
     // Reverb card.
@@ -609,7 +611,7 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_REVERB_MIX, cx[2] + 90, cy + 115, 26, "MIX", {}, true);
     knob(P_REVERB_DECAY, cx[2] + 210, cy + 115, 26, "DECAY", {}, true);
     knob(P_REVERB_TONE, cx[2] + 90, cy + 215, 26, "TONE", {}, true);
-    knob(P_REVERB_PREDELAY, cx[2] + 210, cy + 215, 26, "PRE-DLY", {}, true);
+    knob(P_REVERB_PREDELAY, cx[2] + 210, cy + 215, 26, "PREDELAY", {}, true);
     foot(P_REVERB_ON, cx[2] + 150, cy + 330, 26, "REVERB");
 
   } else if (state.page == 3) {
@@ -1408,6 +1410,10 @@ void Panel::drawPedalPage(cairo_t* cr, const Shared& shared,
   }
   text(cr, tempo, 980, 592, 10, 2, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
+  if (state.hostTempo && shared.get(P_DELAY_SYNC) > 0.5) {
+    text(cr, "HOST BPM", 610, 482, 9, 1, skin.legendDim.r, skin.legendDim.g,
+         skin.legendDim.b);
+  }
 }
 
 void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
@@ -1573,9 +1579,9 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
       } else if (w.param == P_LOOP_POS) {
         ww.label = on ? "LOOP POST" : "LOOP PRE";
       } else if (w.param == P_DELAY_SYNC) {
-        ww.label = on ? "HOST" : "FREE";
+        ww.label = on ? "SYNC" : "FREE";
       } else if (w.param == P_DELAY_PINGPONG) {
-        ww.label = on ? "PING ON" : "PING OFF";
+        ww.label = on ? "PING-PONG" : "MONO";
       } else if (w.param == P_REVERB_MODE) {
         ww.label = on ? "SPRING" : "PLATE";
       } else if (w.param == P_POWER_SCALE) {
@@ -1713,6 +1719,12 @@ void Panel::drawKnob(cairo_t* cr, const Widget& w, double value,
       w.labelBelow ? cy + r * 1.44 + 20 : cy - r * 1.44 - 18;
   text(cr, w.label, cx, labelY, 10.5, 1, skin.legend.r, skin.legend.g,
        skin.legend.b);
+  if (w.param == P_DELAY_DIV) {
+    const int idx = std::min(
+        std::max(static_cast<int>(std::lround(value)), 0), 8);
+    text(cr, kParamSpecs[P_DELAY_DIV].labels.names[idx], cx, labelY + 13, 9,
+         1, skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  }
 }
 
 void Panel::drawButton(cairo_t* cr, const Widget& w, bool lit,

@@ -78,6 +78,117 @@ int main() {
     }
   }
 
+  // A model change must pass through a brief muted crossfade instead of
+  // swapping the recipe while the signal is live.
+  {
+    amp::Controls c;
+    c.model = 4;
+    c.gain = 0.6f;
+    c.cabBypass = true;
+    c.odOn = false;
+    c.gateOn = false;
+    c.limiterOn = false;
+    amp::Engine e;
+    e.prepare(48000.0f);
+    e.setControls(c);
+    std::vector<float> l(512), r(512);
+    amp::Meters m;
+    bool sawMute = false;
+    bool sawSignal = false;
+    for (int b = 0; b < 40; ++b) {
+      if (b == 20) {
+        c.model = 5;
+      }
+      for (int i = 0; i < 512; ++i) {
+        l[i] = r[i] =
+            0.2f * std::sin(2.0 * 3.14159265 * 220.0 * (b * 512 + i) / 48000.0);
+      }
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+      for (int i = 0; i < 512; ++i) {
+        const float v = std::fabs(l[i]);
+        if (!std::isfinite(v)) {
+          std::fprintf(stderr, "model change produced a non-finite sample\n");
+          return 1;
+        }
+        if (b >= 20 && b < 24 && v < 1.0e-6f) sawMute = true;
+        if (b >= 26 && v > 1.0e-4f) sawSignal = true;
+      }
+    }
+    if (!sawMute || !sawSignal) {
+      std::fprintf(stderr, "model change did not mute then resume\n");
+      return 1;
+    }
+  }
+
+  // Tempo sync: a 1/4-note delay must follow the supplied BPM.
+  {
+    auto echoMs = [](float bpm) {
+      amp::Controls c;
+      c.delayOn = true;
+      c.delaySync = true;
+      c.delayDiv = 2;  // 1/4 note
+      c.delayFeedback = 0.0f;
+      c.delayMix = 1.0f;
+      c.delayTone = 1.0f;
+      c.delayMod = 0.0f;
+      amp::Delay d;
+      d.prepare(48000.0f);
+      d.setTargets(c, bpm);
+      for (int i = 0; i < 24000; ++i) {  // let the time smoother settle
+        float l = 0.0f, r = 0.0f;
+        d.process(l, r);
+      }
+      float l = 0.0f, r = 0.0f;
+      int peakIdx = 0;
+      float peak = 0.0f;
+      for (int i = 0; i < 72000; ++i) {
+        if (i == 0) {
+          l = r = 1.0f;
+        } else {
+          l = r = 0.0f;
+        }
+        d.process(l, r);
+        if (std::fabs(l) > peak) {
+          peak = std::fabs(l);
+          peakIdx = i;
+        }
+      }
+      return static_cast<float>(peakIdx) * 1000.0f / 48000.0f;
+    };
+    const float t120 = echoMs(120.0f);
+    const float t60 = echoMs(60.0f);
+    if (std::fabs(t120 - 500.0f) > 20.0f) {
+      std::fprintf(stderr, "1/4 delay at 120 BPM is %.1f ms, expected 500\n", t120);
+      return 1;
+    }
+    if (std::fabs(t60 - 1000.0f) > 30.0f) {
+      std::fprintf(stderr, "1/4 delay at 60 BPM is %.1f ms, expected 1000\n", t60);
+      return 1;
+    }
+  }
+
+  // The host calls prepare() again in activate() after the constructor has
+  // already applied controls.  That second prepare clears the convolver and
+  // must re-install the current IR, otherwise the first session loads without
+  // a cabinet until a model switch forces a new IR pointer.
+  {
+    amp::Engine e;
+    e.prepare(48000.0f);
+    if (!e.loadFactoryCabs(AMP_TEST_ASSETS)) {
+      std::fprintf(stderr, "factory cabs did not load from %s\n", AMP_TEST_ASSETS);
+      return 1;
+    }
+    amp::Shared s;
+    e.setControls(amp::controlsFrom(s));
+    e.prepare(48000.0f);
+    e.setControls(amp::controlsFrom(s));
+    if (!e.cabReady()) {
+      std::fprintf(stderr, "cab IR was not restored after the second prepare\n");
+      return 1;
+    }
+  }
+
   // Power off is a true bypass: the dry input reaches the output untouched.
   {
     amp::Controls c;

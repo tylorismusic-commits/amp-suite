@@ -66,6 +66,11 @@ public:
     compEnv_ = 0.0f;
     compOn_ = false;
     active_ = -1;
+    // prepare() clears the convolver, so force the next updateCabIR() to
+    // install the current IR again.  Without this, activate() after the
+    // constructor's first setControls() leaves the cab convolver empty
+    // until a model switch changes the IR pointer.
+    activeCab_ = nullptr;
     lastModel_ = -1;
     powerOs_ = 0;
     pendingModel_ = -1;
@@ -73,7 +78,7 @@ public:
     fadeDir_ = 0;
     switchReady_ = false;
     switchGain_ = 1.0f;
-    switchStep_ = 1.0f / std::max(1.0f, sr_ * 0.005f);
+    switchStep_ = 1.0f / std::max(1.0f, sr_ * 0.015f);
   }
 
   void setControls(const Controls& c) noexcept {
@@ -231,8 +236,13 @@ public:
     std::atomic_store(&namPending_, std::move(model));
   }
 
+  bool cabReady() const noexcept { return cabConvolver_.active(); }
+
   bool loadFactoryCabs(const std::string& dir) noexcept {
     const bool ok = cabBank_.load(dir, sr_);
+    // The bank may have replaced its IR data; force the convolver to take the
+    // new pointers and tap counts even if the CabIR address is unchanged.
+    activeCab_ = nullptr;
     updateCabIR();
     return ok;
   }
@@ -584,8 +594,9 @@ public:
       r *= outGain;
 
       // Brief zero-crossfade when the model changes: fade out, swap the
-      // recipe at silence, then fade in.  Five milliseconds each way avoids
-      // clicks without a second full engine.
+      // recipe at silence, then fade in.  Fifteen milliseconds each way is
+      // long enough to mask power-amp and cabinet-IR state changes without a
+      // noticeable gap.
       if (fadeDir_ < 0) {
         switchGain_ -= switchStep_;
         if (switchGain_ <= 0.0f) {

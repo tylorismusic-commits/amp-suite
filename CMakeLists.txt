@@ -168,6 +168,8 @@ target_include_directories(amp_dsp_test PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   ${AMP_GUITARIX_INCLUDES})
 target_link_libraries(amp_dsp_test PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
+target_compile_definitions(amp_dsp_test PRIVATE
+  AMP_TEST_ASSETS="${CMAKE_SOURCE_DIR}/assets/irs")
 target_compile_features(amp_dsp_test PRIVATE cxx_std_17)
 add_test(NAME amp_dsp COMMAND amp_dsp_test)
 
