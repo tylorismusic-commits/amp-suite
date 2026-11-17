@@ -65,8 +65,9 @@ M1 is in progress:
   instead of sticking to a bias offset.
 - ✅ Stable, sample-rate-independent power-amp feedback; high-gain models no
   longer self-oscillate or warble at low Gain, and clean up below 4.5.
-- ✅ Host-tempo delay sync with named note divisions, and a 15 ms
-  fade-through-silence on amp-model changes.
+- ✅ Host-tempo delay sync with named note divisions, and a 15/20/15 ms
+  fade-through-silence on amp-model and cab/IR changes.
+- ✅ Amp-faceplate grille with the active model name in the Jost logo style.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

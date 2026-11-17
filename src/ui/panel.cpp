@@ -17,6 +17,7 @@
 #include <cmath>
 #include <cstdio>
 #include <chrono>
+#include <cctype>
 #include <cstring>
 #include <filesystem>
 
@@ -1312,39 +1313,33 @@ void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
   std::snprintf(micLabel, sizeof(micLabel), "%s MIC", kMicNames[mic]);
   text(cr, micLabel, 720, 159, 9, 2, 0.55, 0.57, 0.60);
 
-  const bool two = (model == 0 || model == 1);
-  struct Cone { double x, y, r; };
-  static const Cone kFour[4] = {{410, 204, 33}, {500, 204, 33},
-                                {410, 274, 33}, {500, 274, 33}};
-  static const Cone kTwo[2] = {{355, 244, 58}, {545, 244, 58}};
-  const Cone* cones = two ? kTwo : kFour;
-  const int coneCount = two ? 2 : 4;
-  for (int i = 0; i < coneCount; ++i) {
-    const Cone& c = cones[i];
-    cairo_arc(cr, c.x, c.y, c.r + 3, 0, 2 * kPi);
-    setRgb(cr, {0.03, 0.03, 0.035});
-    cairo_fill(cr);
-    cairo_pattern_t* cone = cairo_pattern_create_radial(
-        c.x - c.r * 0.25, c.y - c.r * 0.25, c.r * 0.05, c.x, c.y, c.r);
-    cairo_pattern_add_color_stop_rgb(cone, 0.0, 0.22, 0.23, 0.24);
-    cairo_pattern_add_color_stop_rgb(cone, 0.6, 0.12, 0.13, 0.14);
-    cairo_pattern_add_color_stop_rgb(cone, 1.0, 0.05, 0.05, 0.06);
-    cairo_arc(cr, c.x, c.y, c.r, 0, 2 * kPi);
-    cairo_set_source(cr, cone);
-    cairo_fill(cr);
-    cairo_pattern_destroy(cone);
-    cairo_arc(cr, c.x, c.y, c.r * 0.38, 0, 2 * kPi);
-    setRgb(cr, {0.10, 0.10, 0.11});
-    cairo_fill(cr);
-    cairo_arc(cr, c.x, c.y, c.r * 0.20, 0, 2 * kPi);
-    setRgb(cr, {0.04, 0.04, 0.05});
-    cairo_fill(cr);
-    cairo_set_source_rgba(cr, skin.accent.r, skin.accent.g, skin.accent.b,
-                          0.18);
-    cairo_set_line_width(cr, 1.0);
-    cairo_arc(cr, c.x, c.y, c.r * 0.72, 0, 2 * kPi);
-    cairo_stroke(cr);
+  // The grille carries the active amp's logo instead of generic speaker
+  // circles: a large Jost ExtraBold wordmark, shadowed like a badge, with the
+  // active cabinet name in small type underneath.
+  std::string logo = modelName(model);
+  for (char& ch : logo) {
+    ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
   }
+  cairo_set_font_face(cr, font_);
+  double logoSize = 60.0;
+  cairo_set_font_size(cr, logoSize);
+  cairo_text_extents_t logoExt{};
+  cairo_text_extents(cr, logo.c_str(), &logoExt);
+  const double logoMaxWidth = 465.0;
+  if (logoExt.x_advance > logoMaxWidth) {
+    logoSize *= logoMaxWidth / logoExt.x_advance;
+  }
+  const double logoBase = 247.0;
+  text(cr, logo.c_str(), 456.0, logoBase + 2.0, logoSize, 1, 0.01, 0.01,
+       0.02);
+  text(cr, logo.c_str(), 455.0, logoBase, logoSize, 1, 0.91, 0.92, 0.90);
+
+  cairo_set_source_rgba(cr, skin.accent.r, skin.accent.g, skin.accent.b,
+                        0.45);
+  cairo_set_line_width(cr, 1.0);
+  cairo_move_to(cr, 415.0, 272.0);
+  cairo_line_to(cr, 495.0, 272.0);
+  cairo_stroke(cr);
 
   // Input / output bars inside the window.
   auto bar = [&](double x, double y, double w, double v, Rgb c) {

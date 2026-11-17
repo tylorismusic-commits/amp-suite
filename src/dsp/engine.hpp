@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cmath>
+#include <cstring>
 #include <memory>
 
 #include "biquad.hpp"
@@ -77,11 +78,15 @@ public:
     pendingControls_ = Controls{};
     fadeDir_ = 0;
     switchReady_ = false;
+    switchHold_ = 0;
     switchGain_ = 1.0f;
-    switchStep_ = 1.0f / std::max(1.0f, sr_ * 0.015f);
+    switchFadeSamples_ = std::max(1.0f, sr_ * 0.015f);
+    switchStep_ = 1.0f / switchFadeSamples_;
+    switchHoldSamples_ = std::max(1, static_cast<int>(sr_ * 0.020f));
   }
 
   void setControls(const Controls& c) noexcept {
+    const bool firstApply = lastModel_ < 0;
     if (lastModel_ < 0) {
       lastModel_ = c.model;
       prepareRecipe(c.model);
@@ -94,6 +99,7 @@ public:
       controls_.enabled = false;
       pendingModel_ = -1;
       switchReady_ = false;
+      switchHold_ = 0;
       fadeDir_ = 0;
       switchGain_ = 1.0f;
       return;
@@ -111,6 +117,7 @@ public:
       applyControls(c);
       pendingModel_ = -1;
       switchReady_ = false;
+      switchHold_ = 0;
       fadeDir_ = 0;
       switchGain_ = 1.0f;
       return;
@@ -125,14 +132,23 @@ public:
       fadeDir_ = 1;
       return;
     }
-    if (c.model != lastModel_) {
-      if (fadeDir_ != -1) {
-        pendingModel_ = c.model;
-        pendingControls_ = c;
+    const bool irChanged =
+        c.cab != controls_.cab || c.cabMic != controls_.cabMic ||
+        c.cabBypass != controls_.cabBypass ||
+        std::memcmp(c.userIr, controls_.userIr, sizeof(c.userIr)) != 0;
+    if (!firstApply && (c.model != lastModel_ || irChanged)) {
+      pendingModel_ = c.model;
+      pendingControls_ = c;
+      // Start a new mute only when idle.  During the fade-down, hold or
+      // fade-in, just keep the latest requested set so the switch can finish;
+      // otherwise setControls() would restart the fade every block and the
+      // silent hold would never complete.
+      if (fadeDir_ == 0 && switchHold_ == 0) {
         fadeDir_ = -1;
+        switchGain_ = 1.0f;
       }
-      // Keep the current recipe and controls while fading down; the pending
-      // set is applied at silence on the next block.
+      // Keep the current recipe/IR while fading down; the pending set is
+      // applied during the silent hold, then the output fades back in.
       return;
     }
     controls_ = c;
@@ -196,14 +212,45 @@ public:
     const bool highGainModel =
         c.model == 4 || c.model == 5 || c.model == 6;
     const float tightHz = highGainModel ? 105.0f : 20.0f;
-    const float focusDb = highGainModel ? 2.5f : 0.0f;
+    const float preFocusDb = highGainModel ? 2.5f : 0.0f;
+    float postBodyHz = 350.0f;
+    float postBodyDb = 0.0f;
+    float postFocusHz = 1400.0f;
+    float postFocusDb = 0.0f;
+    float airHz = 5000.0f;
+    float airDb = highGainModel ? 3.0f : 0.0f;
+    if (c.model == 3) {
+      // 1959-style Plexi: more upper-mid cut-through.  Reference: Tone3000
+      // 1959 Super Lead preamp captures.
+      postBodyDb = 0.0f;
+      postFocusHz = 1500.0f;
+      postFocusDb = 7.0f;
+      airHz = 3500.0f;
+      airDb = 4.0f;
+    } else if (c.model == 2) {
+      // Rockerverb-style crunch: clearer 1.5 kHz attack, less low-mid.
+      postBodyDb = -2.0f;
+      postFocusHz = 1400.0f;
+      postFocusDb = 3.0f;
+      airHz = 3500.0f;
+      airDb = 5.0f;
+    } else if (c.model == 1) {
+      // AC30 chime: trim a little 400 Hz boxiness and add top-end air.
+      postBodyHz = 400.0f;
+      postBodyDb = -3.0f;
+      airHz = 6000.0f;
+      airDb = 3.0f;
+    }
     preTightL_.set(tightHz, sr_);
     preTightR_.set(tightHz, sr_);
-    preFocusL_.peak(1200.0f, focusDb, 0.8f, sr_);
-    preFocusR_.peak(1200.0f, focusDb, 0.8f, sr_);
-    const float airDb = highGainModel ? 3.0f : 0.0f;
-    postAirL_.highShelf(5000.0f, airDb, 0.7f, sr_);
-    postAirR_.highShelf(5000.0f, airDb, 0.7f, sr_);
+    preFocusL_.peak(1200.0f, preFocusDb, 0.8f, sr_);
+    preFocusR_.peak(1200.0f, preFocusDb, 0.8f, sr_);
+    postBodyL_.peak(postBodyHz, postBodyDb, 0.9f, sr_);
+    postBodyR_.peak(postBodyHz, postBodyDb, 0.9f, sr_);
+    postFocusL_.peak(postFocusHz, postFocusDb, 0.8f, sr_);
+    postFocusR_.peak(postFocusHz, postFocusDb, 0.8f, sr_);
+    postAirL_.highShelf(airHz, airDb, 0.7f, sr_);
+    postAirR_.highShelf(airHz, airDb, 0.7f, sr_);
     gateThreshold_ = dbToGain(-80.0f + 60.0f * c.gateThreshold);
     gateRelease_ = timeCoeff(20.0f + 980.0f * c.gateDecay, sr_);
     // Sustain compressor.  Rather than switching on at a gain threshold
@@ -475,6 +522,10 @@ public:
           r = toneR_.process(r);
           l *= makeup;
           r *= makeup;
+          l = postBodyL_.process(l);
+          r = postBodyR_.process(r);
+          l = postFocusL_.process(l);
+          r = postFocusR_.process(r);
         }
       }
 
@@ -593,15 +644,19 @@ public:
       l *= outGain;
       r *= outGain;
 
-      // Brief zero-crossfade when the model changes: fade out, swap the
-      // recipe at silence, then fade in.  Fifteen milliseconds each way is
-      // long enough to mask power-amp and cabinet-IR state changes without a
-      // noticeable gap.
+      // Brief mute when the model or cab/IR changes: 15 ms fade-out, 20 ms
+      // silent hold for the recipe/IR swap, then 15 ms fade-in.  The hold
+      // makes the IR change inaudible instead of clicking.
       if (fadeDir_ < 0) {
         switchGain_ -= switchStep_;
         if (switchGain_ <= 0.0f) {
           switchGain_ = 0.0f;
           fadeDir_ = 0;
+          switchHold_ = switchHoldSamples_;
+        }
+      } else if (switchHold_ > 0) {
+        --switchHold_;
+        if (switchHold_ == 0) {
           switchReady_ = true;
         }
       } else if (fadeDir_ > 0) {
@@ -678,6 +733,10 @@ public:
     preTightR_.reset();
     preFocusL_.reset();
     preFocusR_.reset();
+    postBodyL_.reset();
+    postBodyR_.reset();
+    postFocusL_.reset();
+    postFocusR_.reset();
     postAirL_.reset();
     postAirR_.reset();
     presenceL_.reset();
@@ -789,6 +848,9 @@ private:
   Controls pendingControls_;
   bool switchReady_ = false;
   int fadeDir_ = 0;
+  int switchHold_ = 0;
+  int switchHoldSamples_ = 1;
+  float switchFadeSamples_ = 1.0f;
   float switchGain_ = 1.0f;
   float switchStep_ = 1.0f;
   float bpm_ = 120.0f;
@@ -833,6 +895,10 @@ private:
   HighPass2 preTightR_;
   Biquad preFocusL_;
   Biquad preFocusR_;
+  Biquad postBodyL_;
+  Biquad postBodyR_;
+  Biquad postFocusL_;
+  Biquad postFocusR_;
   Biquad postAirL_;
   Biquad postAirR_;
   Biquad presenceL_;

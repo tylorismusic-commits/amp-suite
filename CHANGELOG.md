@@ -94,11 +94,17 @@ M1: tube-stage and tone-stack engine.
   `prepare()`/activate pass, and the factory cabs reload at the project
   sample rate.  A fresh instance no longer starts without its cabinet until
   an amp switch.
-- Amp-model changes now use a 15 ms fade-out/silence/fade-in, masking the
-  power-amp and cabinet-IR state change.
+- Amp-model and cab/mic/IR changes use a 15 ms fade-out, 20 ms silent hold
+  and 15 ms fade-in.  The IR swap happens inside the hold, so the cab no
+  longer clicks when a model changes.
 - Delay tempo sync is covered by a regression test (1/4 note at 120 BPM =
   500 ms, at 60 BPM = 1000 ms), and the pedal page names the sync state,
   ping-pong mode, selected division and reverb pre-delay.
+- The amp faceplate grille now shows the active amp's name in the Jost
+  ExtraBold logo style instead of generic speaker circles.
+- Tone3000 A2 comparisons for the JC-120, AC30, Rockerverb and 1959 Super
+  Lead led to small post-preamp body/focus/air trims on Chime, Crunch and
+  Hot Rod.  The clean model was already very close.
 - Startup now applies the tuned Block 120 — Rhythm preset rather than the
   neutral parameter defaults. The Gain knob now drives the tube preamp over a
   36 dB range (previously it only affected the solid-state path), high-gain
