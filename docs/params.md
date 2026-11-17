@@ -44,7 +44,7 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 14 | `rectifier` | Rectifier | 0–1 | 0 | stepped | Recto: 0 Si, 1 Tube |
 | 15 | `crunch` | Crunch | 0–1 | 1 | stepped, toggle | Block 120: 1 Crunch, 0 Lead |
 | 16 | `power_scale` | Power Scale | 0–1 | 0 | stepped | Crunch: 0 = 50 W, 1 = 100 W |
-| 17 | `cab` | Cabinet | 0–2 | 0 | stepped | 0 default, 1 alternate, 2 user |
+| 17 | `cab` | Cabinet | 0–2 | 0 | stepped | 0 default, 1 custom (factory set or model alternate), 2 user |
 | 18 | `cab_mic` | Cab Mic | 0–2 | 0 | stepped | 0 dynamic, 1 ribbon, 2 blend |
 | 19 | `cab_level` | Cab Level | 0–1 | 0.6 | | `-24 + 30v` dB |
 | 20 | `cab_lowcut` | Cab Low Cut | 0–1 | 0 | | `20 * 15^v` Hz |

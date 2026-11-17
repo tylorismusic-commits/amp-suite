@@ -75,7 +75,7 @@ factory cabinets are first-pass synthesized IRs.
 - ✅ Per-amp user IR loading from `$XDG_DATA_HOME/amp-suite/irs/user`, with a
   watched folder, filename selection, drag-and-drop, a built-in file browser,
   and CLAP state embedding; LV2 state copies selected WAVs into the host
-  session via `state:makePath`. Factory/Alt clear the active user IR selection.
+  session via `state:makePath`. Factory/Custom clear the active user IR selection.
 - ✅ Manual delay tempo (`tempo` control) for LV2 and non-transport hosts;
   CLAP transport and the LV2 `time:Position` atom port override it when the
   host supplies a timeline.

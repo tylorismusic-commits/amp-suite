@@ -40,6 +40,8 @@ public:
     namMuteGain_ = 1.0f;
     namMuteOutStep_ = 1.0f / std::max(1.0f, sr_ * 0.015f);
     namMuteInStep_ = 1.0f / std::max(1.0f, sr_ * 0.040f);
+    namModelChanged_ = false;
+    lastNamModel_.reset();
     hasControls_ = false;
     last_ = Controls{};
     scratchSize_ = 8192;
@@ -65,6 +67,10 @@ public:
   }
 
   void setNamModel(std::shared_ptr<NamDSP> model) noexcept {
+    if (model != lastNamModel_) {
+      lastNamModel_ = model;
+      namModelChanged_ = true;
+    }
     if (a_) a_->setNamModel(model);
     if (b_) b_->setNamModel(model);
   }
@@ -84,6 +90,8 @@ public:
     namMuteIn_ = false;
     namApplyReady_ = false;
     namMuteGain_ = 1.0f;
+    namModelChanged_ = false;
+    lastNamModel_.reset();
     hasControls_ = false;
   }
 
@@ -97,17 +105,23 @@ public:
       activeEngine()->configure(c);
       activeEngine()->reset();
       last_ = c;
+      namModelChanged_ = false;
       hasControls_ = true;
       return;
     }
 
     // Power is a true bypass and must be immediate; cancel any transition.
     if (c.enabled != last_.enabled) {
+      if (c.enabled && !last_.enabled) {
+        // Power-on returns from true bypass; ramp the processed path in.
+        startupGain_ = 0.0f;
+      }
       phase_ = 0;
       namMuteActive_ = false;
       namMuteIn_ = false;
       namApplyReady_ = false;
       namMuteGain_ = 1.0f;
+      namModelChanged_ = false;
       if (a_) a_->setControls(c);
       if (b_) b_->setControls(c);
       last_ = c;
@@ -117,7 +131,7 @@ public:
     // Two engines must never process the same NAM DSP at once.  With NAM
     // already on, use a short mute around cab/model/IR changes instead.
     if (c.namOn && last_.namOn) {
-      if (namMuteActive_ || hardChange(last_, c)) {
+      if (namMuteActive_ || hardChange(last_, c) || namModelChanged_) {
         namPending_ = c;
         if (!namMuteActive_) {
           namMuteActive_ = true;
@@ -138,6 +152,7 @@ public:
       namMuteIn_ = false;
       namApplyReady_ = false;
       namMuteGain_ = 1.0f;
+      namModelChanged_ = false;
     }
     if (hardChange(last_, c) || namToggle) {
       if (phase_ == 0) {
@@ -155,6 +170,7 @@ public:
 
     activeEngine()->setControls(c);
     last_ = c;
+    namModelChanged_ = false;
   }
 
   void process(float* left, float* right, int frames, Meters& meters) noexcept {
@@ -166,6 +182,7 @@ public:
       last_ = namPending_;
       namApplyReady_ = false;
       namMuteIn_ = true;
+      namModelChanged_ = false;
     }
     if (phase_ == 0) {
       activeEngine()->process(left, right, frames, meters);
@@ -278,6 +295,8 @@ private:
   bool namMuteActive_ = false;
   bool namMuteIn_ = false;
   bool namApplyReady_ = false;
+  bool namModelChanged_ = false;
+  std::shared_ptr<NamDSP> lastNamModel_;
   float namMuteGain_ = 1.0f;
   float namMuteOutStep_ = 0.0f;
   float namMuteInStep_ = 0.0f;
