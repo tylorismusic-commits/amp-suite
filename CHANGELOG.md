@@ -102,6 +102,14 @@ M1: tube-stage and tone-stack engine.
   ping-pong mode, selected division and reverb pre-delay.
 - The amp faceplate grille now shows the active amp's name in the Jost
   ExtraBold logo style instead of generic speaker circles.
+- Factory cab selection is now independent of the amp model.  The cab page
+  has a central list of all eight cabs; `cab_set` stores the choice and
+  `cab` still selects Default/Custom/User.  Older sessions with 65 values
+  load with `cab_set` at Auto.
+- The input knob is aligned with the gate column and the master knob sits
+  lower so its label clears the EQ row.
+- The model/IR mute is now 15 ms out, 20 ms silent hold and a slower 40 ms
+  fade-in, so the new amp's level arrives as a swell rather than a step.
 - Tone3000 A2 comparisons for the JC-120, AC30, Rockerverb and 1959 Super
   Lead led to small post-preamp body/focus/air trims on Chime, Crunch and
   Hot Rod.  The clean model was already very close.

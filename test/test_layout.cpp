@@ -252,6 +252,35 @@ int main() {
     std::filesystem::remove_all(base, ec);
   }
 
+  // The cab page can pair any factory cab with any amp.
+  {
+    shared.set(amp::P_MODEL, 2.0);
+    shared.set(amp::P_CAB, 0.0);
+    shared.set(amp::P_CAB_SET, 0.0);
+    state.page = 2;
+    state.presetOpen = false;
+    panel.draw(cr, shared, state);
+    // Fourth factory-cab row: G12T-75 4x12.
+    panel.pointerDown(shared, state, 630.0, 325.0, false);
+    panel.pointerUp();
+    if (shared.get(amp::P_CAB) < 0.5 ||
+        std::fabs(shared.get(amp::P_CAB_SET) - 4.0) > 0.01) {
+      std::fprintf(stderr, "factory cab selection did not apply: cab %.1f set %.1f\n",
+                   shared.get(amp::P_CAB), shared.get(amp::P_CAB_SET));
+      return 1;
+    }
+    panel.draw(cr, shared, state);
+    // DEFAULT resets to the model's own cab.
+    panel.pointerDown(shared, state, 115.0, 214.0, false);
+    panel.pointerUp();
+    if (shared.get(amp::P_CAB) > 0.5 ||
+        std::fabs(shared.get(amp::P_CAB_SET)) > 0.01) {
+      std::fprintf(stderr, "default cab did not reset the factory set\n");
+      return 1;
+    }
+    state.page = 0;
+  }
+
   // When the host supplies tempo, the manual BPM knob is hidden and the
   // delay page shows the host tempo instead.
   {

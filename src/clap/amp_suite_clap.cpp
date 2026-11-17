@@ -793,16 +793,18 @@ bool stateLoad(const clap_plugin_t* p, const clap_istream_t* stream) {
   StateHeader header{};
   if (stream->read(stream, &header, sizeof(header)) !=
           static_cast<int64_t>(sizeof(header)) ||
-      header.version != 1u || header.count != P_COUNT) {
+      header.version != 1u || header.count == 0 || header.count > 4096) {
     return false;
   }
-  double values[P_COUNT];
-  if (stream->read(stream, values, sizeof(values)) !=
-      static_cast<int64_t>(sizeof(values))) {
+  std::vector<double> values(header.count);
+  if (stream->read(stream, values.data(),
+                   static_cast<uint64_t>(header.count) * sizeof(double)) !=
+      static_cast<int64_t>(header.count * sizeof(double))) {
     return false;
   }
   for (uint32_t i = 0; i < P_COUNT; ++i) {
-    s->shared.setFromHost(i, values[i]);
+    s->shared.setFromHost(i, i < header.count ? values[i]
+                                               : kParamSpecs[i].def);
   }
   double scale = 0.0;
   if (stream->read(stream, &scale, sizeof(scale)) ==

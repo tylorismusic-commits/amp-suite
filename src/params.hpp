@@ -81,6 +81,7 @@ enum ParamId : uint32_t {
   P_GATE_ON,
   P_GATE_THRESH,
   P_GATE_DECAY,
+  P_CAB_SET,
   P_COUNT
 };
 
@@ -115,7 +116,11 @@ struct ParamSpec {
 inline constexpr const char* kModelLabels[] = {
     "Chorus Clean", "Chime", "Crunch", "Hot Rod",
     "Block 120",   "Stealth", "Recto"};
-inline constexpr const char* kCabLabels[] = {"Default", "Alternate", "User"};
+inline constexpr const char* kCabLabels[] = {"Default", "Custom", "User"};
+inline constexpr const char* kCabSetLabels[] = {
+    "Auto", "Chorus 2×12", "Alnico 2×12", "V30 4×12",
+    "G12T-75 4×12", "1200 4×12", "G12-EVH 4×12",
+    "OS V30 4×12", "Greenback 4×12"};
 inline constexpr const char* kCabMicLabels[] = {"Dynamic", "Ribbon", "Blend"};
 inline constexpr const char* kDelaySyncLabels[] = {"Free", "Host"};
 inline constexpr const char* kDelayDivLabels[] = {
@@ -246,6 +251,8 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      false, nullptr, {}},
     {"gate_decay", "Gate Decay", "Gate", 0.0, 1.0, 0.4, false, false, false,
      nullptr, {}},
+    {"cab_set", "Factory Cab", "Cab", 0.0, 8.0, 0.0, true, false, false, nullptr,
+     labels(kCabSetLabels)},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -358,6 +365,7 @@ inline Controls controlsFrom(const Shared& s) {
   c.crunch = s.get(P_CRUNCH) > 0.5;
   c.powerScale = static_cast<int>(s.get(P_POWER_SCALE) + 0.5);
   c.cab = static_cast<int>(s.get(P_CAB) + 0.5);
+  c.cabSet = static_cast<int>(s.get(P_CAB_SET) + 0.5);
   c.cabMic = static_cast<int>(s.get(P_CAB_MIC) + 0.5);
   c.cabLevel = static_cast<float>(s.get(P_CAB_LEVEL));
   c.cabLowCut = static_cast<float>(s.get(P_CAB_LOWCUT));

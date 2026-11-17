@@ -28,7 +28,7 @@ off, and the stock 1200 4×12 cab.
 M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 65-parameter host contract; CLAP state save/load.
+- ✅ 66-parameter host contract; CLAP state save/load (older 65-value sessions still load).
 - ✅ Power button is a true dry bypass (input passes through untouched).
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and a 24-preset factory bank with a scrolling browser.
@@ -65,9 +65,11 @@ M1 is in progress:
   instead of sticking to a bias offset.
 - ✅ Stable, sample-rate-independent power-amp feedback; high-gain models no
   longer self-oscillate or warble at low Gain, and clean up below 4.5.
-- ✅ Host-tempo delay sync with named note divisions, and a 15/20/15 ms
+- ✅ Host-tempo delay sync with named note divisions, and a 15/20/40 ms
   fade-through-silence on amp-model and cab/IR changes.
 - ✅ Amp-faceplate grille with the active model name in the Jost logo style.
+- ✅ Any factory cab can be paired with any amp; the cab page lists all eight.
+- ✅ Input knob aligned with the gate column; master moved down clear of the EQ.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

@@ -138,6 +138,49 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  // A session saved before cab_set was added has 65 values.  It must still
+  // load, with the new parameter taking its default.
+  {
+    struct OldHeader {
+      uint32_t version;
+      uint32_t count;
+    };
+    const OldHeader header{1u, 65u};
+    std::vector<unsigned char> oldState;
+    auto append = [&](const void* p, size_t n) {
+      const auto* b = static_cast<const unsigned char*>(p);
+      oldState.insert(oldState.end(), b, b + n);
+    };
+    append(&header, sizeof(header));
+    for (uint32_t i = 0; i < 65u; ++i) {
+      double v = amp::kParamSpecs[i].def;
+      if (i == amp::P_GAIN) {
+        v = 0.2;
+      }
+      append(&v, sizeof(v));
+    }
+    const double scale = 1.0;
+    append(&scale, sizeof(scale));
+    const uint32_t irVersion = 1u;
+    const uint32_t irCount = 0u;
+    append(&irVersion, sizeof(irVersion));
+    append(&irCount, sizeof(irCount));
+    clap_istream_t oldStream{&oldState, streamRead};
+    if (!state->load(plugin, &oldStream)) {
+      std::fprintf(stderr, "old 65-parameter state failed to load\n");
+      return 1;
+    }
+    double gain = 0.0;
+    double cabSet = 1.0;
+    if (!params->get_value(plugin, amp::P_GAIN, &gain) ||
+        !params->get_value(plugin, amp::P_CAB_SET, &cabSet) ||
+        std::fabs(gain - 0.2) > 1e-6 || std::fabs(cabSet) > 1e-6) {
+      std::fprintf(stderr, "old state did not map correctly (gain %.3f, cabSet %.3f)\n",
+                   gain, cabSet);
+      return 1;
+    }
+  }
+
   if (!plugin->activate(plugin, 48000.0, 1, 512)) {
     std::fprintf(stderr, "activate failed\n");
     return 1;

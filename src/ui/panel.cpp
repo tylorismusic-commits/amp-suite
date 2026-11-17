@@ -220,7 +220,6 @@ bool hasPresence(int model) { return model != 0; }
 bool hasResonance(int model) {
   return model == 2 || model == 4 || model == 5 || model == 6;
 }
-bool hasBright(int model) { return model == 0; }
 bool hasCut(int model) { return model == 1; }
 bool hasPowerScale(int model) { return model == 2; }
 bool hasCrunch(int model) { return model == 4; }
@@ -228,11 +227,38 @@ bool hasRectifier(int model) { return model == 6; }
 bool hasVoice(int model) {
   return model == 3 || model == 5 || model == 6;
 }
-bool hasAlternate(int model) { return model == 3 || model == 4; }
+const char* factoryCabName(int set) {
+  switch (set) {
+    case 0: return "Chorus 2×12";
+    case 1: return "Alnico 2×12";
+    case 2: return "V30 4×12";
+    case 3: return "G12T-75 4×12";
+    case 4: return "1200 4×12";
+    case 5: return "G12-EVH 4×12";
+    case 6: return "OS V30 4×12";
+    default: return "Greenback 4×12";
+  }
+}
 
-const char* cabName(int model, int cab) {
+const char* factoryCabSubtitle(int set) {
+  switch (set) {
+    case 0: return "open-back · chorus stereo";
+    case 1: return "alnico blue · open-back";
+    case 2: return "closed-back · V30";
+    case 3: return "closed-back · G12T-75";
+    case 4: return "closed-back · 1200";
+    case 5: return "closed-back · G12-EVH";
+    case 6: return "oversized · late-90s V30";
+    default: return "closed-back · greenback";
+  }
+}
+
+const char* cabName(int model, int cab, int cabSet) {
   if (cab == 2) {
     return "User IR";
+  }
+  if (cab == 1 && cabSet > 0) {
+    return factoryCabName(std::min(std::max(cabSet - 1, 0), 7));
   }
   switch (model) {
     case 0: return "Chorus 2×12";
@@ -245,9 +271,12 @@ const char* cabName(int model, int cab) {
   }
 }
 
-const char* cabSubtitle(int model, int cab) {
+const char* cabSubtitle(int model, int cab, int cabSet) {
   if (cab == 2) {
     return "user impulse response · factory fallback";
+  }
+  if (cab == 1 && cabSet > 0) {
+    return factoryCabSubtitle(std::min(std::max(cabSet - 1, 0), 7));
   }
   switch (model) {
     case 0: return "open-back · chorus stereo";
@@ -258,6 +287,10 @@ const char* cabSubtitle(int model, int cab) {
     case 5: return "closed-back · G12-EVH";
     default: return "oversized · late-90s V30";
   }
+}
+
+int cabSetFrom(const Shared& shared) {
+  return static_cast<int>(std::lround(shared.get(P_CAB_SET)));
 }
 
 const char* modelName(int model) {
@@ -542,8 +575,8 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     pill(P_GATE_ON, 86, 150, 64, 22, "GATE");
     knob(P_GATE_THRESH, 118, 215, 22, "THRESH", {}, true);
     knob(P_GATE_DECAY, 118, 300, 20, "DECAY", {}, true);
-    knob(P_INPUT, 90, 520, 22, "INPUT", kTrimScale, true);
-    knob(P_MASTER, 465, 520, 26, "MASTER", {"-18", "-9", "0"});
+    knob(P_INPUT, 118, 520, 22, "INPUT", kTrimScale, true);
+    knob(P_MASTER, 465, 540, 26, "MASTER", {"-18", "-9", "0"});
     knob(P_OUTPUT, 900, 520, 30, "OUTPUT", kTrimScale);
 
     // Amp bypass: keep the 808, loop and cab active without the preamp/power.
@@ -621,12 +654,14 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_NAM_LEVEL, 900, 380, 26, "LEVEL", {}, true);
   } else {
     // Cabinet page.
-    const bool alt = hasAlternate(model);
     button(P_CAB, 60, 200, 110, 28, 0.0, "DEFAULT");
-    if (alt) {
-      button(P_CAB, 180, 200, 110, 28, 1.0, "ALT");
+    button(P_CAB, 180, 200, 110, 28, 1.0, "CUSTOM");
+    button(P_CAB, 300, 200, 110, 28, 2.0, "USER");
+
+    for (int i = 0; i < 8; ++i) {
+      button(P_CAB_SET, 540, 222 + i * 30, 180, 26, i + 1,
+             kParamSpecs[P_CAB_SET].labels.names[i + 1]);
     }
-    button(P_CAB, alt ? 300 : 180, 200, 110, 28, 2.0, "USER");
 
     button(P_CAB_MIC, 760, 200, 80, 26, 0.0, "DYNAMIC");
     button(P_CAB_MIC, 850, 200, 80, 26, 1.0, "RIBBON");
@@ -796,11 +831,20 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
         if (w.param >= P_COUNT) {
           return true;
         }
+        if (w.param == P_CAB_SET) {
+          shared.set(P_CAB, 1.0);
+          shared.set(w.param, w.value);
+          markEdited(state);
+          return true;
+        }
         if (w.param == P_CAB) {
           const int model = std::min(
               std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
           if (w.value < 1.5) {
             shared.set(P_USER_IR_0 + model, 0.0);
+          }
+          if (w.value < 0.5) {
+            shared.set(P_CAB_SET, 0.0);
           }
         }
         shared.set(w.param, w.value);
@@ -1111,6 +1155,8 @@ void Panel::applyPreset(Shared& shared, PanelState& state, int index) const {
   }
   const Preset& p = kPresets[index];
   shared.set(P_MODEL, static_cast<double>(p.model));
+  // Factory presets historically rely on the model's default/alternate cab.
+  shared.set(P_CAB_SET, 0.0);
   for (const PresetValue& v : p.values) {
     if (v.param >= 0 && v.param < static_cast<int>(P_COUNT)) {
       shared.set(static_cast<uint32_t>(v.param), v.value);
@@ -1238,16 +1284,17 @@ void Panel::drawAmpPage(cairo_t* cr, const Shared& shared,
                         const PanelState& state) const {
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
+  const int cabSet = cabSetFrom(shared);
   drawCabWindow(cr, shared, state, model);
   drawLeds(cr, state, model);
 
   // Cab label in the right column.
   const std::string userIr = selectedUserIrName(shared, state);
   const char* cabLabel = cab == 2 && !userIr.empty() ? userIr.c_str()
-                                                     : cabName(model, cab);
+                                                     : cabName(model, cab, cabSet);
   text(cr, "CABINET", 900, 180, 10, 1, 0.45, 0.47, 0.50);
   text(cr, cabLabel, 900, 202, 13, 1, 0.86, 0.88, 0.90);
-  text(cr, cabSubtitle(model, cab), 900, 220, 9.5, 1, 0.42, 0.44, 0.47);
+  text(cr, cabSubtitle(model, cab, cabSet), 900, 220, 9.5, 1, 0.42, 0.44, 0.47);
 
   // Output limiter caption, above its pill and knob.
   text(cr, "OUTPUT", 900, 256, 9.5, 1, 0.45, 0.47, 0.50);
@@ -1262,6 +1309,7 @@ void Panel::drawAmpPage(cairo_t* cr, const Shared& shared,
 void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
                           const PanelState& state, int model) const {
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
+  const int cabSet = cabSetFrom(shared);
   const Skin skin = skinFor(model);
   roundRect(cr, 170, 136, 570, 204, 5);
   setRgb(cr, mix(skin.bodyBottom, {0, 0, 0}, 0.55));
@@ -1302,7 +1350,7 @@ void Panel::drawCabWindow(cairo_t* cr, const Shared& shared,
   cairo_stroke(cr);
   const std::string userIr = selectedUserIrName(shared, state);
   text(cr, cab == 2 && !userIr.empty() ? userIr.c_str()
-                                       : cabName(model, cab),
+                                       : cabName(model, cab, cabSet),
        190, 159, 12, 0, 0.88, 0.90, 0.92);
   static const char* kMicNames[3] = {"DYNAMIC", "RIBBON", "BLEND"};
   const int mic = std::min(std::max(static_cast<int>(
@@ -1361,12 +1409,13 @@ void Panel::drawPedalPage(cairo_t* cr, const Shared& shared,
   (void)shared;
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
+  const int cabSet = cabSetFrom(shared);
   const Skin skin = skinFor(model);
   text(cr, "PEDALBOARD", 520, 150, 18, 1, skin.legend.r, skin.legend.g,
        skin.legend.b);
   char sub[160];
   std::snprintf(sub, sizeof(sub), "%s  ·  %s", modelName(model),
-                cabName(model, cab));
+                cabName(model, cab, cabSet));
   text(cr, sub, 520, 169, 10.5, 1, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
 
@@ -1415,18 +1464,23 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
                         const PanelState& state) const {
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
+  const int cabSet = cabSetFrom(shared);
   const Skin skin = skinFor(model);
   text(cr, "CABINET", 520, 150, 18, 1, skin.legend.r, skin.legend.g,
        skin.legend.b);
   char sub[160];
   std::snprintf(sub, sizeof(sub), "%s  ·  %s", modelName(model),
-                cabName(model, cab));
+                cabName(model, cab, cabSet));
   text(cr, sub, 520, 169, 10.5, 1, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
 
   text(cr, "FACTORY", 60, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
-  text(cr, "USER", hasAlternate(model) ? 300 : 180, 190, 10, 0,
+  text(cr, "USER", 310, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
+       skin.legendDim.b);
+  text(cr, "FACTORY CABS", 630, 207, 10, 1, skin.legend.r, skin.legend.g,
+       skin.legend.b);
+  text(cr, "Select any cab for the current amp.", 630, 476, 9, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 
   roundRect(cr, kUserBoxX, kUserBoxY, kUserBoxW, kUserBoxH, 6);
@@ -1492,7 +1546,7 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
     text(cr, userIr.empty() ? "User IR — none" : userIr.c_str(), 885, 262, 13,
          1, skin.legend.r, skin.legend.g, skin.legend.b);
   } else {
-    text(cr, cabName(model, cab), 885, 262, 13, 1, skin.legend.r,
+    text(cr, cabName(model, cab, cabSet), 885, 262, 13, 1, skin.legend.r,
          skin.legend.g, skin.legend.b);
   }
   text(cr, "Factory cabs are CC0 and embedded.", 885, 282, 9.5, 1,
@@ -1503,6 +1557,7 @@ void Panel::drawFooter(cairo_t* cr, const Shared& shared,
                        const PanelState& state) const {
   const int model = static_cast<int>(shared.get(P_MODEL) + 0.5);
   const int cab = static_cast<int>(shared.get(P_CAB) + 0.5);
+  const int cabSet = cabSetFrom(shared);
   const Skin skin = skinFor(model);
   cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.55);
   cairo_rectangle(cr, 0, 604, kPanelWidth, 36);
@@ -1518,7 +1573,7 @@ void Panel::drawFooter(cairo_t* cr, const Shared& shared,
     std::snprintf(buf, sizeof(buf), "PEDALBOARD  ·  %s", modelName(model));
   } else if (state.page == 2) {
     std::snprintf(buf, sizeof(buf), "CABINET  ·  %s  ·  %s", modelName(model),
-                  cabName(model, cab));
+                  cabName(model, cab, cabSet));
   } else if (state.page == 3) {
     const int index = static_cast<int>(shared.get(P_NAM_MODEL) + 0.5);
     const std::string name =
@@ -1528,7 +1583,7 @@ void Panel::drawFooter(cairo_t* cr, const Shared& shared,
     std::snprintf(buf, sizeof(buf), "NAM MODEL  ·  %s", name.c_str());
   } else {
     std::snprintf(buf, sizeof(buf), "%s  ·  %s", skin.caption,
-                  cabName(model, cab));
+                  cabName(model, cab, cabSet));
   }
   text(cr, buf, kPanelWidth * 0.5, 629, 13.5, 1, 0.86, 0.88, 0.90);
   text(cr, "v" AMP_SUITE_VERSION, 1016, 631, 9, 2, 0.38, 0.40, 0.43);
@@ -1547,6 +1602,10 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
         lit = spec.stepped
                   ? std::fabs(shared.get(w.param) - w.value) < 0.5
                   : shared.get(w.param) > 0.5;
+        if (w.param == P_CAB_SET) {
+          lit = shared.get(P_CAB) > 0.5 && shared.get(P_CAB) < 1.5 &&
+                std::fabs(shared.get(P_CAB_SET) - w.value) < 0.5;
+        }
       }
       drawButton(cr, w, lit, model);
       break;

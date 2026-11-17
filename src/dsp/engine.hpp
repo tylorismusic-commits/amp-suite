@@ -82,6 +82,7 @@ public:
     switchGain_ = 1.0f;
     switchFadeSamples_ = std::max(1.0f, sr_ * 0.015f);
     switchStep_ = 1.0f / switchFadeSamples_;
+    switchInStep_ = 1.0f / std::max(1.0f, sr_ * 0.040f);
     switchHoldSamples_ = std::max(1, static_cast<int>(sr_ * 0.020f));
   }
 
@@ -365,6 +366,12 @@ public:
       float dryR = right[i];
       inPeakL = std::max(inPeakL, std::fabs(dryL));
       inPeakR = std::max(inPeakR, std::fabs(dryR));
+      // During the silent hold, drive the DSP with zero so the old model's
+      // filter/power-amp state can settle before the new recipe is applied.
+      if (switchHold_ > 0) {
+        dryL = 0.0f;
+        dryR = 0.0f;
+      }
       gateSample(dryL, dryR, c.gateOn);
       const float in = inputSmooth_.next();
       const float trim = dbToGain((in - 0.5f) * 24.0f);
@@ -480,6 +487,12 @@ public:
       float dryR = right[i];
       inPeakL = std::max(inPeakL, std::fabs(dryL));
       inPeakR = std::max(inPeakR, std::fabs(dryR));
+      // During the silent hold, drive the DSP with zero so the old model's
+      // filter/power-amp state can settle before the new recipe is applied.
+      if (switchHold_ > 0) {
+        dryL = 0.0f;
+        dryR = 0.0f;
+      }
       gateSample(dryL, dryR, c.gateOn);
 
       const float in = inputSmooth_.next();
@@ -646,8 +659,8 @@ public:
       r *= outGain;
 
       // Brief mute when the model or cab/IR changes: 15 ms fade-out, 20 ms
-      // silent hold for the recipe/IR swap, then 15 ms fade-in.  The hold
-      // makes the IR change inaudible instead of clicking.
+      // zero-input hold for the recipe/IR swap, then a 40 ms fade-in so the
+      // new model's level/timbre change does not arrive as a step.
       if (fadeDir_ < 0) {
         switchGain_ -= switchStep_;
         if (switchGain_ <= 0.0f) {
@@ -661,7 +674,7 @@ public:
           switchReady_ = true;
         }
       } else if (fadeDir_ > 0) {
-        switchGain_ += switchStep_;
+        switchGain_ += switchInStep_;
         if (switchGain_ >= 1.0f) {
           switchGain_ = 1.0f;
           fadeDir_ = 0;
@@ -798,14 +811,21 @@ private:
     const int cabModel =
         (fadeDir_ == -1 && lastModel_ >= 0) ? lastModel_ : controls_.model;
     int set = cabModel;
-    if (cabModel == 3 && controls_.cab == 1) {
-      set = CabBank::HotRodGreen;
-    }
-    if (cabModel == 4 && controls_.cab == 1) {
-      set = CabBank::Recto;
-    }
-    if (cabModel == 6) {
-      set = CabBank::Recto;
+    const bool custom = controls_.cab == 1;
+    if (custom && controls_.cabSet > 0) {
+      // Explicit factory cab chosen independently of the amp model.
+      set = std::clamp(controls_.cabSet - 1, 0,
+                       static_cast<int>(CabBank::Count) - 1);
+    } else {
+      if (cabModel == 3 && custom) {
+        set = CabBank::HotRodGreen;
+      }
+      if (cabModel == 4 && custom) {
+        set = CabBank::Recto;
+      }
+      if (cabModel == 6) {
+        set = CabBank::Recto;
+      }
     }
     const CabIR* ir = nullptr;
     if (controls_.cab == 2 && activeUserBank_) {
@@ -854,6 +874,7 @@ private:
   float switchFadeSamples_ = 1.0f;
   float switchGain_ = 1.0f;
   float switchStep_ = 1.0f;
+  float switchInStep_ = 0.001f;
   float bpm_ = 120.0f;
   bool hostTempo_ = false;
   float vuCoeff_ = 0.0f;

@@ -92,8 +92,13 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 62 | `gate_on` | Gate On | 0–1 | 0 | toggle | input noise gate |
 | 63 | `gate_thresh` | Gate Threshold | 0–1 | 0.55 | | `-80 + 60v` dBFS |
 | 64 | `gate_decay` | Gate Decay | 0–1 | 0.4 | | `20 + 980v` ms release |
+| 65 | `cab_set` | Factory Cab | 0–8 | 0 | stepped | 0 auto, 1–8 explicit factory cab |
 
-`P_COUNT = 65`.
+`P_COUNT = 66`.
+
+The factory cab is independent of the amp model: `cab` selects Default,
+Custom or User, and `cab_set` selects one of the eight factory cabs when
+`cab` is Custom.  The cab page lists all eight.
 
 User IRs are WAV files in `$XDG_DATA_HOME/amp-suite/irs/user` (usually
 `~/.local/share/amp-suite/irs/user`). The list is sorted by filename; the

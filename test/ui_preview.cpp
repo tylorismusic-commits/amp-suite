@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
   const std::string outDir =
       argc > 2 ? argv[2] : "/tmp/ampsuite-preview";
   const double scale = argc > 3 ? std::atof(argv[3]) : 1.0;
+  const int cabSet = argc > 4 ? std::atoi(argv[4]) : 0;
   if (scale < 0.5 || scale > 2.5) {
     std::fprintf(stderr, "scale must be 0.5..2.5\n");
     return 2;
@@ -30,6 +31,10 @@ int main(int argc, char** argv) {
   panel.loadFont(fontDir);
   amp::Shared shared;
   amp::applyStartupPreset(shared);
+  if (cabSet > 0) {
+    shared.set(amp::P_CAB, 1.0);
+    shared.set(amp::P_CAB_SET, static_cast<double>(cabSet));
+  }
   amp::PanelState state;
 
   const int w = static_cast<int>(amp::kPanelWidth * scale);

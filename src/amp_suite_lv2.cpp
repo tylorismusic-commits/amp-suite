@@ -342,10 +342,13 @@ LV2_State_Status stateRestore(LV2_Handle handle,
   uint32_t valueFlags = 0;
   const void* params = retrieve(data, p->uridParams, &size, &type,
                                 &valueFlags);
-  if (params && size == sizeof(double) * amp::P_COUNT) {
+  if (params && size % sizeof(double) == 0 && size > 0 &&
+      size <= sizeof(double) * 4096) {
+    const size_t count = size / sizeof(double);
     const double* values = static_cast<const double*>(params);
     for (uint32_t i = 0; i < amp::P_COUNT; ++i) {
-      p->shared.setFromHost(i, values[i]);
+      p->shared.setFromHost(i, i < count ? values[i]
+                                         : amp::kParamSpecs[i].def);
     }
   }
 

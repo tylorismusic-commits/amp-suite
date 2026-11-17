@@ -53,6 +53,7 @@ struct Controls {
 
   // Cab.
   int cab = 0;              // 0 factory default, 1 alternate, 2 user
+  int cabSet = 0;           // 0 auto, 1..8 explicit factory cab set
   int cabMic = 0;           // 0 dynamic, 1 ribbon, 2 blend
   int userIr[7] = {0, 0, 0, 0, 0, 0, 0};  // 1-based user library index
   float cabLevel = 0.6f;    // mapped to -24..+6 dB
