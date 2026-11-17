@@ -18,6 +18,11 @@ section:
 | Stealth EL34 | 5150III-style EL34 high gain |
 | Recto | Dual Rectifier-style modern high gain |
 
+![Amp Suite — Block 120 amp page](docs/screenshots/amp-suite.png)
+
+*The Block 120 amp page: the active amp name is printed large on the grille,
+with the gate controls between the input meter and the cabinet.*
+
 The panel follows the Comp Suite layout: amp tabs across the top, a shared amp
 control grid, and header pills for **PEDALS**, **CAB**, **HQ** and **LOOP**.
 The pedal and cabinet pages replace the body while open; the plugin never
