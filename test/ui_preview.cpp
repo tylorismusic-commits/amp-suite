@@ -16,7 +16,7 @@
 
 int main(int argc, char** argv) {
   const std::string fontDir =
-      argc > 1 ? argv[1] : "/home/tylor/Projects/amp-suite/assets/fonts";
+      argc > 1 ? argv[1] : "assets/fonts";
   const std::string outDir =
       argc > 2 ? argv[2] : "/tmp/ampsuite-preview";
   const double scale = argc > 3 ? std::atof(argv[3]) : 1.0;

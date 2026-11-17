@@ -2,17 +2,18 @@
 pkgname=amp-suite
 pkgver=0.2.0
 pkgrel=1
+_tag=0.2.0-alpha
 pkgdesc="Seven-amp guitar suite for Linux (CLAP + LV2)"
 arch=('x86_64')
 url="https://github.com/tylorismusic-commits/amp-suite"
 license=('GPL-3.0-or-later')
 depends=('cairo' 'freetype2' 'libx11' 'lv2' 'libsamplerate')
 makedepends=('cmake' 'pkgconf' 'lilv' 'libxtst' 'xorg-server-xvfb')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+source=("$pkgname-$_tag.tar.gz::$url/archive/v$_tag.tar.gz")
 sha256sums=('SKIP')
 
 build() {
-  cmake -S "$pkgname-$pkgver" -B build \
+  cmake -S "$pkgname-$_tag" -B build \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr
   cmake --build build -j"$(nproc)"

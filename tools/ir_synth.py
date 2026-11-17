@@ -14,9 +14,9 @@ Method:
   4. Normalize the peak and write 48 kHz / 96 kHz PCM-24 WAVs.
 
 Examples:
-  /tmp/opencode/amp-venv/bin/python tools/ir_synth.py --all
-  /tmp/opencode/amp-venv/bin/python tools/ir_synth.py --cab block-120
-  /tmp/opencode/amp-venv/bin/python tools/ir_synth.py --self-test
+  python3 tools/ir_synth.py --all
+  python3 tools/ir_synth.py --cab block-120
+  python3 tools/ir_synth.py --self-test
 """
 
 from __future__ import annotations
