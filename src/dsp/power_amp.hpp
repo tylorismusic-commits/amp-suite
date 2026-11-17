@@ -55,7 +55,12 @@ public:
     if (std::fabs(a) < 1.0e-30) {
       return;
     }
-    a1_ = static_cast<float>(-(A0 - 2.0 * A1 * sr_) / a);
+    // Denominator coefficient of z^-1 is (A0 - 2*A1*fs); the difference
+    // equation subtracts a1_*y1, so a1_ is that value directly.  An extra
+    // minus sign here turns the shelving feedback network into a near-Nyquist
+    // resonator whose loop gain exceeds unity at high oversampling rates and
+    // self-oscillates (heard as low-level warble and a "gated" feel).
+    a1_ = static_cast<float>((A0 - 2.0 * A1 * sr_) / a);
     b0_ = static_cast<float>((B0 + 2.0 * B1 * sr_) / a);
     b1_ = static_cast<float>((B0 - 2.0 * B1 * sr_) / a);
   }

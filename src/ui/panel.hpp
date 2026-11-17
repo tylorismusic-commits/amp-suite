@@ -79,6 +79,11 @@ public:
                       const PanelState& state) const;
   void markEdited(PanelState& state) const { state.presetDirty = true; }
   bool wheel(Shared& shared, PanelState& state, double x, double y, double dy);
+  void beginTextEntry(Shared& shared, PanelState& state, double x, double y);
+  static constexpr int kTextEnter = 1;
+  static constexpr int kTextEscape = 2;
+  static constexpr int kTextBackspace = 3;
+  bool textKey(Shared& shared, PanelState& state, int key, char ch);
 
   // Copies a WAV into the user IR folder and selects it for the current amp.
   bool importUserIr(Shared& shared, PanelState& state,
@@ -159,6 +164,9 @@ private:
                       double levelL, double levelR, int model,
                       bool labelsRight, double minDb, double maxDb) const;
   void drawLeds(cairo_t* cr, const PanelState& state, int model) const;
+  void drawTextEntry(cairo_t* cr, const Shared& shared, int model) const;
+  bool commitTextEntry(Shared& shared, PanelState& state);
+  bool hitTextEntry(double x, double y) const;
   void drawCabWindow(cairo_t* cr, const Shared& shared,
                      const PanelState& state, int model) const;
   void openFileBrowser(PanelState& state, bool nam = false) const;
@@ -181,6 +189,18 @@ private:
   int dragParam_ = -1;
   double dragStartY_ = 0.0;
   double dragStartValue_ = 0.0;
+
+  int lastClickParam_ = -1;
+  double lastClickTime_ = 0.0;
+  static constexpr double kDoubleClickMs = 400.0;
+
+  bool editing_ = false;
+  uint32_t editParam_ = 0;
+  std::string editText_;
+  double editBoxX_ = 0.0;
+  double editBoxY_ = 0.0;
+  static constexpr double kEditW = 150.0;
+  static constexpr double kEditH = 32.0;
 
   cairo_surface_t* grain_ = nullptr;
   void* ft_ = nullptr;

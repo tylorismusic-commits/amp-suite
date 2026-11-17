@@ -29,6 +29,7 @@ M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
 - ✅ 65-parameter host contract; CLAP state save/load.
+- ✅ Power button is a true dry bypass (input passes through untouched).
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and a 24-preset factory bank with a scrolling browser.
 - ✅ LV2 metadata generated from the parameter table.
@@ -62,6 +63,8 @@ M1 is in progress:
   high-gain factory presets.
 - ✅ High-gain sustain compressor and DC blocking so notes decay musically
   instead of sticking to a bias offset.
+- ✅ Stable, sample-rate-independent power-amp feedback; high-gain models no
+  longer self-oscillate or warble at low Gain, and clean up below 4.5.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

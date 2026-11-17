@@ -120,15 +120,19 @@ inline const AmpRecipe& recipeFor(int model) noexcept {
       // Hot Rod
       {"Hot Rod", 4, {s1, s2, s3, s4}, ToneStackKind::JTM45, 0.65f, 1.6f,
        0.05f, 0.14f, 0.8f, 14.5f, true, false},
-      // Block 120
-      {"Block 120", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Peavey, 1.60f,
-       1.8f, 0.06f, 0.06f, 0.8f, 8.5f, false, false},
+      // Block 120.  The high-gain models keep the power amp comparatively
+      // clean at low gain so turning the Gain knob down actually cleans up;
+      // the preamp cascade supplies the snarl and the sustain compressor
+      // supplies the tail.  Low makeup + post-power trim keeps the power valve
+      // out of saturation until the preamp is already dirty.
+      {"Block 120", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Peavey, 2.00f,
+       1.6f, 0.06f, 0.06f, 1.2f, 2.5f, false, false},
       // Stealth EL34
       {"Stealth EL34", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Bogner,
-       1.70f, 1.9f, 0.07f, 0.07f, 0.8f, 11.0f, true, false},
+       2.00f, 1.7f, 0.07f, 0.07f, 1.2f, 5.0f, true, false},
       // Recto
-      {"Recto", 5, {s1, s2, s3, s4, s5}, ToneStackKind::Mesa, 1.40f, 1.7f,
-       0.04f, 0.22f, 0.8f, 11.0f, false, false},
+      {"Recto", 5, {s1, s2, s3, s4, s5}, ToneStackKind::Mesa, 1.80f, 1.7f,
+       0.04f, 0.22f, 1.2f, 11.0f, false, false},
   };
   const int m = model < 0 ? 0 : (model > 6 ? 6 : model);
   return recipes[m];

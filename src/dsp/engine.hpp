@@ -69,38 +69,84 @@ public:
     lastModel_ = -1;
     powerOs_ = 0;
     pendingModel_ = -1;
+    pendingControls_ = Controls{};
     fadeDir_ = 0;
+    switchReady_ = false;
     switchGain_ = 1.0f;
-    switchStep_ = 1.0f / std::max(1.0f, sr_ * 0.010f);
+    switchStep_ = 1.0f / std::max(1.0f, sr_ * 0.005f);
   }
 
   void setControls(const Controls& c) noexcept {
     if (lastModel_ < 0) {
       lastModel_ = c.model;
       prepareRecipe(c.model);
-      pendingModel_ = -1;
       fadeDir_ = 0;
     }
-    if (c.model != lastModel_ && fadeDir_ != -1) {
-      pendingModel_ = c.model;
-      fadeDir_ = -1;
+    if (!c.enabled) {
+      // Power off is an immediate true bypass.  Do not wait for a pending
+      // model fade to finish; cancel it and let the next powered-on call
+      // request the model again.
+      controls_.enabled = false;
+      pendingModel_ = -1;
+      switchReady_ = false;
+      fadeDir_ = 0;
+      switchGain_ = 1.0f;
+      return;
     }
-    const int activeModel = (fadeDir_ == -1 && pendingModel_ >= 0)
-                                ? lastModel_
-                                : c.model;
+    // Make sure the audio path is live before any pending model fade runs;
+    // otherwise the fade would stall behind the bypass check.
+    controls_.enabled = true;
+    if (c.namOn) {
+      // The NAM path replaces the amp, so a model change cannot click.  Apply
+      // it directly; otherwise a pending fade would never run and control
+      // updates would stall.
+      lastModel_ = c.model;
+      prepareRecipe(c.model);
+      controls_ = c;
+      applyControls(c);
+      pendingModel_ = -1;
+      switchReady_ = false;
+      fadeDir_ = 0;
+      switchGain_ = 1.0f;
+      return;
+    }
+    if (switchReady_) {
+      lastModel_ = pendingModel_;
+      prepareRecipe(pendingModel_);
+      controls_ = pendingControls_;
+      applyControls(controls_);
+      pendingModel_ = -1;
+      switchReady_ = false;
+      fadeDir_ = 1;
+      return;
+    }
+    if (c.model != lastModel_) {
+      if (fadeDir_ != -1) {
+        pendingModel_ = c.model;
+        pendingControls_ = c;
+        fadeDir_ = -1;
+      }
+      // Keep the current recipe and controls while fading down; the pending
+      // set is applied at silence on the next block.
+      return;
+    }
     controls_ = c;
-    const AmpRecipe& r = recipeFor(activeModel);
+    applyControls(c);
+  }
+
+  void applyControls(const Controls& c) noexcept {
+    const AmpRecipe& r = recipeFor(c.model);
     // The Gain knob is a preamp-drive range around a calibrated pivot.  The
     // high-gain models get a wider range and a lower pivot so they snarl
     // around 6 and are fully saturated by 10 with active pickups.
     float gainSpan = 36.0f;
     float gainPivot = 0.5f;
-    if (activeModel == 4 || activeModel == 5 || activeModel == 6) {
-      gainSpan = 48.0f;
-      gainPivot = 0.45f;
-    } else if (activeModel == 2 || activeModel == 3) {
+    if (c.model == 4 || c.model == 5 || c.model == 6) {
+      gainSpan = 60.0f;
+      gainPivot = 0.60f;
+    } else if (c.model == 2 || c.model == 3) {
       gainSpan = 42.0f;
-    } else if (activeModel == 1) {
+    } else if (c.model == 1) {
       gainSpan = 30.0f;
     }
     preGain_ = r.preGain * dbToGain((c.gain - gainPivot) * gainSpan);
@@ -136,9 +182,39 @@ public:
             : ((c.model == 2 || c.model == 3) ? 2.0f : 0.0f);
     preBrightL_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
     preBrightR_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
+    // Tighten the low end going into the high-gain cascade and add a little
+    // 1.2 kHz focus.  This is the "tight" high-pass a 5150-style preamp has:
+    // it keeps the low string from dominating the clipper and lets the upper
+    // harmonics carry the aggression.
+    const float tightHz =
+        (c.model == 4 || c.model == 5 || c.model == 6)
+            ? 105.0f
+            : ((c.model == 2 || c.model == 3) ? 80.0f : 20.0f);
+    const float focusDb =
+        (c.model == 4 || c.model == 5 || c.model == 6)
+            ? 2.5f
+            : ((c.model == 2 || c.model == 3) ? 1.0f : 0.0f);
+    preTightL_.set(tightHz, sr_);
+    preTightR_.set(tightHz, sr_);
+    preFocusL_.peak(1200.0f, focusDb, 0.8f, sr_);
+    preFocusR_.peak(1200.0f, focusDb, 0.8f, sr_);
+    const float airDb =
+        (c.model == 4 || c.model == 5 || c.model == 6)
+            ? 3.0f
+            : ((c.model == 2 || c.model == 3) ? 1.0f : 0.0f);
+    postAirL_.highShelf(5000.0f, airDb, 0.7f, sr_);
+    postAirR_.highShelf(5000.0f, airDb, 0.7f, sr_);
     gateThreshold_ = dbToGain(-80.0f + 60.0f * c.gateThreshold);
     gateRelease_ = timeCoeff(20.0f + 980.0f * c.gateDecay, sr_);
-    compOn_ = activeModel >= 4 && activeModel <= 6;
+    // Sustain compressor.  Rather than switching on at a gain threshold
+    // (which made a level step around Gain 5), blend it in smoothly between
+    // Gain 5 and 6.  The gain-reduction state keeps running so the blend
+    // never jumps when it becomes audible.
+    const bool highGain = c.model >= 4 && c.model <= 6;
+    compMix_ = highGain
+                   ? std::clamp((c.gain - 0.50f) / 0.10f, 0.0f, 1.0f)
+                   : 0.0f;
+    compOn_ = highGain;
     compThreshold_ = dbToGain(-32.0f);
     compMakeup_ = dbToGain(16.0f);
     setPresenceResonance(c);
@@ -186,12 +262,41 @@ public:
     r *= gateGain_;
   }
 
+  // Power off is a true bypass: the dry input already sits in the output
+  // buffers, so leave it untouched and only refresh the meters.  No cab, no
+  // delay tails, no output trim, no host-side enable is consulted.
+  void bypass(float* left, float* right, int frames,
+              Meters& meters) noexcept {
+    float inPeakL = 0.0f;
+    float inPeakR = 0.0f;
+    float power = 0.0f;
+    for (int i = 0; i < frames; ++i) {
+      const float l = left[i];
+      const float r = right[i];
+      inPeakL = std::max(inPeakL, std::fabs(l));
+      inPeakR = std::max(inPeakR, std::fabs(r));
+      power += 0.5f * (l * l + r * r);
+    }
+    if (frames > 0) {
+      power /= static_cast<float>(frames);
+    }
+    vuPower_ = vuCoeff_ * vuPower_ + (1.0f - vuCoeff_) * power;
+    meters.inPeakLDb = gainToDb(inPeakL);
+    meters.inPeakRDb = gainToDb(inPeakR);
+    meters.inPeakDb = std::max(meters.inPeakLDb, meters.inPeakRDb);
+    meters.outPeakLDb = meters.inPeakLDb;
+    meters.outPeakRDb = meters.inPeakRDb;
+    meters.outPeakDb = meters.inPeakDb;
+    meters.outVuDb = gainToDb(std::sqrt(vuPower_)) + 18.0f;
+    meters.bpm = hostTempo_ ? bpm_ : controls_.bpm;
+    meters.hostTempo = hostTempo_;
+  }
+
   void processNam(float* left, float* right, int frames,
                   Meters& meters) noexcept {
     const Controls c = controls_;
     const float cabLevel =
         c.cabBypass ? 1.0f : dbToGain(cabLevelDb(c.cabLevel));
-    const float enabled = c.enabled ? 1.0f : 0.0f;
     const float namTrim = dbToGain(-12.0f + 24.0f * c.namLevel);
     const float tempo = hostTempo_ ? bpm_ : c.bpm;
     delay_.setTargets(c, tempo);
@@ -261,8 +366,8 @@ public:
       }
       const float out = outputSmooth_.next();
       const float outGain = dbToGain((out - 0.5f) * 24.0f);
-      l *= enabled * outGain;
-      r *= enabled * outGain;
+      l *= outGain;
+      r *= outGain;
       if (c.limiterOn) {
         const float thresh = dbToGain(-24.0f + 24.0f * c.limiterThreshold);
         const float peakNow = std::max(std::fabs(l), std::fabs(r));
@@ -294,6 +399,10 @@ public:
 
   void process(float* left, float* right, int frames, Meters& meters) noexcept {
     const Controls c = controls_;
+    if (!c.enabled) {
+      bypass(left, right, frames, meters);
+      return;
+    }
     if (c.namOn && activeNam_) {
       processNam(left, right, frames, meters);
       return;
@@ -308,7 +417,6 @@ public:
     const float master = dbToGain(-18.0f + c.master * 18.0f);
     const float makeup = dbToGain(rec.makeupDb);
     const float cabLevel = c.cabBypass ? 1.0f : dbToGain(cabLevelDb(c.cabLevel));
-    const float enabled = c.enabled ? 1.0f : 0.0f;
 
     const float tempo = hostTempo_ ? bpm_ : c.bpm;
     delay_.setTargets(c, tempo);
@@ -346,6 +454,10 @@ public:
           l *= rec.outputTrim;
           r *= rec.outputTrim;
         } else {
+          l = preTightL_.process(l);
+          r = preTightR_.process(r);
+          l = preFocusL_.process(l);
+          r = preFocusR_.process(r);
           l = preBrightL_.process(l);
           r = preBrightR_.process(r);
           l *= preGain_;
@@ -424,6 +536,8 @@ public:
         r = resonanceR_.process(r);
         l *= master;
         r *= master;
+        l = postAirL_.process(l);
+        r = postAirR_.process(r);
       }
       l = dcPostL_.process(l);
       r = dcPostR_.process(r);
@@ -440,7 +554,8 @@ public:
         }
         const float gCoeff = target < compGain_ ? compAttack_ : compRelease_;
         compGain_ = gCoeff * compGain_ + (1.0f - gCoeff) * target;
-        const float g = compGain_ * compMakeup_;
+        const float wet = compGain_ * compMakeup_;
+        const float g = compMix_ * wet + (1.0f - compMix_);
         l *= g;
         r *= g;
       }
@@ -470,22 +585,18 @@ public:
 
       const float out = outputSmooth_.next();
       const float outGain = dbToGain((out - 0.5f) * 24.0f);
-      l *= enabled * outGain;
-      r *= enabled * outGain;
+      l *= outGain;
+      r *= outGain;
 
       // Brief zero-crossfade when the model changes: fade out, swap the
-      // recipe at silence, then fade in.  Ten milliseconds each way avoids
+      // recipe at silence, then fade in.  Five milliseconds each way avoids
       // clicks without a second full engine.
       if (fadeDir_ < 0) {
         switchGain_ -= switchStep_;
         if (switchGain_ <= 0.0f) {
           switchGain_ = 0.0f;
-          if (pendingModel_ >= 0) {
-            lastModel_ = pendingModel_;
-            prepareRecipe(pendingModel_);
-            pendingModel_ = -1;
-          }
-          fadeDir_ = 1;
+          fadeDir_ = 0;
+          switchReady_ = true;
         }
       } else if (fadeDir_ > 0) {
         switchGain_ += switchStep_;
@@ -557,6 +668,12 @@ public:
     os2R_.reset();
     preBrightL_.reset();
     preBrightR_.reset();
+    preTightL_.reset();
+    preTightR_.reset();
+    preFocusL_.reset();
+    preFocusR_.reset();
+    postAirL_.reset();
+    postAirR_.reset();
     presenceL_.reset();
     presenceR_.reset();
     presenceHiL_.reset();
@@ -663,6 +780,8 @@ private:
   int lastModel_ = -1;
   int active_ = -1;
   int pendingModel_ = -1;
+  Controls pendingControls_;
+  bool switchReady_ = false;
   int fadeDir_ = 0;
   float switchGain_ = 1.0f;
   float switchStep_ = 1.0f;
@@ -704,6 +823,12 @@ private:
   int powerOs_ = 0;
   Biquad preBrightL_;
   Biquad preBrightR_;
+  HighPass2 preTightL_;
+  HighPass2 preTightR_;
+  Biquad preFocusL_;
+  Biquad preFocusR_;
+  Biquad postAirL_;
+  Biquad postAirR_;
   Biquad presenceL_;
   Biquad presenceR_;
   Biquad presenceHiL_;
@@ -723,6 +848,7 @@ private:
   float compRelease_ = 0.0f;
   float compThreshold_ = 1.0f;
   float compMakeup_ = 1.0f;
+  float compMix_ = 0.0f;
   float compGain_ = 1.0f;
   float compEnv_ = 0.0f;
   bool compOn_ = false;

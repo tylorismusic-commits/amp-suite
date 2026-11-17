@@ -7,6 +7,7 @@
 #include "version.hpp"
 #include "dsp/nam_files.hpp"
 #include "dsp/user_ir.hpp"
+#include "value_text.hpp"
 
 #include <cairo-ft.h>
 #include <ft2build.h>
@@ -15,6 +16,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <chrono>
 #include <cstring>
 #include <filesystem>
 
@@ -270,6 +272,25 @@ std::string shorten(std::string s, size_t maxLen = 40) {
   return s;
 }
 
+double nowMs() {
+  return std::chrono::duration<double, std::milli>(
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
+}
+
+double presetResetValue(const PanelState& state, uint32_t param) {
+  double value = kParamSpecs[param].def;
+  if (state.presetIndex >= 0 && state.presetIndex < kPresetCount) {
+    for (const PresetValue& v : kPresets[state.presetIndex].values) {
+      if (v.param == static_cast<int>(param)) {
+        value = v.value;
+        break;
+      }
+    }
+  }
+  return value;
+}
+
 std::string selectedUserIrName(const Shared& shared, const PanelState& state) {
   const int model =
       std::min(std::max(static_cast<int>(shared.get(P_MODEL) + 0.5), 0), 6);
@@ -517,9 +538,9 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     if (hasResonance(model)) {
       knob(P_RESONANCE, 740, 420, 26, "RESONANCE", kToneScale);
     }
-    pill(P_GATE_ON, 50, 355, 96, 24, "GATE");
-    knob(P_GATE_THRESH, 70, 400, 17, "THRESH", {}, true);
-    knob(P_GATE_DECAY, 125, 400, 17, "DECAY", {}, true);
+    pill(P_GATE_ON, 86, 150, 64, 22, "GATE");
+    knob(P_GATE_THRESH, 118, 215, 22, "THRESH", {}, true);
+    knob(P_GATE_DECAY, 118, 300, 20, "DECAY", {}, true);
     knob(P_INPUT, 90, 520, 22, "INPUT", kTrimScale, true);
     knob(P_MASTER, 465, 520, 26, "MASTER", kToneScale);
     knob(P_OUTPUT, 900, 520, 30, "OUTPUT", kTrimScale);
@@ -662,6 +683,13 @@ bool Panel::isLit(const Shared& shared, const PanelState& state,
 bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
                         bool fine) {
   (void)fine;
+  if (editing_) {
+    if (hitTextEntry(x, y)) {
+      return true;
+    }
+    editing_ = false;
+    editText_.clear();
+  }
   if (state.fileBrowserOpen) {
     return handleFileBrowserClick(shared, state, x, y);
   }
@@ -720,11 +748,24 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
       continue;
     }
     switch (w.kind) {
-      case Kind::Knob:
+      case Kind::Knob: {
+        const double now = nowMs();
+        const bool doubleClick =
+            lastClickParam_ == static_cast<int>(w.param) &&
+            now - lastClickTime_ <= kDoubleClickMs;
+        lastClickParam_ = static_cast<int>(w.param);
+        lastClickTime_ = now;
+        if (doubleClick) {
+          shared.set(w.param, presetResetValue(state, w.param));
+          markEdited(state);
+          dragParam_ = -1;
+          return true;
+        }
         dragParam_ = static_cast<int>(w.param);
         dragStartY_ = y;
         dragStartValue_ = shared.get(w.param);
         return true;
+      }
       case Kind::ModelTab:
         shared.set(P_MODEL, w.value);
         state.presetIndex = -1;
@@ -792,6 +833,7 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
 
 bool Panel::pointerMove(Shared& shared, PanelState& state, double x, double y,
                         bool fine) {
+  (void)x;
   if (dragParam_ < 0) {
     return false;
   }
@@ -1144,6 +1186,9 @@ void Panel::draw(cairo_t* cr, const Shared& shared, const PanelState& state) {
   }
   if (state.fileBrowserOpen) {
     drawFileBrowser(cr, shared, state);
+  }
+  if (editing_) {
+    drawTextEntry(cr, shared, model);
   }
 
   cairo_restore(cr);
@@ -2221,6 +2266,100 @@ void Panel::drawNamPage(cairo_t* cr, const Shared& shared,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
   text(cr, "Load a .nam model or NAM WAV.", 900, 556, 9.5, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+}
+
+void Panel::beginTextEntry(Shared& shared, PanelState& state, double x,
+                           double y) {
+  (void)shared;
+  state.presetOpen = false;
+  for (const Widget& w : widgets_) {
+    if (!hitWidget(w, x, y)) {
+      continue;
+    }
+    if (w.kind != Kind::Knob) {
+      return;
+    }
+    editing_ = true;
+    editParam_ = w.param;
+    editText_.clear();
+    editBoxX_ = std::clamp(x + 16.0, 4.0, kPanelWidth - kEditW - 4.0);
+    editBoxY_ = y - kEditH - 14.0;
+    if (editBoxY_ < 4.0) {
+      editBoxY_ = std::min(y + 20.0, kPanelHeight - kEditH - 4.0);
+    }
+    return;
+  }
+}
+
+bool Panel::hitTextEntry(double x, double y) const {
+  return editing_ && x >= editBoxX_ && x <= editBoxX_ + kEditW &&
+         y >= editBoxY_ && y <= editBoxY_ + kEditH;
+}
+
+bool Panel::textKey(Shared& shared, PanelState& state, int key, char ch) {
+  if (!editing_) {
+    return false;
+  }
+  if (key == kTextEnter) {
+    return commitTextEntry(shared, state);
+  }
+  if (key == kTextEscape) {
+    editing_ = false;
+    editText_.clear();
+    return true;
+  }
+  if (key == kTextBackspace) {
+    if (!editText_.empty()) {
+      editText_.pop_back();
+    }
+    return true;
+  }
+  if (ch >= 32 && ch < 127 && editText_.size() < 24) {
+    editText_.push_back(ch);
+  }
+  return true;
+}
+
+bool Panel::commitTextEntry(Shared& shared, PanelState& state) {
+  if (!editing_) {
+    return false;
+  }
+  if (editText_.empty()) {
+    editing_ = false;
+    return false;
+  }
+  double value = 0.0;
+  if (!parseParamValue(shared, editParam_, editText_, &value)) {
+    return false;
+  }
+  shared.set(editParam_, value);
+  markEdited(state);
+  editing_ = false;
+  editText_.clear();
+  return true;
+}
+
+void Panel::drawTextEntry(cairo_t* cr, const Shared& shared, int model) const {
+  if (!editing_) {
+    return;
+  }
+  const Skin skin = skinFor(model);
+  const ParamSpec& spec = kParamSpecs[editParam_];
+  const std::string current =
+      formatEditValue(shared, editParam_, shared.get(editParam_));
+  const std::string shown = (editText_.empty() ? current : editText_) + "|";
+  roundRect(cr, editBoxX_, editBoxY_, kEditW, kEditH, 4);
+  cairo_set_source_rgba(cr, 0.035, 0.04, 0.05, 0.98);
+  cairo_fill(cr);
+  setRgb(cr, skin.tabOn, 0.9);
+  cairo_set_line_width(cr, 1.2);
+  roundRect(cr, editBoxX_ + 0.5, editBoxY_ + 0.5, kEditW - 1, kEditH - 1, 4);
+  cairo_stroke(cr);
+  text(cr, spec.name, editBoxX_ + 8, editBoxY_ + 12, 8.0, 0,
+       skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
+  const Rgb gold = {0.98, 0.80, 0.32};
+  text(cr, shown.c_str(), editBoxX_ + 8, editBoxY_ + 26, 10.5, 0, gold.r,
+       gold.g, gold.b);
 }
 
 std::vector<Panel::WidgetRect> Panel::widgetRects() const {

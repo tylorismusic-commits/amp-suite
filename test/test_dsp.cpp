@@ -78,6 +78,83 @@ int main() {
     }
   }
 
+  // Power off is a true bypass: the dry input reaches the output untouched.
+  {
+    amp::Controls c;
+    c.model = 4;
+    c.enabled = false;
+    c.gain = 0.7f;
+    c.odOn = true;
+    c.cabBypass = false;
+    amp::Engine e;
+    e.prepare(48000.0f);
+    e.setControls(c);
+    std::vector<float> l(1024), r(1024), dry(1024);
+    for (int i = 0; i < 1024; ++i) {
+      dry[i] = 0.3f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      l[i] = r[i] = dry[i];
+    }
+    amp::Meters m;
+    e.process(l.data(), r.data(), 1024, m);
+    for (int i = 0; i < 1024; ++i) {
+      if (l[i] != dry[i] || r[i] != dry[i]) {
+        std::fprintf(stderr, "power off was not a true bypass at sample %d\n", i);
+        return 1;
+      }
+    }
+    if (!(m.inPeakDb > -20.0f) || !(m.outPeakDb > -20.0f)) {
+      std::fprintf(stderr, "true bypass did not meter the dry signal\n");
+      return 1;
+    }
+  }
+
+  // Powering back on after changing the model must not leave the engine
+  // stuck in bypass while a model fade is pending.
+  {
+    amp::Controls c;
+    c.model = 4;
+    c.enabled = false;
+    c.cabBypass = true;
+    c.odOn = false;
+    amp::Engine e;
+    e.prepare(48000.0f);
+    e.setControls(c);
+    std::vector<float> l(512), r(512), dry(512);
+    for (int i = 0; i < 512; ++i) {
+      dry[i] = 0.1f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      l[i] = r[i] = dry[i];
+    }
+    amp::Meters m;
+    e.process(l.data(), r.data(), 512, m);
+    bool bypassed = true;
+    for (int i = 0; i < 512; ++i) {
+      if (l[i] != dry[i]) bypassed = false;
+    }
+    if (!bypassed) {
+      std::fprintf(stderr, "power off was not a true bypass\n");
+      return 1;
+    }
+    c.model = 5;
+    c.enabled = true;
+    bool processed = false;
+    for (int b = 0; b < 40; ++b) {
+      for (int i = 0; i < 512; ++i) {
+        l[i] = r[i] = 0.1f * std::sin(2.0 * 3.14159265 * 220.0 * (b * 512 + i) / 48000.0);
+      }
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+      if (b == 39) {
+        for (int i = 0; i < 512; ++i) {
+          if (std::fabs(l[i]) > 1.0e-6f) processed = true;
+        }
+      }
+    }
+    if (!processed) {
+      std::fprintf(stderr, "engine stayed bypassed after power-on\n");
+      return 1;
+    }
+  }
+
   // Noise gate: a very quiet input is attenuated when the gate is open, while
   // a normal input passes.
   {
@@ -88,21 +165,21 @@ int main() {
       b.set(amp::P_OD_ON, 0.0);
       b.set(amp::P_DELAY_ON, 0.0);
       b.set(amp::P_REVERB_ON, 0.0);
-      b.set(amp::P_GAIN, 0.5);
+      b.set(amp::P_GAIN, 0.4);
       b.set(amp::P_GATE_ON, gateOn ? 1.0 : 0.0);
       b.set(amp::P_GATE_THRESH, 0.8);
       b.set(amp::P_GATE_DECAY, 0.0);
       amp::Engine e;
       e.prepare(48000.0f);
       e.setControls(amp::controlsFrom(b));
-      std::vector<float> l(9600), r(9600);
-      for (int i = 0; i < 9600; ++i) {
+      std::vector<float> l(19200), r(19200);
+      for (int i = 0; i < 19200; ++i) {
         l[i] = r[i] = ampLevel * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
       }
       amp::Meters m;
-      e.process(l.data(), r.data(), 9600, m);
+      e.process(l.data(), r.data(), 19200, m);
       double energy = 0.0;
-      for (int i = 4800; i < 9600; ++i) {
+      for (int i = 14400; i < 19200; ++i) {
         energy += static_cast<double>(l[i]) * l[i];
       }
       return std::sqrt(energy / 4800.0);

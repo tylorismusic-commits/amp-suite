@@ -252,6 +252,44 @@ int main() {
     std::filesystem::remove_all(base, ec);
   }
 
+  // Double-click resets a knob to its preset value; right-click/typed entry
+  // accepts a value (including dB suffixes).
+  {
+    shared.set(amp::P_MODEL, 4.0);
+    shared.set(amp::P_GAIN, 0.2);
+    state.page = 0;
+    state.presetIndex = 0;
+    panel.draw(cr, shared, state);
+    panel.pointerDown(shared, state, 190.0, 420.0, false);
+    panel.pointerUp();
+    panel.pointerDown(shared, state, 190.0, 420.0, false);
+    panel.pointerUp();
+    if (std::fabs(shared.get(amp::P_GAIN) - 0.55) > 0.01) {
+      std::fprintf(stderr, "double-click did not restore the preset gain: %.3f\n",
+                   shared.get(amp::P_GAIN));
+      return 1;
+    }
+    panel.beginTextEntry(shared, state, 190.0, 420.0);
+    panel.textKey(shared, state, 0, '3');
+    panel.textKey(shared, state, amp::Panel::kTextEnter, 0);
+    if (std::fabs(shared.get(amp::P_GAIN) - 0.3) > 0.01) {
+      std::fprintf(stderr, "typed gain was not applied: %.3f\n",
+                   shared.get(amp::P_GAIN));
+      return 1;
+    }
+    panel.beginTextEntry(shared, state, 900.0, 520.0);
+    for (const char* p = "-6 dB"; *p; ++p) {
+      panel.textKey(shared, state, 0, *p);
+    }
+    panel.textKey(shared, state, amp::Panel::kTextEnter, 0);
+    if (std::fabs(shared.get(amp::P_OUTPUT) - 0.25) > 0.01) {
+      std::fprintf(stderr, "typed output dB was not applied: %.3f\n",
+                   shared.get(amp::P_OUTPUT));
+      return 1;
+    }
+    panel.draw(cr, shared, state);
+  }
+
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
   std::printf("amp_layout: ok\n");

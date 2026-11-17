@@ -286,6 +286,10 @@ private:
     const double s = scale();
     switch (ev.type) {
       case ButtonPress: {
+        if (display_ && window_) {
+          XSetInputFocus(display_, window_, RevertToParent, CurrentTime);
+          XFlush(display_);
+        }
         const bool fine = (ev.xbutton.state & ShiftMask) != 0;
         const double x = ev.xbutton.x / s;
         const double y = ev.xbutton.y / s;
@@ -295,12 +299,30 @@ private:
           panel_.wheel(shared_, state_, x, y, -1.0);
         } else if (ev.xbutton.button == Button1) {
           panel_.pointerDown(shared_, state_, x, y, fine);
+        } else if (ev.xbutton.button == Button3) {
+          panel_.beginTextEntry(shared_, state_, x, y);
         }
         break;
       }
       case ButtonRelease:
         panel_.pointerUp();
         break;
+      case KeyPress: {
+        char buf[8] = {};
+        KeySym sym = 0;
+        XKeyEvent key = ev.xkey;
+        const int n = XLookupString(&key, buf, sizeof(buf), &sym, nullptr);
+        if (sym == XK_Return || sym == XK_KP_Enter) {
+          panel_.textKey(shared_, state_, Panel::kTextEnter, 0);
+        } else if (sym == XK_Escape) {
+          panel_.textKey(shared_, state_, Panel::kTextEscape, 0);
+        } else if (sym == XK_BackSpace) {
+          panel_.textKey(shared_, state_, Panel::kTextBackspace, 0);
+        } else if (n > 0) {
+          panel_.textKey(shared_, state_, 0, buf[0]);
+        }
+        break;
+      }
       case MotionNotify: {
         const bool fine = (ev.xmotion.state & ShiftMask) != 0;
         panel_.pointerMove(shared_, state_, ev.xmotion.x / s, ev.xmotion.y / s,

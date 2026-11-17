@@ -79,6 +79,17 @@ M1: tube-stage and tone-stack engine.
 - DC blockers around the nonlinear amp stages and a slow high-gain sustain
   compressor; this removes the bias offset that made high-gain tails feel
   gate-like.
+- Fixed a sign error in the power-amp feedback filter.  At HQ/4x rate the
+  loop exceeded unity gain and self-oscillated near Nyquist, which was heard
+  as warble and a premature tail cutoff below Gain 4.5.
+- High-gain retune: more power-amp headroom at low gain, a tight 105 Hz
+  pre-gain high-pass, a 1.2 kHz focus and a gentle 5 kHz air shelf, so the
+  Block 120 / Stealth / Recto models clean up instead of staying fuzzy and
+  align better with a 5150 Block Letter NAM reference.
+- The sustain compressor now blends in between Gain 5 and 6 instead of
+  switching on at a threshold.
+- Power button is now a true bypass: the dry input is passed through
+  untouched, independent of the host bypass.
 - Startup now applies the tuned Block 120 — Rhythm preset rather than the
   neutral parameter defaults. The Gain knob now drives the tube preamp over a
   36 dB range (previously it only affected the solid-state path), high-gain
