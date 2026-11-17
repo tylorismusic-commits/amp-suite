@@ -132,11 +132,12 @@ public:
       fadeDir_ = 1;
       return;
     }
-    const bool irChanged =
+    const bool hardChanged =
+        c.model != lastModel_ || c.ampBypass != controls_.ampBypass ||
         c.cab != controls_.cab || c.cabMic != controls_.cabMic ||
         c.cabBypass != controls_.cabBypass ||
         std::memcmp(c.userIr, controls_.userIr, sizeof(c.userIr)) != 0;
-    if (!firstApply && (c.model != lastModel_ || irChanged)) {
+    if (!firstApply && hardChanged) {
       pendingModel_ = c.model;
       pendingControls_ = c;
       // Start a new mute only when idle.  During the fade-down, hold or
