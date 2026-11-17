@@ -659,7 +659,7 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     button(P_CAB, 300, 200, 110, 28, 2.0, "USER");
 
     for (int i = 0; i < 8; ++i) {
-      button(P_CAB_SET, 530, 300 + i * 30, 180, 26, i + 1,
+      button(P_CAB_SET, 513, 300 + i * 30, 180, 26, i + 1,
              kParamSpecs[P_CAB_SET].labels.names[i + 1]);
     }
 
@@ -1478,9 +1478,9 @@ void Panel::drawCabPage(cairo_t* cr, const Shared& shared,
        skin.legendDim.b);
   text(cr, "USER", 310, 190, 10, 0, skin.legendDim.r, skin.legendDim.g,
        skin.legendDim.b);
-  text(cr, "FACTORY CABS", 620, 285, 10, 1, skin.legend.r, skin.legend.g,
+  text(cr, "FACTORY CABS", 603, 285, 10, 1, skin.legend.r, skin.legend.g,
        skin.legend.b);
-  text(cr, "Select any cab for the current amp.", 620, 552, 9, 1,
+  text(cr, "Select any cab for the current amp.", 603, 552, 9, 1,
        skin.legendDim.r, skin.legendDim.g, skin.legendDim.b);
 
   roundRect(cr, kUserBoxX, kUserBoxY, kUserBoxW, kUserBoxH, 6);
