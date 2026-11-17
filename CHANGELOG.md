@@ -71,6 +71,14 @@ M1: tube-stage and tone-stack engine.
 - UI polish: Comp Suite-style power glyph, right-aligned header pills with the
   NAM page in sequence, centered master/output, aligned cab mic/knob rows,
   symmetrical pedal cards and a wider user-IR/NAM list.
+- High-gain voicing: the Gain knob now reaches saturation around 6 and is
+  heavily saturated by 10 with active pickups; the high-gain recipes got
+  more base drive.
+- Input noise gate (`gate_on`, `gate_thresh`, `gate_decay`) on the amp page,
+  enabled by the high-gain presets.
+- DC blockers around the nonlinear amp stages and a slow high-gain sustain
+  compressor; this removes the bias offset that made high-gain tails feel
+  gate-like.
 - Startup now applies the tuned Block 120 — Rhythm preset rather than the
   neutral parameter defaults. The Gain knob now drives the tube preamp over a
   36 dB range (previously it only affected the solid-state path), high-gain

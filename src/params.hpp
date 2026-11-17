@@ -78,6 +78,9 @@ enum ParamId : uint32_t {
   P_NAM_ON,
   P_NAM_MODEL,
   P_NAM_LEVEL,
+  P_GATE_ON,
+  P_GATE_THRESH,
+  P_GATE_DECAY,
   P_COUNT
 };
 
@@ -238,6 +241,11 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      nullptr, {}},
     {"nam_level", "NAM Level", "NAM", 0.0, 1.0, 0.5, false, false, false,
      nullptr, {}},
+    {"gate_on", "Gate On", "Gate", 0.0, 1.0, 0.0, true, false, true, nullptr, {}},
+    {"gate_thresh", "Gate Threshold", "Gate", 0.0, 1.0, 0.55, false, false,
+     false, nullptr, {}},
+    {"gate_decay", "Gate Decay", "Gate", 0.0, 1.0, 0.4, false, false, false,
+     nullptr, {}},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -386,6 +394,9 @@ inline Controls controlsFrom(const Shared& s) {
   c.namOn = s.get(P_NAM_ON) > 0.5;
   c.namModel = static_cast<int>(s.get(P_NAM_MODEL) + 0.5);
   c.namLevel = static_cast<float>(s.get(P_NAM_LEVEL));
+  c.gateOn = s.get(P_GATE_ON) > 0.5;
+  c.gateThreshold = static_cast<float>(s.get(P_GATE_THRESH));
+  c.gateDecay = static_cast<float>(s.get(P_GATE_DECAY));
   return c;
 }
 

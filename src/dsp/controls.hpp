@@ -36,6 +36,9 @@ struct Controls {
   bool namOn = false;       // use a loaded NAM model in place of the amp
   int namModel = 0;         // 1-based NAM library index
   float namLevel = 0.5f;    // -12..+12 dB trim around the model normalization
+  bool gateOn = false;
+  float gateThreshold = 0.55f;  // mapped -80..-20 dBFS
+  float gateDecay = 0.4f;       // mapped 20..1000 ms
 
   // Model-specific switches, in fixed slots.
   bool bright = false;      // Chorus Clean

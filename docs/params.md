@@ -89,8 +89,11 @@ from the same table; `amp_ttl --check` fails if the committed TTL is stale.
 | 59 | `nam_on` | NAM On | 0–1 | 0 | toggle | use the selected NAM model instead of the amp |
 | 60 | `nam_model` | NAM Model | 0–63 | 0 | stepped | 0 none, 1–63 sorted NAM model file |
 | 61 | `nam_level` | NAM Level | 0–1 | 0.5 | | `-12 + 24v` dB trim |
+| 62 | `gate_on` | Gate On | 0–1 | 0 | toggle | input noise gate |
+| 63 | `gate_thresh` | Gate Threshold | 0–1 | 0.55 | | `-80 + 60v` dBFS |
+| 64 | `gate_decay` | Gate Decay | 0–1 | 0.4 | | `20 + 980v` ms release |
 
-`P_COUNT = 62`.
+`P_COUNT = 65`.
 
 User IRs are WAV files in `$XDG_DATA_HOME/amp-suite/irs/user` (usually
 `~/.local/share/amp-suite/irs/user`). The list is sorted by filename; the
@@ -158,6 +161,8 @@ continuous values:
 - `tempo` → BPM
 - `nam_model` → model filename or `None`
 - `nam_level` → dB
+- `gate_thresh` → dBFS
+- `gate_decay` → milliseconds
 - toggles → `On` / `Off`
 
 After 1.0, symbols and ids must never change. Append new parameters at the end

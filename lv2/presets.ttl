@@ -52,7 +52,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_block-120-crunch>
     a pset:Preset ;
@@ -79,7 +82,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_block-120-lead>
     a pset:Preset ;
@@ -117,7 +123,10 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.08 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_block-120-os>
     a pset:Preset ;
@@ -144,7 +153,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 1 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_block-120-chug>
     a pset:Preset ;
@@ -171,7 +183,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_chorus-clean-clean>
     a pset:Preset ;
@@ -196,7 +211,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_chorus-clean-chorus>
     a pset:Preset ;
@@ -221,7 +237,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_chorus-clean-ambient>
     a pset:Preset ;
@@ -257,7 +274,8 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.15 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_chime-edge>
     a pset:Preset ;
@@ -280,7 +298,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_chime-top-boost>
     a pset:Preset ;
@@ -306,7 +325,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_crunch-dirty>
     a pset:Preset ;
@@ -330,7 +350,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_crunch-doom>
     a pset:Preset ;
@@ -362,7 +383,10 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.05 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_hot-rod-rhythm>
     a pset:Preset ;
@@ -388,7 +412,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_hot-rod-lead>
     a pset:Preset ;
@@ -425,7 +450,8 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.08 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_hot-rod-green>
     a pset:Preset ;
@@ -451,7 +477,8 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 1 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_stealth-rhythm>
     a pset:Preset ;
@@ -478,7 +505,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_stealth-lead>
     a pset:Preset ;
@@ -516,7 +546,10 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.1 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_recto-modern>
     a pset:Preset ;
@@ -544,7 +577,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_recto-raw>
     a pset:Preset ;
@@ -572,7 +608,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_recto-vintage>
     a pset:Preset ;
@@ -611,7 +650,10 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.12 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_track-clean>
     a pset:Preset ;
@@ -640,7 +682,8 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.12 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_track-crunch>
     a pset:Preset ;
@@ -668,7 +711,8 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.06 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_track-rhythm>
     a pset:Preset ;
@@ -695,7 +739,10 @@
     [ lv2:symbol "reverb_on" ; pset:value 0 ] ,
     [ lv2:symbol "cab" ; pset:value 0 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 2 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.64 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.64 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 
 <https://github.com/tylorismusic-commits/amp-suite#preset_track-lead>
     a pset:Preset ;
@@ -733,5 +780,8 @@
     [ lv2:symbol "reverb_predelay" ; pset:value 0.1 ] ,
     [ lv2:symbol "cab" ; pset:value 1 ] ,
     [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
-    [ lv2:symbol "cab_level" ; pset:value 0.6 ] .
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
 

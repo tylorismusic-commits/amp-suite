@@ -121,13 +121,13 @@ inline const AmpRecipe& recipeFor(int model) noexcept {
       {"Hot Rod", 4, {s1, s2, s3, s4}, ToneStackKind::JTM45, 0.65f, 1.6f,
        0.05f, 0.14f, 0.8f, 14.5f, true, false},
       // Block 120
-      {"Block 120", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Peavey, 0.95f,
+      {"Block 120", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Peavey, 1.60f,
        1.8f, 0.06f, 0.06f, 0.8f, 8.5f, false, false},
       // Stealth EL34
       {"Stealth EL34", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Bogner,
-       1.0f, 1.9f, 0.07f, 0.07f, 0.8f, 11.0f, true, false},
+       1.70f, 1.9f, 0.07f, 0.07f, 0.8f, 11.0f, true, false},
       // Recto
-      {"Recto", 5, {s1, s2, s3, s4, s5}, ToneStackKind::Mesa, 0.85f, 1.7f,
+      {"Recto", 5, {s1, s2, s3, s4, s5}, ToneStackKind::Mesa, 1.40f, 1.7f,
        0.04f, 0.22f, 0.8f, 11.0f, false, false},
   };
   const int m = model < 0 ? 0 : (model > 6 ? 6 : model);

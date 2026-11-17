@@ -517,6 +517,9 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     if (hasResonance(model)) {
       knob(P_RESONANCE, 740, 420, 26, "RESONANCE", kToneScale);
     }
+    pill(P_GATE_ON, 50, 355, 96, 24, "GATE");
+    knob(P_GATE_THRESH, 70, 400, 17, "THRESH", {}, true);
+    knob(P_GATE_DECAY, 125, 400, 17, "DECAY", {}, true);
     knob(P_INPUT, 90, 520, 22, "INPUT", kTrimScale, true);
     knob(P_MASTER, 465, 520, 26, "MASTER", kToneScale);
     knob(P_OUTPUT, 900, 520, 30, "OUTPUT", kTrimScale);
@@ -1518,6 +1521,8 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w, const Shared& shared,
         ww.label = on ? "HQ" : "ECO";
       } else if (w.param == P_NAM_ON) {
         ww.label = on ? "NAM ON" : "AMP ON";
+      } else if (w.param == P_GATE_ON) {
+        ww.label = on ? "GATE ON" : "GATE OFF";
       } else if (w.param == P_AMP_BYPASS) {
         ww.label = on ? "BYPASS ON" : "AMP ON";
       } else if (w.param == P_LOOP_POS) {

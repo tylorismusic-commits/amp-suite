@@ -521,6 +521,12 @@ bool paramsValueToText(const clap_plugin_t* p, clap_id id, double value,
     case P_NAM_LEVEL:
       std::snprintf(out, size, "%+.1f dB", -12.0 + 24.0 * value);
       return true;
+    case P_GATE_THRESH:
+      std::snprintf(out, size, "%.0f dBFS", -80.0 + 60.0 * value);
+      return true;
+    case P_GATE_DECAY:
+      std::snprintf(out, size, "%.0f ms", 20.0 + 980.0 * value);
+      return true;
     default:
       break;
   }

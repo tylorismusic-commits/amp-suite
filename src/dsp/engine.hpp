@@ -41,6 +41,10 @@ public:
     cabConvolver_.prepare(4096);
     delay_.prepare(sr_);
     reverb_.prepare(sr_);
+    dcPreL_.set(20.0f, sr_);
+    dcPreR_.set(20.0f, sr_);
+    dcPostL_.set(20.0f, sr_);
+    dcPostR_.set(20.0f, sr_);
     cabHpL_.set(70.0f, sr_);
     cabHpR_.set(70.0f, sr_);
     cabLpL_.lowPass(6500.0f, 0.707f, sr_);
@@ -50,6 +54,17 @@ public:
     limiterAttack_ = timeCoeff(0.5f, sr_);
     limiterRelease_ = timeCoeff(80.0f, sr_);
     limiterGain_ = 1.0f;
+    gateAttack_ = timeCoeff(1.0f, sr_);
+    gateEnvRelease_ = timeCoeff(80.0f, sr_);
+    gateRelease_ = timeCoeff(400.0f, sr_);
+    gateThreshold_ = dbToGain(-47.0f);
+    gateGain_ = 1.0f;
+    gateEnv_ = 0.0f;
+    compAttack_ = timeCoeff(5.0f, sr_);
+    compRelease_ = timeCoeff(300.0f, sr_);
+    compGain_ = 1.0f;
+    compEnv_ = 0.0f;
+    compOn_ = false;
     active_ = -1;
     lastModel_ = -1;
     powerOs_ = 0;
@@ -75,10 +90,20 @@ public:
                                 : c.model;
     controls_ = c;
     const AmpRecipe& r = recipeFor(activeModel);
-    // The Gain knob is a 36 dB preamp-drive range around the recipe's
-    // calibrated 0.5 point.  This is what makes the high-gain amps reach
-    // saturation at normal settings instead of requiring max input + 808.
-    preGain_ = r.preGain * dbToGain((c.gain - 0.5f) * 36.0f);
+    // The Gain knob is a preamp-drive range around a calibrated pivot.  The
+    // high-gain models get a wider range and a lower pivot so they snarl
+    // around 6 and are fully saturated by 10 with active pickups.
+    float gainSpan = 36.0f;
+    float gainPivot = 0.5f;
+    if (activeModel == 4 || activeModel == 5 || activeModel == 6) {
+      gainSpan = 48.0f;
+      gainPivot = 0.45f;
+    } else if (activeModel == 2 || activeModel == 3) {
+      gainSpan = 42.0f;
+    } else if (activeModel == 1) {
+      gainSpan = 30.0f;
+    }
+    preGain_ = r.preGain * dbToGain((c.gain - gainPivot) * gainSpan);
     PowerAmpSpec ps;
     ps.drive = r.powerDrive;
     ps.feedback = r.powerFeedback;
@@ -111,6 +136,11 @@ public:
             : ((c.model == 2 || c.model == 3) ? 2.0f : 0.0f);
     preBrightL_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
     preBrightR_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
+    gateThreshold_ = dbToGain(-80.0f + 60.0f * c.gateThreshold);
+    gateRelease_ = timeCoeff(20.0f + 980.0f * c.gateDecay, sr_);
+    compOn_ = activeModel >= 4 && activeModel <= 6;
+    compThreshold_ = dbToGain(-32.0f);
+    compMakeup_ = dbToGain(16.0f);
     setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
@@ -141,6 +171,21 @@ public:
     hostTempo_ = valid;
   }
 
+  void gateSample(float& l, float& r, bool on) noexcept {
+    if (!on) {
+      gateGain_ = 1.0f;
+      gateEnv_ = 0.0f;
+      return;
+    }
+    const float peak = std::max(std::fabs(l), std::fabs(r));
+    gateEnv_ = peak > gateEnv_ ? peak : gateEnv_ * gateEnvRelease_;
+    const float target = gateEnv_ > gateThreshold_ ? 1.0f : 0.0f;
+    const float coeff = target > gateGain_ ? gateAttack_ : gateRelease_;
+    gateGain_ = coeff * gateGain_ + (1.0f - coeff) * target;
+    l *= gateGain_;
+    r *= gateGain_;
+  }
+
   void processNam(float* left, float* right, int frames,
                   Meters& meters) noexcept {
     const Controls c = controls_;
@@ -158,10 +203,11 @@ public:
 
     // Input trim and 808, then the NAM block.
     for (int i = 0; i < frames; ++i) {
-      const float dryL = left[i];
-      const float dryR = right[i];
+      float dryL = left[i];
+      float dryR = right[i];
       inPeakL = std::max(inPeakL, std::fabs(dryL));
       inPeakR = std::max(inPeakR, std::fabs(dryR));
+      gateSample(dryL, dryR, c.gateOn);
       const float in = inputSmooth_.next();
       const float trim = dbToGain((in - 0.5f) * 24.0f);
       float l = dryL * trim;
@@ -180,6 +226,10 @@ public:
       left[i] *= namTrim;
       right[i] *= namTrim;
     }
+    for (int i = 0; i < frames; ++i) {
+      left[i] = dcPreL_.process(left[i]);
+      right[i] = dcPreR_.process(right[i]);
+    }
 
     // Loop, cab, output and limiter remain available around the NAM amp.
     for (int i = 0; i < frames; ++i) {
@@ -189,6 +239,8 @@ public:
         delay_.process(l, r);
         reverb_.process(l, r);
       }
+      l = dcPostL_.process(l);
+      r = dcPostR_.process(r);
       if (!c.cabBypass) {
         l = cabHpL_.process(l);
         r = cabHpR_.process(r);
@@ -263,10 +315,11 @@ public:
     reverb_.setTargets(c);
 
     for (int i = 0; i < frames; ++i) {
-      const float dryL = left[i];
-      const float dryR = right[i];
+      float dryL = left[i];
+      float dryR = right[i];
       inPeakL = std::max(inPeakL, std::fabs(dryL));
       inPeakR = std::max(inPeakR, std::fabs(dryR));
+      gateSample(dryL, dryR, c.gateOn);
 
       const float in = inputSmooth_.next();
       const float trim = dbToGain((in - 0.5f) * 24.0f);
@@ -307,6 +360,12 @@ public:
           r *= makeup;
         }
       }
+
+      // Remove any DC offset generated by the nonlinear amp stages before
+      // the loop and power amp.  The power stage can turn a small DC bias into
+      // a large asymmetric offset otherwise.
+      l = dcPreL_.process(l);
+      r = dcPreR_.process(r);
 
       // FX loop: authentic default is between the preamp and the power amp.
       if (c.loopPos == 0) {
@@ -359,10 +418,31 @@ public:
       if (!c.ampBypass) {
         l = presenceL_.process(l);
         r = presenceR_.process(r);
+        l = presenceHiL_.process(l);
+        r = presenceHiR_.process(r);
         l = resonanceL_.process(l);
         r = resonanceR_.process(r);
         l *= master;
         r *= master;
+      }
+      l = dcPostL_.process(l);
+      r = dcPostR_.process(r);
+
+      // High-gain sustain: a slow 4:1 compressor with makeup keeps the tail
+      // of a decaying note up without gating it.  Clean/mid models bypass it.
+      if (compOn_ && !c.ampBypass) {
+        const float peak = std::max(std::fabs(l), std::fabs(r));
+        const float envCoeff = peak > compEnv_ ? compAttack_ : compRelease_;
+        compEnv_ = envCoeff * compEnv_ + (1.0f - envCoeff) * peak;
+        float target = 1.0f;
+        if (compEnv_ > compThreshold_) {
+          target = std::pow(compEnv_ / compThreshold_, -0.75f);
+        }
+        const float gCoeff = target < compGain_ ? compAttack_ : compRelease_;
+        compGain_ = gCoeff * compGain_ + (1.0f - gCoeff) * target;
+        const float g = compGain_ * compMakeup_;
+        l *= g;
+        r *= g;
       }
 
       // Cab: factory IR convolution when available, fixed speaker filter as
@@ -461,6 +541,10 @@ public:
     }
     delay_.reset();
     reverb_.reset();
+    dcPreL_.reset();
+    dcPreR_.reset();
+    dcPostL_.reset();
+    dcPostR_.reset();
     cabHpL_.reset();
     cabHpR_.reset();
     cabLpL_.reset();
@@ -603,6 +687,10 @@ private:
   std::shared_ptr<NamDSP> activeNam_;
   Delay delay_;
   Reverb reverb_;
+  HighPass2 dcPreL_;
+  HighPass2 dcPreR_;
+  HighPass2 dcPostL_;
+  HighPass2 dcPostR_;
   HighPass2 cabHpL_;
   HighPass2 cabHpR_;
   Biquad cabLpL_;
@@ -625,6 +713,19 @@ private:
   float limiterGain_ = 1.0f;
   float limiterAttack_ = 0.0f;
   float limiterRelease_ = 0.0f;
+  float gateAttack_ = 0.0f;
+  float gateRelease_ = 0.0f;
+  float gateEnvRelease_ = 0.0f;
+  float gateThreshold_ = 1.0f;
+  float gateGain_ = 1.0f;
+  float gateEnv_ = 0.0f;
+  float compAttack_ = 0.0f;
+  float compRelease_ = 0.0f;
+  float compThreshold_ = 1.0f;
+  float compMakeup_ = 1.0f;
+  float compGain_ = 1.0f;
+  float compEnv_ = 0.0f;
+  bool compOn_ = false;
 };
 
 } // namespace amp

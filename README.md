@@ -28,7 +28,7 @@ off, and the stock 1200 4×12 cab.
 M1 is in progress:
 
 - ✅ CLAP and LV2 bundles build and load.
-- ✅ 62-parameter host contract; CLAP state save/load.
+- ✅ 65-parameter host contract; CLAP state save/load.
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
 - ✅ Default preset and a 24-preset factory bank with a scrolling browser.
 - ✅ LV2 metadata generated from the parameter table.
@@ -58,6 +58,10 @@ M1 is in progress:
 - ✅ NAM loader: `.nam` and NAM-compatible WAV linear models in
   `~/.local/share/amp-suite/nam`, with a dedicated NAM page, file browser,
   drag-and-drop, worker-thread loading and host-rate resampling.
+- ✅ Input noise gate with threshold/decay on the amp page, enabled by the
+  high-gain factory presets.
+- ✅ High-gain sustain compressor and DC blocking so notes decay musically
+  instead of sticking to a bias offset.
 - ✅ **M1:** user IR loading and portable user IR state.
 
 The current preamp uses the Guitarix-derived 12AX7/EL34/EL84/6L6 stages and

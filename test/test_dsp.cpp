@@ -78,6 +78,49 @@ int main() {
     }
   }
 
+  // Noise gate: a very quiet input is attenuated when the gate is open, while
+  // a normal input passes.
+  {
+    auto measure = [](bool gateOn, float ampLevel) {
+      amp::Shared b;
+      b.set(amp::P_MODEL, 4.0);
+      b.set(amp::P_CAB_BYPASS, 1.0);
+      b.set(amp::P_OD_ON, 0.0);
+      b.set(amp::P_DELAY_ON, 0.0);
+      b.set(amp::P_REVERB_ON, 0.0);
+      b.set(amp::P_GAIN, 0.5);
+      b.set(amp::P_GATE_ON, gateOn ? 1.0 : 0.0);
+      b.set(amp::P_GATE_THRESH, 0.8);
+      b.set(amp::P_GATE_DECAY, 0.0);
+      amp::Engine e;
+      e.prepare(48000.0f);
+      e.setControls(amp::controlsFrom(b));
+      std::vector<float> l(9600), r(9600);
+      for (int i = 0; i < 9600; ++i) {
+        l[i] = r[i] = ampLevel * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      }
+      amp::Meters m;
+      e.process(l.data(), r.data(), 9600, m);
+      double energy = 0.0;
+      for (int i = 4800; i < 9600; ++i) {
+        energy += static_cast<double>(l[i]) * l[i];
+      }
+      return std::sqrt(energy / 4800.0);
+    };
+    const double quietOff = measure(false, 0.001f);
+    const double quietOn = measure(true, 0.001f);
+    const double loudOn = measure(true, 0.1f);
+    if (!(quietOn < quietOff * 0.25)) {
+      std::fprintf(stderr, "gate did not attenuate a quiet input: %.6f vs %.6f\n",
+                   quietOn, quietOff);
+      return 1;
+    }
+    if (!(loudOn > 0.0001)) {
+      std::fprintf(stderr, "gate blocked a normal input\n");
+      return 1;
+    }
+  }
+
   // Every model must produce finite output and a plausible meter.
   for (int model = 0; model < 7; ++model) {
     shared.set(amp::P_MODEL, static_cast<double>(model));
