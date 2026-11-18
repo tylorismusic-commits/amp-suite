@@ -804,11 +804,20 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
         dragStartValue_ = shared.get(w.param);
         return true;
       }
-      case Kind::ModelTab:
+      case Kind::ModelTab: {
+        const int current = static_cast<int>(shared.get(P_MODEL) + 0.5);
+        const int selected = static_cast<int>(w.value);
+        if (current == selected) {
+          // Clicking the already-selected amp is the shortcut back to the
+          // main amp page while a pedal/cab/NAM page is open.
+          state.page = 0;
+          return true;
+        }
         shared.set(P_MODEL, w.value);
         state.presetIndex = -1;
         state.presetDirty = false;
         return true;
+      }
       case Kind::PagePill:
         state.page = (state.page == static_cast<int>(w.value))
                          ? 0

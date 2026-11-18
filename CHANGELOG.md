@@ -7,6 +7,8 @@
 - Retune the 808 to the TS-9 reference tone range (400–1000 Hz), centre its
   level near unity and start it bypassed.
 - Move the 808 footswitch down to align with the delay and reverb switches.
+- Clicking the already-selected amp while another page is open returns to the
+  amp page; clicking a different amp keeps the current page open.
 
 ## 0.2.0-alpha.1 — 2026-11-17
 

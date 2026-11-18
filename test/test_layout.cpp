@@ -120,6 +120,17 @@ int main() {
     std::fprintf(stderr, "model tab did not switch to Crunch\n");
     return 1;
   }
+  if (state.page != 2) {
+    std::fprintf(stderr, "unselected model closed the cab page\n");
+    return 1;
+  }
+
+  // Clicking the already-selected model returns to the amp page.
+  panel.pointerDown(shared, state, 380.0, 90.0, false);
+  if (state.page != 0 || std::fabs(shared.get(amp::P_MODEL) - 2.0) > 0.01) {
+    std::fprintf(stderr, "selected model did not return to the amp page\n");
+    return 1;
+  }
 
   // Cab page: the BROWSE/header area opens the built-in IR browser, a WAV
   // row imports it, and Factory/Alt clear the per-amp user IR selection.
