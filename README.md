@@ -1,8 +1,8 @@
 # Amp Suite
 
-**Version 0.2.0 Alpha 2 — Linux x86_64** · GPL-3.0-or-later
+**Version 0.2.0 Alpha 3 — Linux x86_64** · GPL-3.0-or-later
 
-> **Alpha 2.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha.2).
+> **Alpha 3.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha.3).
 > Expect interface and preset changes before 1.0.
 
 Seven guitar amps in one plugin, with an 808 boost, delay, reverb and a cab
@@ -39,10 +39,10 @@ frequency and an in-tune indicator. It analyses the raw input before the gate,
 
 ## Install (alpha)
 
-Download `amp-suite-0.2.0-alpha.2-linux-x86_64.zip`, unzip it, and run:
+Download `amp-suite-0.2.0-alpha.3-linux-x86_64.zip`, unzip it, and run:
 
 ```sh
-cd amp-suite-0.2.0-alpha.2-linux-x86_64
+cd amp-suite-0.2.0-alpha.3-linux-x86_64
 ./install.sh
 ```
 

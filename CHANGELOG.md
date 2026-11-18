@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-alpha.3 — 2026-11-18
 
 - Added a chromatic input tuner page (TUNE pill) with note, octave, cents and
   frequency display.
