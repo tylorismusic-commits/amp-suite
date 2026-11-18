@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-alpha.2 — 2026-11-17
 
 - Hide NAM's internal symbols so Amp Suite can coexist with Bass Suite (or
   another NAM-based suite) in one host session.
