@@ -2,7 +2,7 @@
 
 **Version 0.2.0 Alpha 3 — Linux x86_64** · GPL-3.0-or-later
 
-> **Alpha 6.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha.6).
+> **Alpha 7.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha.7).
 > Expect interface and preset changes before 1.0.
 
 Seven guitar amps in one plugin, with an 808 boost, delay, reverb and a cab
@@ -39,10 +39,10 @@ frequency and an in-tune indicator. It analyses the raw input before the gate,
 
 ## Install (alpha)
 
-Download `amp-suite-0.2.0-alpha.6-linux-x86_64.zip`, unzip it, and run:
+Download `amp-suite-0.2.0-alpha.7-linux-x86_64.zip`, unzip it, and run:
 
 ```sh
-cd amp-suite-0.2.0-alpha.6-linux-x86_64
+cd amp-suite-0.2.0-alpha.7-linux-x86_64
 ./install.sh
 ```
 
@@ -62,7 +62,8 @@ factory cabinets are first-pass synthesized IRs.
 - ✅ 66-parameter host contract; CLAP state save/load (older 65-value sessions still load).
 - ✅ Power button is a true dry bypass (input passes through untouched).
 - ✅ 7 amp tabs, amp page, PEDALS page, CAB page, preset browser.
-- ✅ User presets: save, rename and delete your own amp snapshots.
+- ✅ User presets: save, duplicate, rename, delete, import by drag-and-drop
+  and export to `~/Documents/Amp Suite Presets`.
 - ✅ Default preset and a 24-preset factory bank with a scrolling browser.
 - ✅ LV2 metadata generated from the parameter table.
 - ✅ **M1:** Guitarix tube tables, `TubeStage`, passive tone stacks and

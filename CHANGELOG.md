@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0-alpha.7 — 2026-11-18
+
+Preset handling is now complete.
+
+- **DUPLICATE** copies the selected factory or user preset. Factory copies
+  capture the current amp state; user copies keep their stored values.
+- **EXPORT** writes the current preset to `~/Documents/Amp Suite Presets`.
+- Drag a `.amp-suite` file onto the panel to import it. Name collisions get a
+  `(2)` suffix instead of overwriting.
+- Renaming to an existing name shows inline feedback instead of failing
+  silently. Saving over a different existing preset asks for a second Enter.
+- The dirty marker is computed from the live parameters, so host automation
+  and manual edits are both reflected accurately.
+- The preset list rescans on open and every two seconds while open, so presets
+  written by another instance appear without a restart.
+- Exported and imported presets are sanitised: non-finite or out-of-range
+  values are clamped before they reach the engine.
+
 ## 0.2.0-alpha.6 — 2026-11-18
 
 Added
