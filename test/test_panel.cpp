@@ -5,8 +5,21 @@
 
 #include <cairo.h>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <filesystem>
+#include <string>
+
+#include "params.hpp"
+#include "presets.hpp"
+#include "user_presets.hpp"
 
 int main() {
+  const std::filesystem::path config =
+      "/tmp/opencode/amp-suite-test-config";
+  std::filesystem::remove_all(config);
+  setenv("XDG_CONFIG_HOME", config.string().c_str(), 1);
+
   amp::Panel panel;
   amp::Shared shared;
   amp::PanelState state;
@@ -50,6 +63,108 @@ int main() {
     for (int page = 0; page < 5; ++page) {
       state.page = page;
       panel.draw(cr, shared, state);
+    }
+  }
+
+  // User presets: save the current amp, recall it, rename it, delete it.
+  {
+    const uint32_t saved = amp::P_GAIN;
+    shared.set(saved, 0.17);
+    state.page = 0;
+    state.presetOpen = false;
+
+    panel.pointerDown(shared, state, 200, 32, false);
+    panel.pointerUp();
+    panel.pointerDown(shared, state, 113, 295, false);  // SAVE
+    panel.pointerUp();
+    if (!state.savePreset) {
+      std::fprintf(stderr, "SAVE did not open the preset name field\n");
+      return 1;
+    }
+    for (const char* c = "Test Amp"; *c; ++c) {
+      panel.textKey(shared, state, 0, *c);
+    }
+    panel.textKey(shared, state, amp::Panel::kTextEnter, 0);
+    if (panel.presetCount() != amp::kPresetCount + 1 ||
+        std::string(panel.presetName(amp::kPresetCount)) != "Test Amp") {
+      std::fprintf(stderr, "saving did not add a named user preset\n");
+      return 1;
+    }
+    if (!std::filesystem::exists(amp::userPresetDir() /
+                                 "Test Amp.amp-suite")) {
+      std::fprintf(stderr, "saved preset file is missing\n");
+      return 1;
+    }
+    shared.set(saved, 0.91);
+    panel.applyPreset(shared, state, amp::kPresetCount);
+    if (std::fabs(shared.get(saved) - 0.17) > 1e-6) {
+      std::fprintf(stderr, "user preset did not recall its value\n");
+      return 1;
+    }
+
+    // The browser lists user presets after the factory bank.
+    panel.pointerDown(shared, state, 200, 32, false);
+    panel.pointerUp();
+    state.presetScroll = amp::kPresetCount + 1 - 10;
+    const int row = amp::kPresetCount - state.presetScroll;
+    shared.set(saved, 0.99);
+    panel.pointerDown(shared, state, 200, 54.0 + 5.0 + row * 22.0 + 11.0,
+                      false);
+    panel.pointerUp();
+    if (state.presetIndex != amp::kPresetCount ||
+        std::fabs(shared.get(saved) - 0.17) > 1e-6) {
+      std::fprintf(stderr, "preset browser did not load the user preset\n");
+      return 1;
+    }
+
+    // Rename the selected user preset.
+    panel.pointerDown(shared, state, 200, 32, false);
+    panel.pointerUp();
+    panel.pointerDown(shared, state, 188, 295, false);  // RENAME
+    panel.pointerUp();
+    if (!state.renamePreset) {
+      std::fprintf(stderr, "RENAME did not open the preset name field\n");
+      return 1;
+    }
+    for (const char* c = "Renamed Amp"; *c; ++c) {
+      panel.textKey(shared, state, 0, *c);
+    }
+    panel.textKey(shared, state, amp::Panel::kTextEnter, 0);
+    if (std::string(panel.presetName(amp::kPresetCount)) != "Renamed Amp" ||
+        !std::filesystem::exists(amp::userPresetDir() /
+                                 "Renamed Amp.amp-suite") ||
+        std::filesystem::exists(amp::userPresetDir() /
+                                "Test Amp.amp-suite")) {
+      std::fprintf(stderr, "renaming did not move the preset file\n");
+      return 1;
+    }
+
+    {
+      amp::Panel reloaded;
+      if (reloaded.presetCount() != amp::kPresetCount + 1 ||
+          std::string(reloaded.presetName(amp::kPresetCount)) !=
+              "Renamed Amp") {
+        std::fprintf(stderr, "user presets did not reload from disk\n");
+        return 1;
+      }
+    }
+
+    // Delete asks for confirmation, then removes the file.
+    panel.pointerDown(shared, state, 200, 32, false);
+    panel.pointerUp();
+    panel.pointerDown(shared, state, 268, 295, false);
+    panel.pointerUp();
+    if (!state.deletePresetConfirm) {
+      std::fprintf(stderr, "DELETE did not ask for confirmation\n");
+      return 1;
+    }
+    panel.pointerDown(shared, state, 268, 295, false);
+    panel.pointerUp();
+    if (panel.presetCount() != amp::kPresetCount ||
+        std::filesystem::exists(amp::userPresetDir() /
+                                "Renamed Amp.amp-suite")) {
+      std::fprintf(stderr, "DELETE did not remove the file\n");
+      return 1;
     }
   }
 

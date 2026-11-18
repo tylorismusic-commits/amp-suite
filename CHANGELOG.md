@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0-alpha.6 — 2026-11-18
+
+Added
+
+- User presets in the preset browser. SAVE stores the complete amp, cab,
+  pedal and output state under `~/.config/AmpSuite/presets`; user presets are
+  listed after the factory bank, and can be renamed or deleted from the
+  browser footer. Loading a user preset uses the same click-free switch as a
+  model change.
+
 ## 0.2.0-alpha.5 — 2026-11-18
 
 Fixed
