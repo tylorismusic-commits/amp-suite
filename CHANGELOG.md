@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0-alpha.4 — 2026-11-18
+
+Fixed
+
+- The LV2 bundle did not include the Jost font, so the editor fell back to a
+  generic system font. The font and its OFL licence are now bundled and
+  installed with the LV2 plugin, matching the CLAP build.
+
 ## 0.2.0-alpha.3 — 2026-11-18
 
 - Added a chromatic input tuner page (TUNE pill) with note, octave, cents and

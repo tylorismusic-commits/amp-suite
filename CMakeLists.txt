@@ -152,6 +152,10 @@ add_custom_target(amp_lv2_bundle ALL
           "${CMAKE_SOURCE_DIR}/lv2/manifest.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/presets.ttl"
           "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2/"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "${CMAKE_SOURCE_DIR}/assets/fonts/Jost-ExtraBold.ttf"
+          "${CMAKE_SOURCE_DIR}/assets/fonts/OFL.txt"
+          "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2/"
   COMMAND ${CMAKE_COMMAND} -E copy_directory
           "${CMAKE_SOURCE_DIR}/assets/irs"
           "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2/irs"
@@ -163,6 +167,8 @@ install(FILES
           "${CMAKE_SOURCE_DIR}/lv2/amp_suite.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/manifest.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/presets.ttl"
+          "${CMAKE_SOURCE_DIR}/assets/fonts/Jost-ExtraBold.ttf"
+          "${CMAKE_SOURCE_DIR}/assets/fonts/OFL.txt"
         DESTINATION "${LV2_DIR}/amp-suite.lv2")
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/irs"
         DESTINATION "${LV2_DIR}/amp-suite.lv2")
