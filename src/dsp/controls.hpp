@@ -23,6 +23,7 @@ enum class Model : int {
 struct Controls {
   int model = static_cast<int>(Model::Block120);
   bool enabled = true;
+  bool tunerOn = false;
   float input = 0.5f;       // input trim
   float gain = 0.55f;       // preamp gain / drive
   float bass = 0.5f;
@@ -103,6 +104,10 @@ struct Meters {
   float outPeakLDb = -120.0f;
   float outPeakRDb = -120.0f;
   float outVuDb = -120.0f;
+  float tunerHz = 0.0f;
+  float tunerCents = 0.0f;
+  float tunerConfidence = 0.0f;
+  int tunerNote = -1;
   float bpm = 120.0f;
   bool hostTempo = false;
 };

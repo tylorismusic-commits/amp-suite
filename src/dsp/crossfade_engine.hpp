@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "engine.hpp"
+#include "tuner.hpp"
 
 namespace amp {
 
@@ -28,6 +29,7 @@ public:
     }
     a_->prepare(sr_);
     b_->prepare(sr_);
+    tuner_.prepare(sr_);
     active_ = 0;
     phase_ = 0;
     crossfadeCount_ = 0;
@@ -83,6 +85,7 @@ public:
   void reset() noexcept {
     if (a_) a_->reset();
     if (b_) b_->reset();
+    tuner_.reset();
     phase_ = 0;
     crossfadeCount_ = 0;
     startupGain_ = 0.0f;
@@ -177,6 +180,7 @@ public:
     if (!a_) {
       return;
     }
+    tuner_.process(left, right, frames, last_.tunerOn);
     if (namApplyReady_) {
       activeEngine()->setControls(namPending_);
       last_ = namPending_;
@@ -264,9 +268,17 @@ public:
         right[i] *= namMuteGain_;
       }
     }
+    publishTuner(meters);
   }
 
 private:
+  void publishTuner(Meters& meters) const noexcept {
+    meters.tunerHz = tuner_.hz();
+    meters.tunerCents = tuner_.cents();
+    meters.tunerConfidence = tuner_.confidence();
+    meters.tunerNote = tuner_.note();
+  }
+
   Engine* activeEngine() noexcept {
     return active_ == 0 ? a_.get() : b_.get();
   }
@@ -306,6 +318,7 @@ private:
   std::vector<float> oldR_;
   std::vector<float> newL_;
   std::vector<float> newR_;
+  Tuner tuner_;
 };
 
 } // namespace amp

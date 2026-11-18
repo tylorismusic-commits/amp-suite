@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added a chromatic input tuner page (TUNE pill) with note, octave, cents and
+  frequency display.
+
 ## 0.2.0-alpha.2 — 2026-11-17
 
 - Hide NAM's internal symbols so Amp Suite can coexist with Bass Suite (or

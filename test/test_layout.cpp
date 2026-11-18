@@ -132,6 +132,23 @@ int main() {
     return 1;
   }
 
+  // TUNE opens the tuner page and enables pitch analysis; clicking it again
+  // returns to the amp page and disables the analysis.
+  panel.pointerDown(shared, state, 608.0, 32.0, false);
+  panel.pointerUp();
+  panel.draw(cr, shared, state);
+  if (state.page != 4 || !shared.tunerOn.load()) {
+    std::fprintf(stderr, "TUNE pill did not open the tuner\n");
+    return 1;
+  }
+  panel.pointerDown(shared, state, 608.0, 32.0, false);
+  panel.pointerUp();
+  panel.draw(cr, shared, state);
+  if (state.page != 0 || shared.tunerOn.load()) {
+    std::fprintf(stderr, "TUNE pill did not close the tuner\n");
+    return 1;
+  }
+
   // Cab page: the BROWSE/header area opens the built-in IR browser, a WAV
   // row imports it, and Factory/Alt clear the per-amp user IR selection.
   {

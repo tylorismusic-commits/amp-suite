@@ -521,6 +521,31 @@ int main() {
     return 1;
   }
 
+
+  // Tuner: a 110 Hz input reads as A2, and silence produces no note.
+  {
+    amp::Tuner tuner;
+    tuner.prepare(48000.0f);
+    std::vector<float> l(48000), r(48000);
+    for (int i = 0; i < 48000; ++i) {
+      l[i] = r[i] = 0.2f * std::sin(2.0 * 3.14159265 * 110.0 * i / 48000.0);
+    }
+    tuner.process(l.data(), r.data(), 48000, true);
+    if (!tuner.hasPitch() || std::fabs(tuner.hz() - 110.0f) > 2.0f ||
+        tuner.note() != 45) {
+      std::fprintf(stderr, "tuner failed on 110 Hz: %.2f Hz note %d\n",
+                   tuner.hz(), tuner.note());
+      return 1;
+    }
+    std::fill(l.begin(), l.end(), 0.0f);
+    std::fill(r.begin(), r.end(), 0.0f);
+    tuner.process(l.data(), r.data(), 48000, true);
+    if (tuner.hasPitch()) {
+      std::fprintf(stderr, "tuner latched onto silence\n");
+      return 1;
+    }
+  }
+
   std::printf("amp_dsp: ok\n");
   return 0;
 }

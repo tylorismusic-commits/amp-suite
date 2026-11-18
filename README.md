@@ -31,6 +31,12 @@ changes size (1040×640, locked aspect, 0.5×–2× resize).
 The plugin starts on **Block 120 — Rhythm** with the 808 off, delay and reverb
 off, and the stock 1200 4×12 cab.
 
+## Tuner
+
+The header **TUNE** pill opens a chromatic input tuner with note, octave, cents,
+frequency and an in-tune indicator. It analyses the raw input before the gate,
+808 or amp, and only runs while the page is open.
+
 ## Install (alpha)
 
 Download `amp-suite-0.2.0-alpha.2-linux-x86_64.zip`, unzip it, and run:

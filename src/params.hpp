@@ -278,6 +278,11 @@ public:
     bpm.store(120.0f, std::memory_order_relaxed);
     hostTempo.store(false, std::memory_order_relaxed);
     meterSerial.store(0, std::memory_order_relaxed);
+    tunerOn.store(false, std::memory_order_relaxed);
+    tunerHz.store(0.0f, std::memory_order_relaxed);
+    tunerCents.store(0.0f, std::memory_order_relaxed);
+    tunerConfidence.store(0.0f, std::memory_order_relaxed);
+    tunerNote.store(-1, std::memory_order_relaxed);
   }
 
   double get(uint32_t p) const noexcept {
@@ -335,6 +340,11 @@ public:
   std::atomic<float> bpm;
   std::atomic<bool> hostTempo;
   std::atomic<uint32_t> meterSerial;
+  std::atomic<bool> tunerOn;
+  std::atomic<float> tunerHz;
+  std::atomic<float> tunerCents;
+  std::atomic<float> tunerConfidence;
+  std::atomic<int> tunerNote;
 
 private:
   std::atomic<double> values_[P_COUNT];
@@ -371,6 +381,7 @@ inline Controls controlsFrom(const Shared& s) {
   c.cabLowCut = static_cast<float>(s.get(P_CAB_LOWCUT));
   c.cabHighCut = static_cast<float>(s.get(P_CAB_HIGHCUT));
   c.cabBypass = s.get(P_CAB_BYPASS) > 0.5;
+  c.tunerOn = s.tunerOn.load(std::memory_order_relaxed);
   c.odOn = s.get(P_OD_ON) > 0.5;
   c.odDrive = static_cast<float>(s.get(P_OD_DRIVE));
   c.odTone = static_cast<float>(s.get(P_OD_TONE));

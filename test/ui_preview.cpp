@@ -45,8 +45,14 @@ int main(int argc, char** argv) {
 
   for (int model = 0; model < 7; ++model) {
     shared.set(amp::P_MODEL, static_cast<double>(model));
-    for (int page = 0; page < 4; ++page) {
+    for (int page = 0; page < 5; ++page) {
       state.page = page;
+      if (page == 4) {
+        shared.tunerNote.store(45);
+        shared.tunerHz.store(110.0f);
+        shared.tunerCents.store(-3.2f);
+        shared.tunerConfidence.store(0.92f);
+      }
       panel.tick(shared, state);
       cairo_save(cr);
       cairo_scale(cr, scale, scale);
