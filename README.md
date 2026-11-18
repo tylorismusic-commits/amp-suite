@@ -28,7 +28,7 @@ control grid, and header pills for **PEDALS**, **CAB**, **HQ** and **LOOP**.
 The pedal and cabinet pages replace the body while open; the plugin never
 changes size (1040×640, locked aspect, 0.5×–2× resize).
 
-The plugin starts on **Block 120 — Rhythm** with the 808 on, delay and reverb
+The plugin starts on **Block 120 — Rhythm** with the 808 off, delay and reverb
 off, and the stock 1200 4×12 cab.
 
 ## Install (alpha)

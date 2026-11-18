@@ -621,7 +621,7 @@ void Panel::layout(const Shared& shared, const PanelState& state) {
     knob(P_OD_DRIVE, cx[0] + 60, cy + 110, 26, "DRIVE", {}, true);
     knob(P_OD_TONE, cx[0] + 150, cy + 110, 26, "TONE", {}, true);
     knob(P_OD_LEVEL, cx[0] + 240, cy + 110, 26, "LEVEL", {}, true);
-    foot(P_OD_ON, cx[0] + 150, cy + 300, 26, "808");
+    foot(P_OD_ON, cx[0] + 150, cy + 330, 26, "808");
 
     // Delay card.
     pill(P_DELAY_SYNC, cx[1] + 20, cy + 42, 88, 24, "SYNC");

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Hide NAM's internal symbols so Amp Suite can coexist with Bass Suite (or
+  another NAM-based suite) in one host session.
+- Retune the 808 to the TS-9 reference tone range (400–1000 Hz), centre its
+  level near unity and start it bypassed.
+- Move the 808 footswitch down to align with the delay and reverb switches.
+
 ## 0.2.0-alpha.1 — 2026-11-17
 
 Follow-up alpha with crossfade/state fixes and the README screenshot.

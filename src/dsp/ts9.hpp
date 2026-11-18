@@ -37,12 +37,15 @@ public:
     b1_ = (1.0f - a1) / den;
     a1_ = (1.0f - a2) / den;
 
-    // The TS tone control is a first-order low-pass after the clipper.
-    const float toneHz = 700.0f * std::pow(6.0f, clampf(tone, 0.0f, 1.0f));
+    // The TS tone control is a first-order low-pass after the clipper.  The
+    // guitarix/TS-9 reference range is 400..1000 Hz; the previous 700..4200 Hz
+    // range was far too bright and made the 808 sound thin and fizzy.
+    const float toneHz = 400.0f * std::pow(2.5f, clampf(tone, 0.0f, 1.0f));
     tone_.set(toneHz, sr_);
 
-    // Output level; the clipper has a lot of loss, so this is a makeup range.
-    level_ = dbToGain(-12.0f + 24.0f * (clampf(level, 0.0f, 1.0f) - 0.5f));
+    // Level is a usable pedal volume range, not the old -12..+12 dB swing.
+    // Centred near unity so switching the 808 on does not feel like a drop.
+    level_ = dbToGain(-12.0f + 20.0f * clampf(level, 0.0f, 1.0f));
   }
 
   void reset() noexcept {

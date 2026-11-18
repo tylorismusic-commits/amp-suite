@@ -58,8 +58,8 @@ int main() {
     std::fprintf(stderr, "startup model is not Block 120\n");
     return 1;
   }
-  if (std::fabs(shared.get(amp::P_OD_ON) - 1.0) > 0.01) {
-    std::fprintf(stderr, "808 is not on at startup\n");
+  if (std::fabs(shared.get(amp::P_OD_ON) - 0.0) > 0.01) {
+    std::fprintf(stderr, "808 should start off\n");
     return 1;
   }
 
