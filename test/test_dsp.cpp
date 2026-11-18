@@ -122,8 +122,11 @@ int main() {
     }
   }
 
-  // The dual-engine wrapper must crossfade model changes without a silent
-  // gap, and must fade in after prepare().
+  // The dual-engine wrapper fades the old amp out, swaps at silence and
+  // fades the new one in.  The switch must not step the waveform, and the
+  // gap must be short.  (An equal-gain crossfade used to sum two
+  // differently-phased amps, producing a deep cancellation dip that was
+  // heard as a pop.)
   {
     amp::CrossfadeEngine e;
     e.prepare(48000.0f);
@@ -156,24 +159,127 @@ int main() {
       e.process(l.data(), r.data(), 512, m);
     }
     c.model = 5;
+    double steadyBefore = 0.0;
+    for (int b = 16; b < 20; ++b) {
+      for (int i = 1; i < 512; ++i) {
+        steadyBefore = std::max(steadyBefore,
+                                double(std::fabs(l[i] - l[i - 1])));
+      }
+    }
     double minRms = 1.0e9;
+    double maxDelta = 0.0;
+    double steadyAfter = 0.0;
     bool finite = true;
+    bool swapped = false;
+    float previous = l[511];
     for (int b = 20; b < 40; ++b) {
       fill(b);
       e.setControls(c);
       e.process(l.data(), r.data(), 512, m);
       finite = finite && finiteBuffer(l, r);
-      if (b <= 26) {
+      for (int i = 0; i < 512; ++i) {
+        const double d = std::fabs(l[i] - previous);
+        maxDelta = std::max(maxDelta, d);
+        if (std::fabs(l[i]) < 1.0e-5f) swapped = true;
+        previous = l[i];
+      }
+      if (b <= 30) {
         double energy = 0.0;
         for (float v : l) {
           energy += static_cast<double>(v) * v;
         }
         minRms = std::min(minRms, std::sqrt(energy / l.size()));
       }
+      if (b >= 35) {
+        for (int i = 1; i < 512; ++i) {
+          steadyAfter = std::max(steadyAfter,
+                                 double(std::fabs(l[i] - l[i - 1])));
+        }
+      }
     }
-    if (!finite || minRms < 1.0e-3) {
-      std::fprintf(stderr, "crossfade model change muted or went non-finite: %.6f\n",
-                   minRms);
+    double tailEnergy = 0.0;
+    for (float v : l) {
+      tailEnergy += static_cast<double>(v) * v;
+    }
+    const double tailRms = std::sqrt(tailEnergy / l.size());
+    const double allowed =
+        std::max(steadyBefore, steadyAfter) * 1.5 + 0.002;
+    if (!finite || !swapped || tailRms < 1.0e-3 || maxDelta > allowed) {
+      std::fprintf(stderr,
+                   "model switch was not clean: finite %d swapped %d "
+                   "tailRms %.6f maxDelta %.6f allowed %.6f\n",
+                   finite ? 1 : 0, swapped ? 1 : 0, tailRms, maxDelta,
+                   allowed);
+      return 1;
+    }
+  }
+
+  // A preset or host-state load replaces many controls at once while the amp
+  // stays the same.  requestReload() must route that through the same clean
+  // switch instead of stepping gain/tone coefficients in place.
+  {
+    amp::CrossfadeEngine e;
+    e.prepare(48000.0f);
+    amp::Controls c;
+    c.model = 4;
+    c.gain = 0.3f;
+    c.master = 0.3f;
+    c.cabBypass = true;
+    c.odOn = false;
+    c.gateOn = false;
+    c.limiterOn = false;
+    std::vector<float> l(512), r(512);
+    amp::Meters m;
+    auto fill = [&](int block) {
+      for (int i = 0; i < 512; ++i) {
+        l[i] = r[i] =
+            0.2f * std::sin(2.0 * 3.14159265 * 220.0 *
+                            (block * 512 + i) / 48000.0);
+      }
+    };
+    for (int b = 0; b < 20; ++b) {
+      fill(b);
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+    }
+    c.gain = 0.85f;
+    c.master = 0.7f;
+    c.bass = 0.8f;
+    c.treble = 0.2f;
+    double steadyBefore = 0.0;
+    for (int i = 1; i < 512; ++i) {
+      steadyBefore = std::max(steadyBefore,
+                              double(std::fabs(l[i] - l[i - 1])));
+    }
+    e.requestReload();
+    double maxDelta = 0.0;
+    double steadyAfter = 0.0;
+    bool finite = true;
+    float previous = l[511];
+    for (int b = 20; b < 40; ++b) {
+      fill(b);
+      e.setControls(c);
+      e.process(l.data(), r.data(), 512, m);
+      finite = finite && finiteBuffer(l, r);
+      for (int i = 0; i < 512; ++i) {
+        maxDelta = std::max(maxDelta,
+                            double(std::fabs(l[i] - previous)));
+        previous = l[i];
+      }
+      if (b >= 35) {
+        for (int i = 1; i < 512; ++i) {
+          steadyAfter = std::max(steadyAfter,
+                                 double(std::fabs(l[i] - l[i - 1])));
+        }
+      }
+    }
+    const double allowed =
+        std::max(steadyBefore, steadyAfter) * 1.5 + 0.002;
+    if (!finite || maxDelta > allowed) {
+      std::fprintf(stderr,
+                   "preset reload stepped the output: maxDelta %.6f "
+                   "allowed %.6f\n",
+                   maxDelta, allowed);
       return 1;
     }
   }

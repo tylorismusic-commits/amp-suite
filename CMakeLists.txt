@@ -194,8 +194,10 @@ target_link_libraries(amp_user_ir_test PRIVATE PkgConfig::SAMPLERATE nam_core Th
 target_compile_features(amp_user_ir_test PRIVATE cxx_std_17)
 add_test(NAME amp_user_ir COMMAND amp_user_ir_test)
 
-add_executable(amp_nam_test test/test_nam.cpp)
-target_include_directories(amp_nam_test PRIVATE "${CMAKE_SOURCE_DIR}/src")
+add_executable(amp_nam_test test/test_nam.cpp ${AMP_DSP_SOURCES})
+target_include_directories(amp_nam_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  ${AMP_GUITARIX_INCLUDES})
 target_link_libraries(amp_nam_test PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
 target_compile_definitions(amp_nam_test PRIVATE
   NAM_TEST_MODEL="${CMAKE_SOURCE_DIR}/test/fixtures/wavenet.nam")

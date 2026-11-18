@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.0-alpha.5 — 2026-11-18
+
+Fixed
+
+- Amp switching no longer pops. The two engines were summed with an
+  equal-gain crossfade, so two differently-phased amps partly cancelled and
+  the level collapsed by roughly 15 dB for the length of the switch. The
+  standby engine is now warmed with the live input first, the old amp fades
+  out in 5 ms, the engines swap at silence, and the new amp fades in over
+  8 ms. The waveform never steps.
+- Preset and host-state loads that keep the same amp now use the same clean
+  switch instead of stepping the running amp's gain and tone coefficients in
+  place.
+
+Tests
+
+- Added a mid-note model switch through the real CLAP parameter path.
+- Added same-amp preset-reload and NAM-switch continuity checks.
+
 ## 0.2.0-alpha.4 — 2026-11-18
 
 Fixed

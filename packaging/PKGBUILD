@@ -2,7 +2,7 @@
 pkgname=amp-suite
 pkgver=0.2.0
 pkgrel=1
-_tag=0.2.0-alpha.4
+_tag=0.2.0-alpha.5
 pkgdesc="Seven-amp guitar suite for Linux (CLAP + LV2)"
 arch=('x86_64')
 url="https://github.com/tylorismusic-commits/amp-suite"
