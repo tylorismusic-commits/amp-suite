@@ -35,6 +35,13 @@ target_include_directories(nam_core PUBLIC
 target_compile_features(nam_core PUBLIC cxx_std_20)
 target_compile_definitions(nam_core PUBLIC NAM_SAMPLE_FLOAT)
 set_target_properties(nam_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  # NAM contains process-global registries.  Two suites loaded in one host
+  # must not interpose on each other's copy, or the second dlopen aborts with
+  # "Config parser already registered".
+  target_compile_options(nam_core PRIVATE
+    -fvisibility=hidden -fvisibility-inlines-hidden)
+endif()
 
 set(AMP_UI_SOURCES src/ui/panel.cpp)
 set(AMP_DSP_SOURCES
