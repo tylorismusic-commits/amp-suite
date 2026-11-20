@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.2.0-alpha.8 — 2026-11-19
+## 0.2.0-alpha.9 — 2026-11-19
 
-- Default Input trim is now +12 dB, matching the level the models were
-  calibrated against; existing sessions keep their saved trim.
+- Keep the Input knob at 0 dB by default and apply the +12 dB model
+  calibration internally, so the models sound right with the knob centred.
 
 ## 0.2.0-alpha.7 — 2026-11-18
 

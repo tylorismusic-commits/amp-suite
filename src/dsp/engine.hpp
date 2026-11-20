@@ -28,6 +28,11 @@
 
 namespace amp {
 
+// The models are calibrated for a hotter input than a passive DI usually
+// delivers.  Keep the Input knob as a relative trim around that calibration so
+// 0 dB on the knob is the level the amps were voiced at.
+constexpr float kInputCalibrationDb = 12.0f;
+
 class Engine {
 public:
   void prepare(float sampleRate) noexcept {
@@ -389,7 +394,7 @@ public:
       }
       gateSample(dryL, dryR, c.gateOn);
       const float in = inputSmooth_.next();
-      const float trim = dbToGain((in - 0.5f) * 24.0f);
+      const float trim = dbToGain((in - 0.5f) * 24.0f + kInputCalibrationDb);
       float l = dryL * trim;
       float r = dryR * trim;
       if (c.odOn) {
@@ -511,7 +516,7 @@ public:
       gateSample(dryL, dryR, c.gateOn);
 
       const float in = inputSmooth_.next();
-      const float trim = dbToGain((in - 0.5f) * 24.0f);
+      const float trim = dbToGain((in - 0.5f) * 24.0f + kInputCalibrationDb);
       float l = dryL * trim;
       float r = dryR * trim;
 

@@ -136,7 +136,7 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
     {"model", "Model", "Amp", 0.0, 6.0, 4.0, true, false, false, nullptr,
      labels(kModelLabels)},
     {"power", "Power", "Amp", 0.0, 1.0, 1.0, true, false, true, nullptr, {}},
-    {"input", "Input", "Amp", 0.0, 1.0, 1.0, false, false, false, nullptr, {}},
+    {"input", "Input", "Amp", 0.0, 1.0, 0.5, false, false, false, nullptr, {}},
     {"gain", "Gain", "Amp", 0.0, 1.0, 0.55, false, false, false, nullptr, {}},
     {"bass", "Bass", "Amp", 0.0, 1.0, 0.5, false, false, false, nullptr, {}},
     {"mid", "Mid", "Amp", 0.0, 1.0, 0.45, false, false, false, nullptr, {}},
