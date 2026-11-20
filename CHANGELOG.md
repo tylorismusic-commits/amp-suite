@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Default Input trim is now +12 dB, matching the level the models were
+  calibrated against; existing sessions keep their saved trim.
+
 ## 0.2.0-alpha.7 — 2026-11-18
 
 Preset handling is now complete.
