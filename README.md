@@ -1,8 +1,8 @@
 # Amp Suite
 
-**Version 0.2.0 Alpha 3 — Linux x86_64** · GPL-3.0-or-later
+**Version 0.2.0 Alpha 8 — Linux x86_64** · GPL-3.0-or-later
 
-> **Alpha 7.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha.7).
+> **Alpha 8.** [Download the Linux release](https://github.com/tylorismusic-commits/amp-suite/releases/tag/v0.2.0-alpha.8).
 > Expect interface and preset changes before 1.0.
 
 Seven guitar amps in one plugin, with an 808 boost, delay, reverb and a cab
