@@ -7,8 +7,10 @@
 - Delay tempo now follows the host: the tempo was only read from a transport
   event, so REAPER showed FREE / 120 BPM.  It reads `clap_process_t::transport`
   now and shows HOST / <session BPM>.
-- The Voice A/B/C knob and the Block 120 Crunch switch now change the amp
-  voicing; both parameters were previously not connected to the DSP.
+- The Voice A/B/C knob, the Block 120 Crunch switch, the Chorus Clean Bright
+  switch, the Chime Cut knob, the Crunch 50/100 W switch and the Recto
+  tube/silicon switch now change the amp. None of them were connected to the
+  DSP before.
 
 ## 0.2.0-alpha.9 — 2026-11-19
 

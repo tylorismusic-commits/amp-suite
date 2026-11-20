@@ -674,6 +674,72 @@ int main() {
     }
   }
 
+  // Bright, Cut, 50/100 W and the rectifier switch must reach the DSP too.
+  {
+    // Returns level and high-frequency ratio; a switch may change either.
+    auto render = [](int model, auto configure) {
+      amp::Shared v;
+      v.set(amp::P_MODEL, model);
+      v.set(amp::P_GAIN, 0.6);
+      v.set(amp::P_CAB_BYPASS, 1.0);
+      v.set(amp::P_GATE_ON, 0.0);
+      configure(v);
+      amp::Engine e;
+      e.prepare(48000.0f);
+      e.setControls(amp::controlsFrom(v));
+      const int n = 48000;
+      std::vector<float> l(n), r(n);
+      for (int i = 0; i < n; ++i) {
+        const double phase = std::fmod(196.0 * i / 48000.0, 1.0);
+        l[i] = r[i] = 0.05f * static_cast<float>(2.0 * phase - 1.0);
+      }
+      amp::Meters m;
+      e.process(l.data(), r.data(), n, m);
+      double energy = 0.0, slope = 0.0;
+      for (int i = n / 2; i < n; ++i) {
+        energy += static_cast<double>(l[i]) * l[i];
+        if (i > n / 2) {
+          const double d = static_cast<double>(l[i]) - l[i - 1];
+          slope += d * d;
+        }
+      }
+      const double rms = std::sqrt(energy / (n / 2));
+      return std::pair<double, double>{rms, slope / (energy + 1e-12)};
+    };
+    auto differs = [](const std::pair<double, double>& a,
+                      const std::pair<double, double>& b) {
+      return std::fabs(a.first - b.first) / std::max(a.first, b.first) > 0.005 ||
+             std::fabs(a.second - b.second) /
+                     std::max(a.second, b.second) >
+                 0.005;
+    };
+    struct Case {
+      const char* name;
+      int model;
+      int param;
+      double a, b;
+    };
+    const Case cases[] = {
+        {"bright", 0, amp::P_BRIGHT, 0.0, 1.0},
+        {"cut", 1, amp::P_CUT, 0.0, 1.0},
+        {"50/100", 2, amp::P_POWER_SCALE, 0.0, 1.0},
+        {"rectifier", 6, amp::P_RECTIFIER, 0.0, 1.0},
+    };
+    for (const Case& c : cases) {
+      const auto x = render(c.model, [&](amp::Shared& v) {
+        v.set(static_cast<amp::ParamId>(c.param), c.a);
+      });
+      const auto y = render(c.model, [&](amp::Shared& v) {
+        v.set(static_cast<amp::ParamId>(c.param), c.b);
+      });
+      if (!differs(x, y)) {
+        std::fprintf(stderr, "%s switch has no effect: %.4f/%.3f vs %.4f/%.3f\n",
+                     c.name, x.first, x.second, y.first, y.second);
+        return 1;
+      }
+    }
+  }
+
   // Tuner: a 110 Hz input reads as A2, and silence produces no note.
   {
     amp::Tuner tuner;

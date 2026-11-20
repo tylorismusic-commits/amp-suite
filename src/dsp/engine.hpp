@@ -194,6 +194,17 @@ public:
     ps.sag = r.powerSag;
     ps.output = r.outputTrim;
     ps.useTable = r.powerTable;
+    // 50/100 W power switch: half power breaks up earlier and sags a little
+    // more.  The tube rectifier adds extra sag on top of it.
+    if (c.model == 2 && c.powerScale == 0) {
+      ps.drive *= 1.35f;
+      ps.sag *= 1.25f;
+      ps.output *= 0.88f;
+    }
+    if (c.model == 6 && c.rectifier == 1) {
+      ps.sag *= 1.70f;
+      ps.drive *= 0.94f;
+    }
     const int os = c.hq ? 4 : 2;
     if (os != powerOs_) {
       powerL_.prepare(sr_ * static_cast<float>(os), ps);
@@ -214,13 +225,17 @@ public:
     powerR_.setPresence(c.presence);
     powerL_.setResonance(c.resonance);
     powerR_.setResonance(c.resonance);
+    // The Bright switch is the classic bright cap across the volume pot: a
+    // fixed top-end lift that stays when the gain comes down.
+    const float brightDb = (c.model == 0 && c.bright) ? 6.0f : 0.0f;
     const float preBrightDb =
         ((c.model == 4 || c.model == 5 || c.model == 6)
              ? 3.0f
              : ((c.model == 2 || c.model == 3) ? 2.0f : 0.0f)) +
-        1.0f * static_cast<float>(voice);
-    preBrightL_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
-    preBrightR_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
+        1.0f * static_cast<float>(voice) + brightDb;
+    preBrightL_.highShelf(c.model == 0 ? 2500.0f : 1600.0f, preBrightDb, 0.7f, sr_);
+    preBrightR_.highShelf(c.model == 0 ? 2500.0f : 1600.0f, preBrightDb, 0.7f,
+                          sr_);
     // Tighten the low end going into the high-gain cascade and add a little
     // 1.2 kHz focus.  This is the "tight" high-pass a 5150-style preamp has:
     // it keeps the low string from dominating the clipper and lets the upper
@@ -261,6 +276,15 @@ public:
     }
     postFocusDb += voiceFocusDb + crunchFocusDb;
     postBodyDb += voiceBodyDb + crunchBodyDb;
+    // AC30 Cut rolls the top end off as it comes up.
+    float cutHz = airHz;
+    if (c.model == 1) {
+      const float cut = std::min(std::max(c.cut, 0.0f), 1.0f);
+      airHz = 2400.0f;
+      airDb -= 10.0f * cut;
+      cutHz = airHz;
+    }
+    (void)cutHz;
     preTightL_.set(tightHz, sr_);
     preTightR_.set(tightHz, sr_);
     preFocusL_.peak(1200.0f, preFocusDb, 0.8f, sr_);
@@ -542,7 +566,10 @@ public:
 
       if (!c.ampBypass) {
         if (rec.solidState) {
-          // JC-style clean path: high headroom, then the tone stack.
+          // JC-style clean path: high headroom, then the tone stack.  The
+          // bright cap sits in front of the input here too.
+          l = preBrightL_.process(l);
+          r = preBrightR_.process(r);
           l = std::tanh(l * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
           r = std::tanh(r * (0.8f + c.gain * 0.6f) + 0.02f) - 0.02f;
           l *= rec.preGain;
