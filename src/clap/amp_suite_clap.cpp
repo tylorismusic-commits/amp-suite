@@ -641,6 +641,20 @@ bool paramsTextToValue(const clap_plugin_t* p, clap_id id, const char* text,
   return true;
 }
 
+// Hosts deliver tempo through clap_process_t::transport.  Some also push a
+// CLAP_EVENT_TRANSPORT event, so both paths share this handler.
+void applyTransport(Plugin* s, const clap_event_transport_t* t) {
+  if (!t || !(t->flags & CLAP_TRANSPORT_HAS_TEMPO)) {
+    return;
+  }
+  if (!std::isfinite(t->tempo) || t->tempo <= 1.0) {
+    return;
+  }
+  s->engine.setTempo(static_cast<float>(t->tempo), true);
+  s->shared.bpm.store(static_cast<float>(t->tempo), std::memory_order_relaxed);
+  s->shared.hostTempo.store(true, std::memory_order_relaxed);
+}
+
 void applyEvents(Plugin* s, const clap_input_events_t* in) {
   if (!in) {
     return;
@@ -662,13 +676,7 @@ void applyEvents(Plugin* s, const clap_input_events_t* in) {
         s->shared.setFromHost(e->param_id, e->amount);
       }
     } else if (h->type == CLAP_EVENT_TRANSPORT) {
-      const auto* t = reinterpret_cast<const clap_event_transport_t*>(h);
-      if (t->flags & CLAP_TRANSPORT_HAS_TEMPO) {
-        s->engine.setTempo(static_cast<float>(t->tempo), true);
-        s->shared.bpm.store(static_cast<float>(t->tempo),
-                            std::memory_order_relaxed);
-        s->shared.hostTempo.store(true, std::memory_order_relaxed);
-      }
+      applyTransport(s, reinterpret_cast<const clap_event_transport_t*>(h));
     }
   }
 }
@@ -1000,6 +1008,7 @@ clap_process_status pluginProcess(const clap_plugin_t* p,
                                   const clap_process_t* proc) {
   Plugin* s = self(p);
   const uint32_t frames = proc->frames_count;
+  applyTransport(s, proc->transport);
   applyEvents(s, proc->in_events);
   emitDirty(s, proc->out_events);
 

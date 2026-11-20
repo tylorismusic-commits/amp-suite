@@ -59,7 +59,9 @@ int main() {
     e.setControls(amp::controlsFrom(b));
     std::vector<float> bl(512), br(512);
     for (int i = 0; i < 512; ++i) {
-      bl[i] = 0.1f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
+      // -40 dBFS in, so the calibrated +24 dB input trim lands in a normal
+      // instrument range at the output.
+      bl[i] = 0.01f * std::sin(2.0 * 3.14159265 * 220.0 * i / 48000.0);
       br[i] = bl[i];
     }
     amp::Meters bm;
@@ -627,6 +629,50 @@ int main() {
     return 1;
   }
 
+
+  // Voice A/B/C and the Block 120 crunch switch must actually change the
+  // sound, not just the labels.
+  {
+    auto render = [](int voice, bool crunch) {
+      amp::Shared v;
+      v.set(amp::P_MODEL, 4.0);
+      v.set(amp::P_VOICE, static_cast<double>(voice));
+      v.set(amp::P_CRUNCH, crunch ? 1.0 : 0.0);
+      v.set(amp::P_GAIN, 0.55);
+      v.set(amp::P_CAB_BYPASS, 1.0);
+      v.set(amp::P_GATE_ON, 0.0);
+      amp::Engine e;
+      e.prepare(48000.0f);
+      e.setControls(amp::controlsFrom(v));
+      const int n = 48000;
+      std::vector<float> l(n), r(n);
+      // A sawtooth carries harmonics through the tone stack, so voicing
+      // changes show up in the level and not only in the fundamental.
+      for (int i = 0; i < n; ++i) {
+        const double phase = std::fmod(196.0 * i / 48000.0, 1.0);
+        l[i] = r[i] = 0.05f * static_cast<float>(2.0 * phase - 1.0);
+      }
+      amp::Meters m;
+      e.process(l.data(), r.data(), n, m);
+      double energy = 0.0;
+      for (int i = n / 2; i < n; ++i) energy += static_cast<double>(l[i]) * l[i];
+      return std::sqrt(energy / (n / 2));
+    };
+    const double a = render(0, true);
+    const double b = render(1, true);
+    const double c = render(2, true);
+    if (!(b > a * 1.02 && c > b * 1.005)) {
+      std::fprintf(stderr, "voice knob has no effect: %.4f %.4f %.4f\n", a, b, c);
+      return 1;
+    }
+    const double crunch = render(0, true);
+    const double lead = render(0, false);
+    if (std::fabs(crunch - lead) / std::max(crunch, lead) < 0.01) {
+      std::fprintf(stderr, "crunch switch has no effect: %.4f %.4f\n", crunch,
+                   lead);
+      return 1;
+    }
+  }
 
   // Tuner: a 110 Hz input reads as A2, and silence produces no note.
   {

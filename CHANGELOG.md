@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0-alpha.10 — 2026-11-20
+
+- Input calibration is +4 dB hotter than alpha 9 (16 dB total internally) with
+  the Input knob still at 0 dB.  Alpha 9 was too quiet for most interfaces.
+- Delay tempo now follows the host: the tempo was only read from a transport
+  event, so REAPER showed FREE / 120 BPM.  It reads `clap_process_t::transport`
+  now and shows HOST / <session BPM>.
+- The Voice A/B/C knob and the Block 120 Crunch switch now change the amp
+  voicing; both parameters were previously not connected to the DSP.
+
 ## 0.2.0-alpha.9 — 2026-11-19
 
 - Keep the Input knob at 0 dB by default and apply the +12 dB model

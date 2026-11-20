@@ -31,7 +31,7 @@ namespace amp {
 // The models are calibrated for a hotter input than a passive DI usually
 // delivers.  Keep the Input knob as a relative trim around that calibration so
 // 0 dB on the knob is the level the amps were voiced at.
-constexpr float kInputCalibrationDb = 12.0f;
+constexpr float kInputCalibrationDb = 16.0f;
 
 class Engine {
 public:
@@ -176,7 +176,18 @@ public:
     } else if (c.model == 1) {
       gainSpan = 30.0f;
     }
-    preGain_ = r.preGain * dbToGain((c.gain - gainPivot) * gainSpan);
+    // Voice A/B/C and the Block 120 crunch switch are real voicing changes,
+    // not just labels: each step adds preamp gain and upper-mid bite while
+    // tightening the low end.
+    const int voice = std::min(std::max(c.voice, 0), 2);
+    const float voiceGainDb = 4.0f * static_cast<float>(voice);
+    const float voiceFocusDb = 2.5f * static_cast<float>(voice);
+    const float voiceBodyDb = -2.0f * static_cast<float>(voice);
+    const bool crunchOn = c.model == 4 && c.crunch;
+    const float crunchFocusDb = crunchOn ? 3.5f : 0.0f;
+    const float crunchBodyDb = crunchOn ? -2.5f : 0.0f;
+    preGain_ = r.preGain *
+               dbToGain((c.gain - gainPivot) * gainSpan + voiceGainDb);
     PowerAmpSpec ps;
     ps.drive = r.powerDrive;
     ps.feedback = r.powerFeedback;
@@ -204,9 +215,10 @@ public:
     powerL_.setResonance(c.resonance);
     powerR_.setResonance(c.resonance);
     const float preBrightDb =
-        (c.model == 4 || c.model == 5 || c.model == 6)
-            ? 3.0f
-            : ((c.model == 2 || c.model == 3) ? 2.0f : 0.0f);
+        ((c.model == 4 || c.model == 5 || c.model == 6)
+             ? 3.0f
+             : ((c.model == 2 || c.model == 3) ? 2.0f : 0.0f)) +
+        1.0f * static_cast<float>(voice);
     preBrightL_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
     preBrightR_.highShelf(1600.0f, preBrightDb, 0.7f, sr_);
     // Tighten the low end going into the high-gain cascade and add a little
@@ -247,6 +259,8 @@ public:
       airHz = 6000.0f;
       airDb = 3.0f;
     }
+    postFocusDb += voiceFocusDb + crunchFocusDb;
+    postBodyDb += voiceBodyDb + crunchBodyDb;
     preTightL_.set(tightHz, sr_);
     preTightR_.set(tightHz, sr_);
     preFocusL_.peak(1200.0f, preFocusDb, 0.8f, sr_);
