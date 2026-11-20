@@ -738,6 +738,29 @@ int main() {
         return 1;
       }
     }
+    // The clean model's BBD chorus must be audible too.
+    const auto dry = render(0, [](amp::Shared& v) {
+      v.set(amp::P_CHORUS_ON, 0.0);
+    });
+    const auto wet = render(0, [](amp::Shared& v) {
+      v.set(amp::P_CHORUS_ON, 1.0);
+    });
+    if (!differs(dry, wet)) {
+      std::fprintf(stderr, "chorus switch has no effect\n");
+      return 1;
+    }
+    const auto shallow = render(0, [](amp::Shared& v) {
+      v.set(amp::P_CHORUS_ON, 1.0);
+      v.set(amp::P_CHORUS_DEPTH, 0.0);
+    });
+    const auto deep = render(0, [](amp::Shared& v) {
+      v.set(amp::P_CHORUS_ON, 1.0);
+      v.set(amp::P_CHORUS_DEPTH, 1.0);
+    });
+    if (!differs(shallow, deep)) {
+      std::fprintf(stderr, "chorus depth has no effect\n");
+      return 1;
+    }
   }
 
   // Tuner: a 110 Hz input reads as A2, and silence produces no note.

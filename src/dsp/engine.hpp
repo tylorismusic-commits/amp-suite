@@ -45,6 +45,15 @@ public:
     odL_.prepare(sr_);
     odR_.prepare(sr_);
     cabConvolver_.prepare(4096);
+    {
+      size_t n = 1;
+      while (n < static_cast<size_t>(sr_ * 0.06f) + 8) n <<= 1;
+      chorusBufL_.assign(n, 0.0f);
+      chorusBufR_.assign(n, 0.0f);
+      chorusMask_ = n - 1;
+      chorusWrite_ = 0;
+      chorusPhase_ = 0.0f;
+    }
     delay_.prepare(sr_);
     reverb_.prepare(sr_);
     dcPreL_.set(20.0f, sr_);
@@ -707,6 +716,30 @@ public:
         r *= cabLevel;
       }
 
+      // Chorus Clean: BBD-style modulated delay with quadrature LFOs.
+      if (c.model == 0 && c.chorusOn && !chorusBufL_.empty()) {
+        const float rateHz =
+            0.05f + 4.95f * std::min(std::max(c.chorusRate, 0.0f), 1.0f);
+        const float depthMs =
+            0.4f + 5.6f * std::min(std::max(c.chorusDepth, 0.0f), 1.0f);
+        chorusPhase_ += rateHz / sr_;
+        if (chorusPhase_ >= 1.0f) chorusPhase_ -= 1.0f;
+        float phaseR = chorusPhase_ + 0.25f;
+        if (phaseR >= 1.0f) phaseR -= 1.0f;
+        const float scale = sr_ * 0.001f;
+        const float dL =
+            (9.0f + depthMs * std::sin(6.28318531f * chorusPhase_)) * scale;
+        const float dR =
+            (9.0f + depthMs * std::sin(6.28318531f * phaseR)) * scale;
+        chorusBufL_[chorusWrite_ & chorusMask_] = l;
+        chorusBufR_[chorusWrite_ & chorusMask_] = r;
+        const float wetL = chorusRead(chorusBufL_, dL);
+        const float wetR = chorusRead(chorusBufR_, dR);
+        l = 0.55f * l + 0.45f * wetL;
+        r = 0.55f * r + 0.45f * wetR;
+        ++chorusWrite_;
+      }
+
       // Post-cab loop option.
       if (c.loopPos == 1) {
         delay_.process(l, r);
@@ -771,6 +804,15 @@ public:
     meters.outVuDb = gainToDb(std::sqrt(vuPower_)) + 18.0f;
     meters.bpm = hostTempo_ ? bpm_ : c.bpm;
     meters.hostTempo = hostTempo_;
+  }
+
+  inline float chorusRead(const std::vector<float>& buf, float delay) const {
+    const float pos = static_cast<float>(chorusWrite_) - delay;
+    const int64_t i = static_cast<int64_t>(std::floor(pos));
+    const float f = pos - static_cast<float>(i);
+    const float a = buf[static_cast<size_t>(i) & chorusMask_];
+    const float b = buf[static_cast<size_t>(i + 1) & chorusMask_];
+    return a + (b - a) * f;
   }
 
   void reset() noexcept {
@@ -973,6 +1015,10 @@ private:
   Oversampler2x os2L_;
   Oversampler2x os2R_;
   int powerOs_ = 0;
+  std::vector<float> chorusBufL_, chorusBufR_;
+  size_t chorusMask_ = 0;
+  size_t chorusWrite_ = 0;
+  float chorusPhase_ = 0.0f;
   Biquad preBrightL_;
   Biquad preBrightR_;
   HighPass2 preTightL_;
