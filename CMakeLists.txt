@@ -61,10 +61,71 @@ set(AMP_GUITARIX_INCLUDES
   "${CMAKE_SOURCE_DIR}/third_party/guitarix/DSP/tube_tables"
   "${CMAKE_SOURCE_DIR}/third_party/guitarix/plugins")
 
+set(AMP_RESOURCE_FILES
+  "${CMAKE_SOURCE_DIR}/assets/fonts/Jost-ExtraBold.ttf"
+  "${CMAKE_SOURCE_DIR}/assets/fonts/OFL.txt")
+file(GLOB AMP_IR_FILES "${CMAKE_SOURCE_DIR}/assets/irs/*/*.wav")
+
 # ---------------------------------------------------------------------------
-# CLAP plugin: seven amps, one X11/Cairo editor.
+# CLAP plugin: seven amps, one cairo editor (X11 on Linux, Cocoa on macOS).
 # ---------------------------------------------------------------------------
-if(SUITE_X11)
+if(APPLE)
+enable_language(OBJCXX)
+add_library(amp_suite MODULE
+  src/clap/amp_suite_clap.cpp
+  ${AMP_DSP_SOURCES}
+  ${AMP_UI_SOURCES}
+  src/ui/cocoa_view.mm)
+target_include_directories(amp_suite PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  "${CMAKE_SOURCE_DIR}/third_party/clap/include"
+  ${AMP_GUITARIX_INCLUDES}
+  ${CAIRO_INCLUDE_DIRS})
+target_compile_definitions(amp_suite PRIVATE SUITE_MACOS_COCOA=1)
+target_compile_options(amp_suite PRIVATE -fobjc-arc)
+target_link_libraries(amp_suite PRIVATE
+  PkgConfig::CAIRO PkgConfig::FREETYPE PkgConfig::SAMPLERATE nam_core
+  "-framework Cocoa" "-framework CoreGraphics" "-framework QuartzCore"
+  Threads::Threads ${CMAKE_DL_LIBS})
+target_compile_features(amp_suite PRIVATE cxx_std_17)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(amp_suite PRIVATE -Wall -Wextra -fvisibility=hidden)
+endif()
+set_target_properties(amp_suite PROPERTIES
+  PREFIX ""
+  OUTPUT_NAME "AmpSuite"
+  SUFFIX ".dylib"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/macos")
+
+set(AMP_CLAP_BUNDLE "${CMAKE_BINARY_DIR}/clap/AmpSuite.clap")
+find_program(DYLIBBUNDLER dylibbundler)
+add_custom_target(amp_suite_bundle ALL
+  COMMAND ${CMAKE_COMMAND} -E remove_directory "${AMP_CLAP_BUNDLE}"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+          "${AMP_CLAP_BUNDLE}/Contents/MacOS"
+  COMMAND ${CMAKE_COMMAND} -E copy
+          "$<TARGET_FILE:amp_suite>"
+          "${AMP_CLAP_BUNDLE}/Contents/MacOS/AmpSuite"
+  COMMAND ${CMAKE_COMMAND} -E copy
+          "${CMAKE_SOURCE_DIR}/packaging/macos/Info.plist"
+          "${AMP_CLAP_BUNDLE}/Contents/Info.plist"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+          "${AMP_CLAP_BUNDLE}/Contents/Resources/AmpSuite.resources"
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${AMP_RESOURCE_FILES}
+          "${AMP_CLAP_BUNDLE}/Contents/Resources/AmpSuite.resources/"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_SOURCE_DIR}/assets/irs"
+          "${AMP_CLAP_BUNDLE}/Contents/Resources/AmpSuite.resources/irs"
+  DEPENDS amp_suite ${AMP_RESOURCE_FILES} ${AMP_IR_FILES})
+if(DYLIBBUNDLER)
+  add_custom_command(TARGET amp_suite_bundle POST_BUILD
+    COMMAND "${DYLIBBUNDLER}" -od -b
+            -x "${AMP_CLAP_BUNDLE}/Contents/MacOS/AmpSuite"
+            -d "${AMP_CLAP_BUNDLE}/Contents/Frameworks"
+            -p "@loader_path/../Frameworks")
+endif()
+install(DIRECTORY "${AMP_CLAP_BUNDLE}" DESTINATION "${CLAP_DIR}")
+elseif(SUITE_X11)
 add_library(amp_suite MODULE
   src/clap/amp_suite_clap.cpp
   ${AMP_DSP_SOURCES}
@@ -87,11 +148,6 @@ set_target_properties(amp_suite PROPERTIES
   SUFFIX ".clap"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/clap")
 
-set(AMP_RESOURCE_FILES
-  "${CMAKE_SOURCE_DIR}/assets/fonts/Jost-ExtraBold.ttf"
-  "${CMAKE_SOURCE_DIR}/assets/fonts/OFL.txt")
-file(GLOB AMP_IR_FILES "${CMAKE_SOURCE_DIR}/assets/irs/*/*.wav")
-
 add_custom_target(amp_suite_bundle ALL
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/clap/AmpSuite.resources"
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${AMP_RESOURCE_FILES}
@@ -106,7 +162,7 @@ install(FILES ${AMP_RESOURCE_FILES}
         DESTINATION "${CLAP_DIR}/AmpSuite.resources")
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/irs"
         DESTINATION "${CLAP_DIR}/AmpSuite.resources")
-endif()  # SUITE_X11
+endif()  # APPLE / SUITE_X11  # SUITE_X11
 
 # ---------------------------------------------------------------------------
 # LV2 plugin and X11 UI
