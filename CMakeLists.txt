@@ -161,7 +161,7 @@ target_add_auv2_wrapper(TARGET amp_suite_auv2
 # clap-wrapper only orders it after the CLAP library -- not after our bundle
 # target, whose POST_BUILD runs dylibbundler over the same bundle.  Without
 # this the helper can dlopen a bundle that is being rewritten (SIGSEGV).
-add_dependencies(amp_suite-build-helper amp_suite_bundle)
+add_dependencies(amp_suite_auv2-build-helper amp_suite_bundle)
 set_target_properties(amp_suite_auv2 PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/au")
 
