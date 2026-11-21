@@ -27,6 +27,10 @@
     a pset:Bank ;
     rdfs:label "Doom" .
 
+<https://github.com/tylorismusic-commits/amp-suite#bank_user>
+    a pset:Bank ;
+    rdfs:label "User" .
+
 <https://github.com/tylorismusic-commits/amp-suite#preset_block-120-rhythm>
     a pset:Preset ;
     lv2:appliesTo <https://github.com/tylorismusic-commits/amp-suite> ;
@@ -784,4 +788,152 @@
     [ lv2:symbol "gate_on" ; pset:value 1 ] ,
     [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
     [ lv2:symbol "gate_decay" ; pset:value 0.4 ] .
+
+<https://github.com/tylorismusic-commits/amp-suite#preset_bada-bing-lead>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/tylorismusic-commits/amp-suite> ;
+    rdfs:label "Bada Bing Lead" ;
+    rdfs:comment "User" ;
+    pset:bank <https://github.com/tylorismusic-commits/amp-suite#bank_user> ;
+    lv2:port
+    [ lv2:symbol "model" ; pset:value 2 ] ,
+    [ lv2:symbol "power" ; pset:value 1 ] ,
+    [ lv2:symbol "input" ; pset:value 0.5315 ] ,
+    [ lv2:symbol "gain" ; pset:value 0.757 ] ,
+    [ lv2:symbol "bass" ; pset:value 0.56 ] ,
+    [ lv2:symbol "mid" ; pset:value 0.38 ] ,
+    [ lv2:symbol "treble" ; pset:value 0.7575 ] ,
+    [ lv2:symbol "presence" ; pset:value 0.77 ] ,
+    [ lv2:symbol "resonance" ; pset:value 0.45 ] ,
+    [ lv2:symbol "master" ; pset:value 0.5 ] ,
+    [ lv2:symbol "output" ; pset:value 1 ] ,
+    [ lv2:symbol "bright" ; pset:value 0 ] ,
+    [ lv2:symbol "cut" ; pset:value 0.5 ] ,
+    [ lv2:symbol "voice" ; pset:value 0 ] ,
+    [ lv2:symbol "rectifier" ; pset:value 0 ] ,
+    [ lv2:symbol "crunch" ; pset:value 1 ] ,
+    [ lv2:symbol "power_scale" ; pset:value 1 ] ,
+    [ lv2:symbol "cab" ; pset:value 1 ] ,
+    [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "cab_lowcut" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_highcut" ; pset:value 1 ] ,
+    [ lv2:symbol "cab_bypass" ; pset:value 0 ] ,
+    [ lv2:symbol "od_on" ; pset:value 1 ] ,
+    [ lv2:symbol "od_drive" ; pset:value 0.14 ] ,
+    [ lv2:symbol "od_tone" ; pset:value 0.5785 ] ,
+    [ lv2:symbol "od_level" ; pset:value 0.9145 ] ,
+    [ lv2:symbol "delay_on" ; pset:value 1 ] ,
+    [ lv2:symbol "delay_sync" ; pset:value 1 ] ,
+    [ lv2:symbol "delay_div" ; pset:value 8 ] ,
+    [ lv2:symbol "delay_time" ; pset:value 0.18 ] ,
+    [ lv2:symbol "delay_feedback" ; pset:value 0.1065 ] ,
+    [ lv2:symbol "delay_mix" ; pset:value 0.106 ] ,
+    [ lv2:symbol "delay_tone" ; pset:value 0.5 ] ,
+    [ lv2:symbol "delay_mod" ; pset:value 0.2 ] ,
+    [ lv2:symbol "delay_pingpong" ; pset:value 0 ] ,
+    [ lv2:symbol "reverb_on" ; pset:value 1 ] ,
+    [ lv2:symbol "reverb_mode" ; pset:value 0 ] ,
+    [ lv2:symbol "reverb_mix" ; pset:value 0.3305 ] ,
+    [ lv2:symbol "reverb_decay" ; pset:value 0.4 ] ,
+    [ lv2:symbol "reverb_tone" ; pset:value 0.5 ] ,
+    [ lv2:symbol "reverb_predelay" ; pset:value 0.1 ] ,
+    [ lv2:symbol "hq" ; pset:value 1 ] ,
+    [ lv2:symbol "loop_pos" ; pset:value 0 ] ,
+    [ lv2:symbol "chorus_on" ; pset:value 1 ] ,
+    [ lv2:symbol "chorus_rate" ; pset:value 0.35 ] ,
+    [ lv2:symbol "chorus_depth" ; pset:value 0.5 ] ,
+    [ lv2:symbol "meter" ; pset:value 0 ] ,
+    [ lv2:symbol "limiter_on" ; pset:value 1 ] ,
+    [ lv2:symbol "limiter_threshold" ; pset:value 0.6805 ] ,
+    [ lv2:symbol "user_ir_chorus" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_chime" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_crunch" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_hot_rod" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_block_120" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_stealth" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_recto" ; pset:value 0 ] ,
+    [ lv2:symbol "tempo" ; pset:value 120 ] ,
+    [ lv2:symbol "amp_bypass" ; pset:value 0 ] ,
+    [ lv2:symbol "nam_on" ; pset:value 0 ] ,
+    [ lv2:symbol "nam_model" ; pset:value 0 ] ,
+    [ lv2:symbol "nam_level" ; pset:value 0.5 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 1 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.351 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.5995 ] ,
+    [ lv2:symbol "cab_set" ; pset:value 8 ] .
+
+<https://github.com/tylorismusic-commits/amp-suite#preset_tk-clean>
+    a pset:Preset ;
+    lv2:appliesTo <https://github.com/tylorismusic-commits/amp-suite> ;
+    rdfs:label "tk clean" ;
+    rdfs:comment "User" ;
+    pset:bank <https://github.com/tylorismusic-commits/amp-suite#bank_user> ;
+    lv2:port
+    [ lv2:symbol "model" ; pset:value 0 ] ,
+    [ lv2:symbol "power" ; pset:value 1 ] ,
+    [ lv2:symbol "input" ; pset:value 0.5 ] ,
+    [ lv2:symbol "gain" ; pset:value 0.45 ] ,
+    [ lv2:symbol "bass" ; pset:value 1 ] ,
+    [ lv2:symbol "mid" ; pset:value 0.5 ] ,
+    [ lv2:symbol "treble" ; pset:value 0.58 ] ,
+    [ lv2:symbol "presence" ; pset:value 0.68 ] ,
+    [ lv2:symbol "resonance" ; pset:value 0.45 ] ,
+    [ lv2:symbol "master" ; pset:value 0.5 ] ,
+    [ lv2:symbol "output" ; pset:value 0.55 ] ,
+    [ lv2:symbol "bright" ; pset:value 0 ] ,
+    [ lv2:symbol "cut" ; pset:value 0.5 ] ,
+    [ lv2:symbol "voice" ; pset:value 0 ] ,
+    [ lv2:symbol "rectifier" ; pset:value 0 ] ,
+    [ lv2:symbol "crunch" ; pset:value 1 ] ,
+    [ lv2:symbol "power_scale" ; pset:value 0 ] ,
+    [ lv2:symbol "cab" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_mic" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_level" ; pset:value 0.6 ] ,
+    [ lv2:symbol "cab_lowcut" ; pset:value 0 ] ,
+    [ lv2:symbol "cab_highcut" ; pset:value 1 ] ,
+    [ lv2:symbol "cab_bypass" ; pset:value 0 ] ,
+    [ lv2:symbol "od_on" ; pset:value 0 ] ,
+    [ lv2:symbol "od_drive" ; pset:value 0.05 ] ,
+    [ lv2:symbol "od_tone" ; pset:value 0.7 ] ,
+    [ lv2:symbol "od_level" ; pset:value 0.5 ] ,
+    [ lv2:symbol "delay_on" ; pset:value 1 ] ,
+    [ lv2:symbol "delay_sync" ; pset:value 1 ] ,
+    [ lv2:symbol "delay_div" ; pset:value 2 ] ,
+    [ lv2:symbol "delay_time" ; pset:value 0.18 ] ,
+    [ lv2:symbol "delay_feedback" ; pset:value 0.45 ] ,
+    [ lv2:symbol "delay_mix" ; pset:value 0.28 ] ,
+    [ lv2:symbol "delay_tone" ; pset:value 0.55 ] ,
+    [ lv2:symbol "delay_mod" ; pset:value 0.3 ] ,
+    [ lv2:symbol "delay_pingpong" ; pset:value 0 ] ,
+    [ lv2:symbol "reverb_on" ; pset:value 1 ] ,
+    [ lv2:symbol "reverb_mode" ; pset:value 0 ] ,
+    [ lv2:symbol "reverb_mix" ; pset:value 0.3 ] ,
+    [ lv2:symbol "reverb_decay" ; pset:value 0.65 ] ,
+    [ lv2:symbol "reverb_tone" ; pset:value 0.55 ] ,
+    [ lv2:symbol "reverb_predelay" ; pset:value 0.15 ] ,
+    [ lv2:symbol "hq" ; pset:value 1 ] ,
+    [ lv2:symbol "loop_pos" ; pset:value 0 ] ,
+    [ lv2:symbol "chorus_on" ; pset:value 1 ] ,
+    [ lv2:symbol "chorus_rate" ; pset:value 0.25 ] ,
+    [ lv2:symbol "chorus_depth" ; pset:value 0.8 ] ,
+    [ lv2:symbol "meter" ; pset:value 0 ] ,
+    [ lv2:symbol "limiter_on" ; pset:value 0 ] ,
+    [ lv2:symbol "limiter_threshold" ; pset:value 1 ] ,
+    [ lv2:symbol "user_ir_chorus" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_chime" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_crunch" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_hot_rod" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_block_120" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_stealth" ; pset:value 0 ] ,
+    [ lv2:symbol "user_ir_recto" ; pset:value 0 ] ,
+    [ lv2:symbol "tempo" ; pset:value 120 ] ,
+    [ lv2:symbol "amp_bypass" ; pset:value 0 ] ,
+    [ lv2:symbol "nam_on" ; pset:value 0 ] ,
+    [ lv2:symbol "nam_model" ; pset:value 0 ] ,
+    [ lv2:symbol "nam_level" ; pset:value 0.5 ] ,
+    [ lv2:symbol "gate_on" ; pset:value 0 ] ,
+    [ lv2:symbol "gate_thresh" ; pset:value 0.55 ] ,
+    [ lv2:symbol "gate_decay" ; pset:value 0.4 ] ,
+    [ lv2:symbol "cab_set" ; pset:value 0 ] .
 
