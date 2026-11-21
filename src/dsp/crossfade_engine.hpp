@@ -39,7 +39,10 @@ public:
     transitionGain_ = 1.0f;
     warmRemaining_ = 0;
     switchOutStep_ = 1.0f / std::max(1.0f, sr_ * 0.005f);
-    switchInStep_ = 1.0f / std::max(1.0f, sr_ * 0.008f);
+    // The fade-in is longer than the fade-out: models differ in level by up to
+    // ~7 dB, and a fast ramp over that step reads as a tick even across the
+    // silent swap.
+    switchInStep_ = 1.0f / std::max(1.0f, sr_ * 0.020f);
     warmSamples_ = std::max(1, static_cast<int>(sr_ * 0.015f));
     reload_.store(false, std::memory_order_relaxed);
     startupGain_ = 0.0f;
