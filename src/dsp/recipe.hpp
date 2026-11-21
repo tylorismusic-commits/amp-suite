@@ -126,13 +126,13 @@ inline const AmpRecipe& recipeFor(int model) noexcept {
       // supplies the tail.  Low makeup + post-power trim keeps the power valve
       // out of saturation until the preamp is already dirty.
       {"Block 120", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Peavey, 2.00f,
-       1.6f, 0.06f, 0.06f, 1.2f, 2.5f, false, false},
+       1.6f, 0.06f, 0.06f, 0.57f, 2.5f, false, false},
       // Stealth EL34
       {"Stealth EL34", 6, {s1, s2, s3, s4, s5, s6}, ToneStackKind::Bogner,
-       2.00f, 1.7f, 0.07f, 0.07f, 1.2f, 5.0f, true, false},
+       2.00f, 1.7f, 0.07f, 0.07f, 0.72f, 5.0f, true, false},
       // Recto
       {"Recto", 5, {s1, s2, s3, s4, s5}, ToneStackKind::Mesa, 1.80f, 1.7f,
-       0.04f, 0.22f, 1.2f, 11.0f, false, false},
+       0.04f, 0.22f, 0.57f, 11.0f, false, false},
   };
   const int m = model < 0 ? 0 : (model > 6 ? 6 : model);
   return recipes[m];

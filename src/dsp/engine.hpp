@@ -75,7 +75,7 @@ public:
     gateThreshold_ = dbToGain(-47.0f);
     gateGain_ = 1.0f;
     gateEnv_ = 0.0f;
-    compAttack_ = timeCoeff(5.0f, sr_);
+    compAttack_ = timeCoeff(20.0f, sr_);
     compRelease_ = timeCoeff(300.0f, sr_);
     compGain_ = 1.0f;
     compEnv_ = 0.0f;
@@ -309,14 +309,17 @@ public:
     // Sustain compressor.  Rather than switching on at a gain threshold
     // (which made a level step around Gain 5), blend it in smoothly between
     // Gain 5 and 6.  The gain-reduction state keeps running so the blend
-    // never jumps when it becomes audible.
+    // never jumps when it becomes audible.  The attack is slow enough for a
+    // pick transient to pass, the ratio is gentle, and the makeup matches the
+    // reduction at the working level, so engaging it does not duck the amp as
+    // the Gain knob comes up.
     const bool highGain = c.model >= 4 && c.model <= 6;
     compMix_ = highGain
                    ? std::clamp((c.gain - 0.50f) / 0.10f, 0.0f, 1.0f)
                    : 0.0f;
     compOn_ = highGain;
     compThreshold_ = dbToGain(-32.0f);
-    compMakeup_ = dbToGain(16.0f);
+    compMakeup_ = dbToGain(10.0f);
     setPresenceResonance(c);
     inputSmooth_.setTarget(c.input);
     outputSmooth_.setTarget(c.output);
@@ -689,7 +692,7 @@ public:
         compEnv_ = envCoeff * compEnv_ + (1.0f - envCoeff) * peak;
         float target = 1.0f;
         if (compEnv_ > compThreshold_) {
-          target = std::pow(compEnv_ / compThreshold_, -0.75f);
+          target = std::pow(compEnv_ / compThreshold_, -0.5f);
         }
         const float gCoeff = target < compGain_ ? compAttack_ : compRelease_;
         compGain_ = gCoeff * compGain_ + (1.0f - gCoeff) * target;

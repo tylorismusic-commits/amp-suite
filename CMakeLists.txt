@@ -319,6 +319,14 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/irs"
 # ---------------------------------------------------------------------------
 # Tests and tools
 # ---------------------------------------------------------------------------
+add_executable(amp_gain_levels_test test/test_gain_levels.cpp ${AMP_DSP_SOURCES})
+target_include_directories(amp_gain_levels_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
+  ${AMP_GUITARIX_INCLUDES})
+target_link_libraries(amp_gain_levels_test PRIVATE PkgConfig::SAMPLERATE nam_core Threads::Threads)
+target_compile_features(amp_gain_levels_test PRIVATE cxx_std_17)
+add_test(NAME amp_gain_levels COMMAND amp_gain_levels_test)
+
 add_executable(amp_dsp_test test/test_dsp.cpp ${AMP_DSP_SOURCES})
 target_include_directories(amp_dsp_test PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
