@@ -21,7 +21,15 @@ find_package(Threads REQUIRED)
 pkg_check_modules(LV2 REQUIRED IMPORTED_TARGET lv2)
 pkg_check_modules(CAIRO REQUIRED IMPORTED_TARGET cairo)
 pkg_check_modules(FREETYPE REQUIRED IMPORTED_TARGET freetype2)
-pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
+# The editor host is X11 today.  macOS builds the portable targets (DSP,
+# LV2, panel, tests) until the Cocoa view lands, so X11 stays optional.
+option(SUITE_NO_X11 "Skip X11 editor targets (portable subset)" OFF)
+if(APPLE OR SUITE_NO_X11)
+  set(SUITE_X11 OFF)
+else()
+  pkg_check_modules(X11 REQUIRED IMPORTED_TARGET x11)
+  set(SUITE_X11 ON)
+endif()
 pkg_check_modules(SAMPLERATE REQUIRED IMPORTED_TARGET samplerate)
 
 file(GLOB AMP_NAM_SOURCES
@@ -56,6 +64,7 @@ set(AMP_GUITARIX_INCLUDES
 # ---------------------------------------------------------------------------
 # CLAP plugin: seven amps, one X11/Cairo editor.
 # ---------------------------------------------------------------------------
+if(SUITE_X11)
 add_library(amp_suite MODULE
   src/clap/amp_suite_clap.cpp
   ${AMP_DSP_SOURCES}
@@ -97,6 +106,7 @@ install(FILES ${AMP_RESOURCE_FILES}
         DESTINATION "${CLAP_DIR}/AmpSuite.resources")
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/irs"
         DESTINATION "${CLAP_DIR}/AmpSuite.resources")
+endif()  # SUITE_X11
 
 # ---------------------------------------------------------------------------
 # LV2 plugin and X11 UI
@@ -118,6 +128,7 @@ set_target_properties(amp_suite_lv2 PROPERTIES
   SUFFIX ".so"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2")
 
+if(SUITE_X11)
 add_library(amp_suite_ui MODULE
   src/ui/lv2_ui.cpp
   ${AMP_UI_SOURCES})
@@ -136,6 +147,7 @@ set_target_properties(amp_suite_ui PROPERTIES
   OUTPUT_NAME "amp_suite_ui"
   SUFFIX ".so"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2")
+endif()  # SUITE_X11
 
 # Metadata is generated from params.hpp/presets.hpp.
 add_executable(amp_ttl_gen tools/gen_ttl.cpp)
@@ -159,10 +171,17 @@ add_custom_target(amp_lv2_bundle ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
           "${CMAKE_SOURCE_DIR}/assets/irs"
           "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2/irs"
-  DEPENDS amp_suite_lv2 amp_suite_ui amp_lv2_ttl ${AMP_IR_FILES})
+  DEPENDS amp_suite_lv2 amp_lv2_ttl ${AMP_IR_FILES})
+if(SUITE_X11)
+  add_dependencies(amp_lv2_bundle amp_suite_ui)
+endif()
 
-install(TARGETS amp_suite_lv2 amp_suite_ui
+install(TARGETS amp_suite_lv2
         LIBRARY DESTINATION "${LV2_DIR}/amp-suite.lv2")
+if(SUITE_X11)
+  install(TARGETS amp_suite_ui
+          LIBRARY DESTINATION "${LV2_DIR}/amp-suite.lv2")
+endif()
 install(FILES
           "${CMAKE_SOURCE_DIR}/lv2/amp_suite.ttl"
           "${CMAKE_SOURCE_DIR}/lv2/manifest.ttl"
@@ -241,6 +260,7 @@ if(LILV_FOUND)
     COMMAND amp_lv2_host_test "${CMAKE_BINARY_DIR}/lv2/amp-suite.lv2")
 endif()
 
+if(SUITE_X11)
 add_executable(amp_clap_host_test test/clap_host_test.cpp)
 target_include_directories(amp_clap_host_test PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
@@ -270,6 +290,7 @@ target_compile_definitions(amp_clap_nam_test PRIVATE
 target_compile_features(amp_clap_nam_test PRIVATE cxx_std_17)
 add_test(NAME amp_clap_nam
   COMMAND amp_clap_nam_test "$<TARGET_FILE:amp_suite>")
+endif()  # SUITE_X11
 
 add_executable(amp_tone_probe tools/tone_probe.cpp)
 target_include_directories(amp_tone_probe PRIVATE "${CMAKE_SOURCE_DIR}/src")
