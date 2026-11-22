@@ -9,18 +9,13 @@
 #include <string>
 #include <vector>
 
+#include "user_dirs.hpp"
+
 namespace amp {
 
 inline std::string userNamDir() {
-  const char* xdg = std::getenv("XDG_DATA_HOME");
-  if (xdg && *xdg) {
-    return std::string(xdg) + "/amp-suite/nam";
-  }
-  const char* home = std::getenv("HOME");
-  if (home && *home) {
-    return std::string(home) + "/.local/share/amp-suite/nam";
-  }
-  return "amp-suite/nam";
+  suite::ensureDirs(suite::dataDir("AmpSuite", "amp-suite") + "/nam");
+  return suite::dataDir("AmpSuite", "amp-suite") + "/nam";
 }
 
 inline bool isNamName(const std::string& name) {

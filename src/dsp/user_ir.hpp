@@ -9,6 +9,8 @@
 #pragma once
 
 #include <algorithm>
+
+#include "user_dirs.hpp"
 #include <atomic>
 #include <cctype>
 #include <chrono>
@@ -45,15 +47,10 @@ struct UserIrBank {
 };
 
 inline std::string userIrDir() {
-  const char* xdg = std::getenv("XDG_DATA_HOME");
-  if (xdg && *xdg) {
-    return std::string(xdg) + "/amp-suite/irs/user";
-  }
-  const char* home = std::getenv("HOME");
-  if (home && *home) {
-    return std::string(home) + "/.local/share/amp-suite/irs/user";
-  }
-  return "amp-suite/irs/user";
+  const std::string dir =
+      suite::dataDir("AmpSuite", "amp-suite") + "/irs/user";
+  suite::ensureDirs(dir);
+  return dir;
 }
 
 inline bool isWavName(const std::string& name) {
